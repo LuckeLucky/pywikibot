@@ -42,11 +42,13 @@ def generateOutput(matchLists: list, matchMaps: dict) -> list:
 			ml.set_collapsed(str(matchListStart.get('hide').value))
 		if matchListStart.has('attached'):
 			ml.set_attached(str(matchListStart.get('attached').value))
-		
+		if matchListStart.has('gsl'):
+			ml.set_gsl(str(matchListStart.get('gsl').value))
 
 		for matchIndex, matchMap in enumerate(matchMaps[matchListIndex]):
 			sanitize_template(matchMap)
 
+			#Sometimes date in {{MatchMaps}} can represent a round title
 			if matchMap.has('date'):
 				ml.add_header(matchIndex + 1, str(matchMap.get('date').value))
 
@@ -123,7 +125,7 @@ def main(*args):
     genFactory = pagegenerators.GeneratorFactory()
 
     for arg in local_args:
-        if genFactory.handleArg(arg):
+        if genFactory.handle_arg(arg):
             continue
 
     generator = genFactory.getCombinedGenerator()
@@ -132,3 +134,6 @@ def main(*args):
         text = utils.get_text(page)
         new_text = process_text(text)
         utils.put_text(page, summary=edit_summary, new=new_text)
+
+if __name__ == '__main__':
+    main()

@@ -54,7 +54,7 @@ class MatchList(object):
 		self.headers.append('|M' + str(index) + 'header=' + value)
 
 	def __str__(self) -> str:
-		out = '{{Matchlist|id=' + self.generateId()
+		out = '{{Matchlist|id=' + self._generate_id()
 
 		if self.width:
 			out = out + '|width=' + self.width
@@ -66,7 +66,7 @@ class MatchList(object):
 			out = out + '|collapsed=' + self.collapsed
 
 		if self.gsl:
-			out = out + '|gsl=' + self.collapsed
+			out = out + '|gsl=' + self.gsl
 
 		if self.title:
 			out = out + '|title=' + self.title
