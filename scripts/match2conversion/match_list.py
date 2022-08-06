@@ -1,8 +1,6 @@
-import random
-import string
-
 from .match import Match
 
+from .helpers import generate_id
 
 class MatchList(object):
 
@@ -32,10 +30,6 @@ class MatchList(object):
 	def set_matchsection(self, value: str) -> None:
 		self.matchsection = value
 
-	def _generate_id(self):
-		ran = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 10))
-		return ran
-
 	def set_gsl(self, value):
 		if value == 'winners':
 			self.gsl = 'winnersfirst'
@@ -54,7 +48,7 @@ class MatchList(object):
 		self.headers.append('|M' + str(index) + 'header=' + value)
 
 	def __str__(self) -> str:
-		out = '{{Matchlist|id=' + self._generate_id()
+		out = '{{Matchlist|id=' + generate_id()
 
 		if self.width:
 			out = out + '|width=' + self.width

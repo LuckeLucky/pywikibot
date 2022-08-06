@@ -1,4 +1,4 @@
-from match2conversion import Match, Opponent, MatchList
+from match2conversion import Match, Opponent, MatchList, sanitize_template
 
 import mwparserfromhell
 from mwparserfromhell.nodes import Template
@@ -10,12 +10,7 @@ import utils
 
 MAX_OPPONENTS = 2
 
-def sanitize_template(template: Template):
-	for parameter in template.params:
-		value = str(parameter.value)
-		template.add(str(parameter.name), value.rstrip(), preserve_spacing=False)
-
-def getOpponent(matchMap: Template, index: int):
+def get_opponent(matchMap: Template, index: int):
 	team = ''
 	score = ''
 	if matchMap.has('team' + str(index)):
@@ -25,7 +20,7 @@ def getOpponent(matchMap: Template, index: int):
 
 	return Opponent(team, score)
 
-def generateOutput(matchLists: list, matchMaps: dict) -> list:
+def generate_output(matchLists: list, matchMaps: dict) -> list:
 
 	newMatchLists = []
 	for matchListIndex, matchListStart in enumerate(matchLists):
@@ -52,8 +47,8 @@ def generateOutput(matchLists: list, matchMaps: dict) -> list:
 			if matchMap.has('date'):
 				ml.add_header(matchIndex + 1, str(matchMap.get('date').value))
 
-			opponent1 = getOpponent(matchMap, 1)
-			opponent2 = getOpponent(matchMap, 2)
+			opponent1 = get_opponent(matchMap, 1)
+			opponent2 = get_opponent(matchMap, 2)
 
 			match = Match(opponent1, opponent2)
 			
@@ -94,13 +89,13 @@ def process_text(text: str):
 
 		previousTemplate = template
 
-	newML = generateOutput(matchLists, matchMaps)
+	newML = generate_output(matchLists, matchMaps)
 
 	# new matchlists replace matchliststart position
 	for nodeIndex, node in enumerate(matchLists):
 		wikicode.replace(node, newML[nodeIndex])
 
-	#remove old templates that where not replaced
+	#remove old templates that were not replaced
 	templatesToRemove = []
 	for template in wikicode.filter_templates():
 		if template.name.matches('MatchMaps'):
@@ -118,9 +113,7 @@ def main(*args):
     # summary message
     edit_summary = 'Converting MatchLists to Match2'
 
-
     # Read commandline parameters.
-
     local_args = pywikibot.handle_args(args)
     genFactory = pagegenerators.GeneratorFactory()
 
