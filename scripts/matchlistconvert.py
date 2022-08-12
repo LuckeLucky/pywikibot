@@ -1,4 +1,4 @@
-from match2conversion import Match, Opponent, MatchList, sanitize_template
+from match2conversion import Match, Opponent, MatchList
 
 import mwparserfromhell
 from mwparserfromhell.nodes import Template
@@ -24,7 +24,7 @@ def generate_output(matchLists: list, matchMaps: dict) -> list:
 
 	newMatchLists = []
 	for matchListIndex, matchListStart in enumerate(matchLists):
-		sanitize_template(matchListStart)
+		utils.sanitize_template(matchListStart)
 		ml = MatchList()
 
 		if matchListStart.has('title'):
@@ -41,7 +41,7 @@ def generate_output(matchLists: list, matchMaps: dict) -> list:
 			ml.set_gsl(str(matchListStart.get('gsl').value))
 
 		for matchIndex, matchMap in enumerate(matchMaps[matchListIndex]):
-			sanitize_template(matchMap)
+			utils.sanitize_template(matchMap)
 
 			#Sometimes date in {{MatchMaps}} can represent a round title
 			if matchMap.has('date'):
@@ -54,7 +54,7 @@ def generate_output(matchLists: list, matchMaps: dict) -> list:
 			
 			if matchMap.has("details"):
 				matchDetails = matchMap.get("details").value.filter_templates()[0]
-				sanitize_template(matchDetails)
+				utils.sanitize_template(matchDetails)
 
 				match.set_summary(matchDetails)
 			
@@ -126,8 +126,7 @@ def main(*args):
     for page in generator:
         text = utils.get_text(page)
         new_text = process_text(text)
-        print(new_text)
-        #utils.put_text(page, summary=edit_summary, new=new_text)
+        utils.put_text(page, summary=edit_summary, new=new_text)
 
 if __name__ == '__main__':
     main()

@@ -1,5 +1,5 @@
 #merit to https://github.com/lahwaacz/wiki-scripts :)
-from mwparserfromhell.nodes import Text
+from mwparserfromhell.nodes import Text, Template
 
 def get_parent_wikicode(wikicode, node):
     """
@@ -66,3 +66,8 @@ def remove_and_squash(wikicode, obj):
         # merge successive Text nodes
         prev.value += next_.value
         parent.remove(next_)
+
+def sanitize_template(template: Template):
+	for parameter in template.params:
+		value = str(parameter.value)
+		template.add(str(parameter.name), value.rstrip(), preserve_spacing=False)
