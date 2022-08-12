@@ -9,7 +9,6 @@ user-*.py
 /*.egg
 /data*
 /category*
-families/
 logs*
 *apicache*
 *pycache*
