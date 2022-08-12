@@ -1,3 +1,5 @@
+import re
+from os import link
 from mwparserfromhell.nodes import Template
 from .external_links import ALL_LINKS, STREAMS, MAP_LINKS, MATCH_LINKS
 from .map import Map
@@ -43,6 +45,10 @@ class Match(object):
 		for paramKey, paramValue in self.parameters.items():
 			if paramKey in ALL_LINKS:
 				links[paramKey] = paramValue
+
+		if 'hltv' in links:
+			result = re.sub(r'(\d*)/.*', '\\1', links['hltv'], 0, re.MULTILINE)
+			links['hltv'] = result
 
 		return links
 

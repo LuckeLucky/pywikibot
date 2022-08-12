@@ -126,7 +126,8 @@ def main(*args):
     for page in generator:
         text = utils.get_text(page)
         new_text = process_text(text)
-        utils.put_text(page, summary=edit_summary, new=new_text)
+        print(new_text)
+        #utils.put_text(page, summary=edit_summary, new=new_text)
 
 if __name__ == '__main__':
     main()
