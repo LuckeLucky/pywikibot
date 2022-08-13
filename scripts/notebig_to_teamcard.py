@@ -61,6 +61,7 @@ def notebig_to_teamcards(teamCards: list, notes: dict):
 		return
 	x = []
 	notesInserted = 0
+	notesDuplicated = 0
 	for teamCard in teamCards:
 		if teamCard.has('notes'):
 			noteIDs = str(teamCard.get('notes').value)
@@ -82,6 +83,7 @@ def notebig_to_teamcards(teamCards: list, notes: dict):
 					notesInserted += 1
 				else:
 					iNotes = iNotes + '(USE_REF_NAME)' + text
+					notesDuplicated += 1
 				index += 1
 
 			iNotes = iNotes + '}}'
@@ -90,6 +92,7 @@ def notebig_to_teamcards(teamCards: list, notes: dict):
 			teamCard.add('inotes', iNotes)
 
 	print("Notes Moved:" + str(len(x)))
+	print("Notes Duplicated:" + str(notesDuplicated))
 	for id, text in notes.items():
 		if id not in x:
 			print(id + "refering to ?")
