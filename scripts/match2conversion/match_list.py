@@ -26,6 +26,7 @@ class MatchList(object):
 
 	def set_attached(self, value: str) -> None:
 		self.attached = value
+		self.collapsed = value
 
 	def set_matchsection(self, value: str) -> None:
 		self.matchsection = value
