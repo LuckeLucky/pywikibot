@@ -39,6 +39,8 @@ def get_date(text: str):
 
 
 def notebig_to_dict(noteBig: mwparserfromhell.nodes.Template) -> dict:
+	if noteBig is None:
+		return {}
 	indexedNotes = {}
 	for parameter in noteBig.params:
 		findIndex = re.search(REGEX_INDEX, str(parameter.name))
@@ -47,14 +49,19 @@ def notebig_to_dict(noteBig: mwparserfromhell.nodes.Template) -> dict:
 			value = str(parameter.value)
 			if not (' - ' in value):
 				date = get_date(value)
-				value = date + ' - ' + value
+				if date:
+					value = date + ' - ' + value
 			indexedNotes[index] = value
 	return indexedNotes
 
 def notebig_to_teamcards(teamCards: list, notes: dict):
+	if (not teamCards) or (not notes):
+		return
 	for teamCard in teamCards:
 		if teamCard.has('notes'):
 			noteIDs = str(teamCard.get('notes').value)
+			if len(noteIDs) == 0:
+				continue
 			span = re.search(REGEX_SPAN, noteIDs)
 			if span:
 				noteIDs = span.group(1)
@@ -71,8 +78,6 @@ def notebig_to_teamcards(teamCards: list, notes: dict):
 			teamCard.remove('notes')
 			teamCard.add('inotes', iNotes)
 
-
-
 def process_text(text: str):
 	wikicode = mwparserfromhell.parse(text)
 
@@ -85,7 +90,6 @@ def process_text(text: str):
 			noteBig = template
 
 	indexedNotes = notebig_to_dict(noteBig)
-	notebig_to_teamcards(teamCards, indexedNotes)
 
 	templatesToRemove = []
 	for template in wikicode.filter_templates():
@@ -99,7 +103,9 @@ def process_text(text: str):
 	for template in templatesToRemove:
 		utils.remove_and_squash(wikicode, template)
 
-	return wikicode
+	notebig_to_teamcards(teamCards, indexedNotes)
+
+	return str(wikicode)
 
 def main(*args):
 	# summary message
