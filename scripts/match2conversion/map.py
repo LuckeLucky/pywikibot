@@ -83,15 +83,17 @@ class Map(object):
 		if self.prefix + 'score' in self.parameters:
 			score = self.parameters[self.prefix + 'score']
 			score = score.split('-', 1)
-			self.score1 = score[0] or ''
-			self.score2 = score[1] or ''
+			if len(score) == 1:
+				self.score1 = score[0] or ''
+			if len(score) == 2:
+				self.score2 = score[1] or ''
 
 	def __str__(self) -> str:
 		out = '{{Map|map=' + self.map
 		if self.score1:
 			out = out + '|score1=' + self.score1
 		if self.score2:
-			out = out + '|score1=' + self.score2
+			out = out + '|score2=' + self.score2
 		out = out + '|finished=' + self.finished
 
 		if (not self.halfs) and (not self.links):
@@ -123,6 +125,6 @@ class Map(object):
 			out = out + linksOut
 
 		if self.vod:
-			out = out + '\n\t\t' + '|vod=' + self.vod
+			out = out + '|vod=' + self.vod
 
-		return out + '\n\t}}'
+		return out + '}}'

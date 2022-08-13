@@ -26,6 +26,7 @@ class MatchList(object):
 
 	def set_attached(self, value: str) -> None:
 		self.attached = value
+		self.collapsed = value
 
 	def set_matchsection(self, value: str) -> None:
 		self.matchsection = value
@@ -73,7 +74,7 @@ class MatchList(object):
 				out = out + '\n' + header
 
 		if self.matches:
-			for matchIndex, match in enumerate(self.matches):
-				out = out + '\n|M' + str(matchIndex + 1) + '=' + str(match)
+			for _, match in enumerate(self.matches):
+				out = out + '\n|' + str(match)
 
 		return out + '\n}}'
