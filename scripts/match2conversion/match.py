@@ -1,5 +1,4 @@
 import re
-from os import link
 from mwparserfromhell.nodes import Template
 from .external_links import ALL_LINKS, STREAMS, MAP_LINKS, MATCH_LINKS
 from .map import Map

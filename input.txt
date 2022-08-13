@@ -1,0 +1,691 @@
+{{DISPLAYTITLE:ESEA Season 28: Premier Division - North America}}
+{{ESEA Navbox}}<br>
+{{ESEA28Tabs|This=3}}
+{{Tabs static
+|name1=Overview
+|link1=ESEA/Season_28/Premier/North_America
+|name2=All-Stars Match |link2=ESEA/Season 28/Premier/North America/All-Stars
+}}
+{{Infobox league
+|name=ESEA Season 28: Premier Division - North America
+|shortname=North America
+|tickername=ESEA-P Season 28 - NA
+|image=ESEA MDL.png
+|icon=ESEA MDL icon.png
+|organizer=ESEA
+|sponsor=
+|type=Online
+|format=League ({{Abbr/Bo1}})<br /> Playoffs
+|country=North America
+|prizepoolusd=37,000
+|sdate=2018-05-22
+|edate=2018-07-27
+|map1=Cache
+|map2=Dust II
+|map3=Inferno
+|map4=Mirage
+|map5=Nuke
+|map6=Overpass
+|map7=Train
+|esea-d=3119
+|web=https://mdl.esea.net/?&region_id=1
+|bracket=https://play.esea.net/index.php?s=league&d=bracket&id=7171
+|team_number=24
+|game=csgo
+|rulebook=https://play.esea.net/index.php?s=content&d=league_rules_CSGO
+|series=ESEA
+|abbreviation=S28 Premier
+|liquipediatier=B-Tier
+}}
+
+==About==
+===Broadcast Talent===
+{{box|start|padding=2em}}
+{{BroadcasterCard
+|position=Commentator
+|b1=StrongLegs
+|b2=Topical |b2flag=us |b2name=Will Dallas
+|b3=emode
+|b4=Scrawny
+|b5=Mac
+}}
+{{box|break|padding=2em}}
+{{BroadcasterCard
+|position=Observer
+|b1=Misty |b1flag=uk |b1name=Jordan Johnson
+}}
+{{box|end|padding=1em}}
+
+===Format===
+* '''League Play:'''
+** 24 teams, with 16 games for each.
+
+* '''Playoffs:'''
+** Single elimination bracket ({{Abbr/Bo3}})
+
+===Prize Pool===
+$37,000 {{Abbr/USD}} are spread among the teams as seen below:
+{{prize pool start|points=seed}}
+{{prize pool slot|place=1 |usdprize=16,650|points=[[ESEA/Season_29/Premier/North America|ESEA S29 Premier]] |bravado|lastvs1=vision gaming |lastscore1=2 |lastvsscore1=1}}
+{{prize pool slot|place=2 |usdprize=9,250 |points=[[ESEA/Season_29/Premier/North America|ESEA S29 Premier]]|vision gaming|lastvs1=bravado |lastscore1=1 |lastvsscore1=2}}
+{{prize pool slot|place=3-4 |usdprize=5,550 |points=[[ESEA/Season_29/Premier/North America|ESEA S29 Premier]]
+|monstars |lastvs1=bravado |lastscore1=0 |lastvsscore1=2|date1=2018-07-25
+|gorilla gang |lastvs2=vision gaming |lastscore2=1 |lastvsscore2=2|date2=2018-07-26
+}}
+{{prize pool slot|place=5-8 |usdprize=0|points=[[ESEA/Season_29/Premier/North America|ESEA S29 Premier]]
+|dig |lastvs1=bravado |lastscore1=1 |lastvsscore1=2 |date1=2018-07-24
+|vireo.pro |lastvs2=monstars |lastscore2=0 |lastvsscore2=2 |date2=2018-07-25
+|swole patrol |lastvs3=gorilla gang |lastscore3=0 |lastvsscore3=2 |date3=2018-07-24
+|ex-torqued |lastvs4=vision gaming|lastscore4=1 |lastvsscore4=2 |date4=2018-07-25
+}}
+{{prize pool slot|place=9 |usdprize=0|points=[[ESEA/Season_29/Premier/North America|ESEA S29 Premier]] |resolute|wdl1=10/6 |date1=2018-07-19}}
+{{prize pool slot|place=10 |usdprize=0|points=[[ESEA/Season_29/Premier/North America|ESEA S29 Premier]] |team blackout|wdl1=10/6 |date1=2018-07-22}}
+{{prize pool slot|place=11 |usdprize=0|points=[[ESEA/Season_29/Premier/North America|ESEA S29 Premier]] |mythic|wdl1=9/7 |date1=2018-07-12}}
+{{prize pool slot|place=12 |usdprize=0|points=[[ESEA/Season_29/Premier/North America|ESEA S29 Premier]] |will to win|wdl1=7/9 |date1=2018-07-17}}
+{{prize pool slot|place=13 |usdprize=0|points=[[ESEA/Season_29/Premier/North America|ESEA S29 Premier]] |fam143|wdl1=7/9 |date1=2018-07-12}}
+{{prize pool slot|place=14 |usdprize=0|points=[[ESEA/Season_29/Premier/North America|ESEA S29 Premier]] |azio esports|wdl1=7/9 |date1=2018-07-22}}
+{{prize pool slot|place=15 |usdprize=0|points=[[ESEA/Season_29/Premier/North America|ESEA S29 Premier]] |really old people|wdl1=7/9 |date1=2018-07-19}}
+{{prize pool slot|place=16 |usdprize=0|points=[[ESEA/Season_29/Premier/North America|ESEA S29 Premier]] |velocity esports|wdl1=7/9 |date1=2018-07-17}}
+{{prize pool slot|place=17 |usdprize=0|points=[[ESEA/Season_28/Premier/North America/Relegation|S28 Relegation]] |clutch solutions|wdl1=6/10 |date1=2018-07-11}}
+{{prize pool slot|place=18 |usdprize=0|points=[[ESEA/Season_28/Premier/North America/Relegation|S28 Relegation]] |vikings|wdl1=5/11|date1=2018-07-19}}
+{{prize pool slot|place=19 |usdprize=0|points=[[ESEA/Season_28/Premier/North America/Relegation|S28 Relegation]] |forty six and 2|wdl1=5/11 |date1=2018-07-22}}
+{{prize pool slot|place=20 |usdprize=0|points=[[ESEA/Season_28/Premier/North America/Relegation|S28 Relegation]] |ex-atmosphere esports|wdl1=5/11 |date1=2018-07-18}}
+{{prize pool slot|place=21 |usdprize=0|points=[[ESEA/Season_28/Premier/North America/Relegation|S28 Relegation]] |team prospects|wdl1=4/12 |date1=2018-07-16}}
+{{prize pool slot|place=22 |usdprize=0|points=[[ESEA/Season_28/Premier/North America/Relegation|S28 Relegation]] |xforce|wdl1=4/12 |date1=2018-07-18}}
+{{prize pool slot|place=23 |usdprize=0|points=[[ESEA/Season_28/Premier/North America/Relegation|S28 Relegation]] |subtle|wdl1=3/13 |date1=2018-07-22}}
+{{prize pool slot|place=dq |usdprize=0|points=[[ESEA/Season_29/Advanced/North America|ESEA S29 Advanced]] |levitate gaming |wdl1=3/13 |date1=2018-07-05}}
+{{Prize pool end}}
+
+==Participants==
+{{TeamCardToggleButton}}
+{{box|start|padding=2em|max-width=1000px}}
+{{TeamCard
+|team=Team Dignitas
+|notes=30, 40, 49
+|p1=Grim
+|p2=mitch
+|p3=ryx
+|p4=Infinite
+|p5=ptr
+|c=shinobi
+|qualifier=[[ESL/Pro_League/Season_7/North America|EPL S7 - Demotion]]
+}}
+{{box|break|padding=2em}}
+{{TeamCard
+|team=Swole Patrol
+|notes=41, 46
+|p1=SileNt
+|p2=fREAKAZOiD
+|p3=Cooper-
+|p4=Zellsis
+|p5=LILMAN
+|qualifier=[[ESL/Pro_League/Season_7/North America/Relegation|EPL S7 - Relegation]]
+}}
+{{box|break|padding=2em}}
+{{TeamCardLeague
+|team=ex-Torqued
+|notes=47, 50, 52, 59
+|p1=AZK
+|p2=swag
+|p3=Hunter |p3flag=us
+|p4=MarkE
+|p5=gMd
+|c=
+|f1=JamezIRL
+|qualifier=[[ESL/Pro_League/Season_7/North America/Relegation|EPL S7 - Relegation]]
+}}
+{{box|break|padding=2em}}
+{{TeamCard
+|team=AZIO eSports
+|notes=51, 61
+|image=AZIO Esports.png
+|p1=seziwana |p1flag=us
+|p2=Mauisnake |p2flag=us
+|p3=shonk |p3flag=us
+|p4=NnyQuil |p4flag=us
+|p5=FrostayK |p5flag=us
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCardLeague
+|team=<span style="font-size:65%">ex-Atmosphere Esports</span>
+|link=ex-Atmosphere Esports
+|notes=<span style="font-size:50%">8, 20, 23, 33, 52, 53, 54, 56, 60, 63</span>
+|image=
+|p1=Bl4ckiice |p1flag=ca
+|p2=BOOBIE |p2flag=us
+|p3=Smiley |p3flag=ca|p3link=Smiley (Canadian player)
+|p4=krZ |p4flag=ca
+|p5=oniichan |p5flag=us
+|c=
+|f1=GMAN |f1flag=us |f1result=true
+|f2=floppy
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCardLeague
+|team=Clutch Solutions
+|image=Clutch Solutions.png
+|notes=<span style="font-size:90%">16, 28, 39, 77, 82</span>
+|p1=joshbM
+|p2=Sneaky |p2flag=us
+|p3=kuba |p3flag=us
+|p4=4pack |p4flag=us
+|p5=agony |p5flag=us
+|f1=rugrat |f1flag=ca |f1result=true
+|f2=Skywalker |f2flag=us |f2result=true
+|f3=Bwills |f3flag=us 
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCard
+|team=Gorilla Gang
+|notes=5, 6, 14, 43
+|p1=oSee
+|p2=ben1337
+|p3=vanity |p3link=vanity (American player)
+|p4=Hydrex
+|p5=ryann
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCardLeague
+|team=Will to Win
+|notes=11, 28, 65, 70, 90
+|p1=tconnors |p1flag=us
+|p2=djay |p2flag=ca
+|p3=L0NER |p3flag=us
+|p4=agM |p4flag=us
+|p5=tweiss |p5flag=us
+|f1=stellar |f1flag=us |f1result=true
+|f2=phantom |f2flag=us |f2result=true
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCardLeague
+|team=<span style="font-size:85%">Levitate Gaming</span>
+|link=Levitate Gaming
+|image=Levitate Gaming.png
+|notes=<span style="font-size:80%">2, 28, 32, 48, 57, 86, 92</span>
+|p1=SPERMY |p1flag=us
+|p2=juice |p2flag=us
+|p3=koga |p3flag=us
+|p4= |p4flag=
+|p5= |p5flag=
+|c=Jwill |cflag=us
+|f1=tyfoon |f1flag=md |f1result=true
+|f2=Axed |f2flag=us |f2result=true
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCardLeague
+|team=Vision Gaming
+|image=Vision gaming 2018.png
+|notes=<span style="font-size:90%">13, 19, 26, 67, 69, 81</span>
+|p1=huynh |p1flag=ca
+|p2=lanhero|p2flag=es
+|p3=Spongey |p3flag=us
+|p4=kaboose
+|p5=floppy |p5flag=us
+|c=
+|f1=tropiiical |f1flag=us |f1result=true
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCard
+|team=Resolute
+|image=RESOLUTE-LOGO.png
+|notes=24, 27, 31, 83
+|p1=4sh0t
+|p2=food |p2flag=us
+|p3=Toy
+|p4=TenZ
+|p5=Jonji
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCardLeague
+|team=<span style="font-size:90%">Velocity eSports</span>
+|image=Velocity Esports 2017logo Full.png
+|link=Velocity eSports
+|notes=<span style="font-size:90%">18, 45, 58, 68, 72, 76</span>
+|p1=retchy |p1flag=ca
+|p2=fiziq |p2flag=us
+|p3=AB |p3flag=ca
+|p4=tropiiical |p4flag=us
+|p5=XotiC |p5flag=
+|f1=vek |f1flag=ca |f1result=true
+|f2=theTRUTH |f2flag=us |f2result=true
+|fc=stamina |fcflag=us |fcresult=true
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCardLeague
+|team=<span style="font-size:90%">Team BlackOut</span>
+|notes=<span style="font-size:85%">1, 6, 12, 15, 71, 89, 96</span>
+|image=Team blackout.png
+|link=Team BlackOut
+|p1=CONNOR93
+|p2=Oderus
+|p3=MAiNLiNE
+|p4=wrath
+|p5=seb
+|f1=tweiss |f1flag=us 
+|f2=MAKKA |f2result=true
+|f3=GRAMPZ |f3result=true
+|fc=kenny-1os- |fcflag=us |fcresult=true
+|c=Jeremy9000 |cflag=us
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCard
+|team=Vireo.pro
+|notes=21, 29, 35, 38, 73, 79
+|p1=Rustun |p1flag=us
+|p2=PwnAlone |p2flag=us
+|p3=paperboy|p3flag=us
+|p4=zNf
+|p5=motm
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCard
+|team=Mythic
+|notes=
+|p1=fl0m
+|p2=Polen
+|p3=adreN |p3link=adreN (American player)
+|p4=anger
+|p5=hazed
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCard
+|team=<span style="font-size:95%">Monstars</span>
+|link=Monstars
+|notes=<span style="font-size:85%">9, 10, 17, 22, 24, 44, 55, 87</span>
+|p1=Xp3
+|p2=RIKO
+|p3=crashies |p3flag=us
+|p4=Tex |p4flag=us
+|p5=aproto
+|c=flowsicK
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCard
+|team=subtLe
+|notes=3, 36, 42
+|p1=OCEAN
+|p2=no_one
+|p3=DaZeD
+|p4=a2z
+|p5=summit1g
+|c=knc1 |cflag=ca
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCardLeague
+|team=XFORCE
+|image=
+|notes=4, 7, 34, 62, 66, 78, 95
+|p1=Fighter
+|p2=impsta
+|p3=pauLy
+|p4=desi
+|p5=KLUMZ |p5flag=us
+|f1=jae |f1flag=us
+|f2=rugrat |f2flag=ca
+|qualifier=[[ESEA/Season_27/Premier/North America|Season 27]]
+}}
+{{box|break|padding=2em}}
+{{TeamCard
+|team=Bravado Gaming
+|notes=
+|p1=Detrony
+|p2=Sonic |p2link=Sonic (South African player)
+|p3=ELUSIVE
+|p4=JT |p4link=JT (South African player)
+|p5=Fadey
+|c=T.c |cflag=za
+|qualifier=[[ESEA/Season 27/Main/North America|Season 27 Main #1]]
+}}
+{{box|break|padding=2em}}
+{{TeamCardLeague
+|team=Fam143
+|image=Fam143.png
+|notes=91, 93
+|p1=Anzoh |p1flag=ca
+|p2=jaychancE |p2flag=us
+|p3=LaffyTs |p3flag=us
+|p4=NeX |p4flag=us
+|p5=Skywalker |p5flag=us
+|c=perez |cflag=us
+|f1=Siberia |f1flag=us |f1result=true
+|qualifier=[[ESEA/Season 27/Main/North America|Season 27 Main #2]]
+}}
+{{box|break|padding=2em}}
+{{TeamCardLeague
+|team=Vikings
+|image=Vikings csgo.png
+|notes=84, 94, 97
+|p1=hybr1d  |p1flag=us
+|p2=SideStep |p2flag=us
+|p3=WiGGY |p3flag=ca
+|p4=fisher  |p4flag=ca
+|p5=Charybdis |p5flag=us
+|c=Muenster |cflag=us
+|f1=terrorize |f1flag=ca |f1result=true
+|f2=C0M |f2flag=us |f2result=true
+|qualifier=[[ESEA/Season 27/Main/North America|Season 27 Main #3/4]]
+}}
+{{box|break|padding=2em}}
+{{TeamCardLeague
+|team=Really Old People<!--ex-FeelsUnderAgeMan-->
+|notes=37, 75
+|p1=cardiac |p1flag=ca
+|p2=effys
+|p3=hades |p3link=Hades (Canadian player)
+|p4=alter |p4flag=us
+|p5=joEL |p5flag=ca
+|f1=emode |f1result=true
+|f2=jayy |f2flag=ca
+|qualifier=[[ESEA/Season 27/Main/North America|Season 27 Main #3/4]]
+}}
+{{box|break|padding=2em}}
+{{TeamCardLeague
+|team=<span style="font-size:90%">Team Prospects</span>
+|link=Team Prospects
+|notes=<span style="font-size:90%">64, 80, 85, 95, 98</span>
+|p1=JoshRT
+|p2=Strings
+|p3=bwills |p3flag=us
+|p4=rugrat |p4flag=ca
+|p5=real_bM |p5flag=us
+|f1=mahone |f1flag=ca |f1result=true
+|f2=richie |f2flag=ca |f2link=richie (Canadian player) |f2result=true
+|f3=vberg |f3flag=ca |f3result=true
+|f4=hero |f4flag=us |f4result=true
+|qualifier=[[ESEA/Season_27/Intermediate/North America|Season 27 Intermediate #1]]
+}}
+{{box|break|padding=2em}}
+{{TeamCardLeague
+|team=Forty Six and 2
+|image=46&2.png 
+|notes=74, 88
+|p1=Gonnak |p1flag=mx
+|p2=kobruh |p2flag=us
+|p3=spaydeRRRR
+|p4=stayfrosty |p4flag=us
+|p5=k1Nky
+|f1=SecretAgent |f1result=true
+|qualifier=[[ESEA/Season_27/Intermediate/North America|Season 27 Open #1]]
+}}
+{{box|end}}
+{{roster changes start}}
+{{NoteBig|nobox=y
+|n1={{player|tyfoon|flag=md}} departed '''[[Mask Off]]''' at the conclusion of [[ESEA/Season_27/Premier/North_America|Season 27]]. <ref name="tyfoon leaves">{{cite web|url=http://www.dust2.us/News/977-tyfoon-leaves-mask-off-to-chase-checks-elsewhere|date=2018-03-23|title=tyfoon leaves Mask Off to chase checks elsewhere|publisher=[[Dust2.us]]|author=[[BaltyBaby]]}}</ref>
+|n2={{player|crashies|flag=us}} departed '''[[ex-eRa Eternity]]''' at the conclusion of [[ESEA/Season_27/Premier/North_America|Season 27]]. <ref name="crashies leaves">{{cite web|url=http://www.dust2.us/News/989-crashies-begins-era-of-free-agency|date=2018-03-26|title=crashies begins eRa of free agency|publisher=[[Dust2.us]]|author=[[Nohte]]}}</ref>
+|n3={{player|LILMAN|flag=ca}} retires from competitive play, {{player|dsr|flag=ca}} steps down due to internet problems, and {{player|Laski|flag=us}} leaves to focus on his stream. <ref name="subtle lose 4">{{cite web|url=http://www.dust2.us/News/996-subtle-shift-in-tides-sees-oceanaposs-roster-lost-at-sea|date=2018-03-27|title=subtLe shift in tides sees OCEAN's roster lost at sea|publisher=[[Dust2.us]]|author=[[Nohte]]}}</ref>
+|n4={{player|MAKKA|flag=us}} and {{player|Oderus|flag=us}} leave '''[[Team BlackOut]]'''. <ref name="blackout lose 2">{{cite web|url=http://www.dust2.us/News/1007-oderus-and-makka-leave-blackout-after-near-miracle-mdl-run|date=2018-03-28|title=Oderus and MAKKA leave BlackOut after near-miracle MDL run|publisher=[[Dust2.us]]|author=[[DuckMoriarty]]}}</ref>
+|n5='''[[Etherian E-sports]]''' parts ways with its [[ESEA/Season_27/Premier/North_America|ESEA Season 27: Premier]] roster. <ref name="goodbye season 27">{{cite web|url=https://twitter.com/EtherianGG/status/981000515348672514|date=2018-04-02|title=The Past, The Present, and The Future: Much Love to @oSeecs @ben1337cs @BStringsCS @Infinite1csgo @21motm|publisher=[[Etherian E-Sports]]}}</ref>
+|n6={{player|ben1337|flag=us}} and {{player|oSee|flag=us}} from '''[[ex-Etherian E-Sports]]''' join with {{player|Hydrex|flag=us}} and {{player|vanity|link=vanity (American player)|flag=us}} to form a new squad called '''[[Gorilla Gang]]'''. <ref name="gorilla gang">{{cite web|url=http://www.dust2.us/News/1052-etherian-players-released-gorilla-gang-quartet-to-play-together-next-season|date=2018-04-03|title=Etherian players released; Gorilla Gang quartet to play together next season|publisher=[[Dust2.us]] |author=[[Tolkienfanatic]]}}</ref>
+|n7='''[[Team BlackOut]]''' parts ways with the remainder of its [[ESEA/Season_27/Premier/North_America|ESEA Season 27: Premier]] roster. {{player|aproto|flag=us}} will also not continue with the squad. <ref name="blackout out">{{cite web|url=https://twitter.com/TeamBlackout_GG/status/982075984294830080|date=2018-04-05|title=The remainder of our CS roster has decided to go their separate ways.|publisher=[[Team BlackOut]]}}</ref>
+|n8='''[[Atmosphere Esports]]''' parts ways with its [[ESEA/Season_27/Premier/North_America|ESEA Season 27: Premier]] roster. <ref name="atmohsphere out">{{cite web|url=http://www.dust2.us/News/1075-atmosphere-depressurize-and-release-roster|date=2018-04-08|title=Atmosphere depressurize and release roster|publisher=[[Dust2.us]] |author=[[Tolkienfanatic]]}}</ref>
+|n9='''[[Ronin Esports]]''' release {{player|REZU|flag=us}}. <ref name="rezu out">{{cite web|url=http://www.dust2.us/News/1080-ronin-release-rezu|date=2018-04-09|title=RONIN release REZU
+|publisher=[[Dust2.us]] |author=[[DuckMoriarty]]}}</ref>
+|n10='''[[Ronin Esports]]''' add {{player|witmer|flag=us}} and {{player|sancz|flag=us}} to the starting lineup. <ref name="ronin new 2">{{cite web|url=http://www.dust2.us/News/1086-witmer-and-sancz-run-in-to-ronin|date=2018-04-10|title=witmer and sancz run in to RONIN|publisher=[[Dust2.us]] |author=[[Nohte]]}}</ref>
+|n11={{player|alter|flag=us}} and {{player|hades|link=hades (Canadian player)|flag=ca}} depart '''[[ex-Iceberg Esports]]'''. <ref name="2 leave ex-ice">{{cite web|url=http://www.dust2.us/News/1091-ex-iceberg-part-ways-with-hades-and-alter|date=2018-04-11|title=ex-Iceberg part ways with hades and alter|publisher=[[Dust2.us]] |author=[[Tolkienfanatic]]}}</ref>
+|n12='''[[Mask Off]]''' reforms into '''[[The Pioneers]]'''. {{player|jcrueL|flag=us}} is replaced by {{player|CONNOR93|flag=ca}}. <ref name="the pioneers">{{cite web|url=http://www.dust2.us/News/1100-grampz-and-tweiss-take-masks-off-pioneer-new-roster-with-connor93|date=2018-04-13|title=GRAMPZ and tweiss take masks off; Pioneer new roster with CONNOR93|publisher=[[Dust2.us]] |author=[[devil]]}}</ref>
+|n13={{player|smL|flag=ca}} leaves '''[[F1-racecar-PEEK]]'''. <ref name="sml out">{{cite web|url=http://www.dust2.us/News/1106-f1-racecar-peek-looking-for-spare-tire-after-sml-departure|date=2018-04-14|title=F1-racecar-PEEK looking for spare tire after smL departure|publisher=[[Dust2.us]] |author=[[Tolkienfanatic]]}}</ref>
+|n14={{player|aproto|flag=us}} joins '''[[Gorilla Gang]]'''. <ref name="aproto and ruin join Gorilla Gang">{{cite web|url=http://www.dust2.us/News/1109-gorilla-gang-add-aproto-ruin-as-coach|date=2018-04-14|title=Gorilla Gang add aproto, ruin as coach|publisher=[[Dust2.us]]|author=[[CarboDogma]]}}</ref>
+|n15={{player|MAKKA|flag=us}} and {{player|oderus|flag=us}} join '''[[The Pioneers]]'''. {{player|kenny-1os-|flag=us}} replaces {{player|Seaside|flag=ca}} as coach.  <ref name="makka and oderus to pioneers">{{cite web|url=http://www.dust2.us/News/1122-the-pioneers-add-oderus-and-makka|date=2018-04-16|title=The Pioneers add oderus and MAKKA|publisher=[[Dust2.us]]|author=[[tolkienfanatic]]}}</ref>
+|n16={{player|virtus|flag=us}} departs '''[[CheckSix Gaming]]'''. <ref name="virtus leaves">{{cite web|url=http://www.dust2.us/News/1121-virtus-checks-out-of-checksix|date=2018-04-16|title=virtus checks out of CheckSix|author=[[CarbonDogma]] |publisher=[[Dust2.us]]}}</ref>
+|n17='''[[Ronin Esports]]''' parts ways with its squad after they fail in negotiating contract terms. They revert to being '''[[The Entourage]]'''. <ref name="bye entourage">{{cite web|url=http://www.dust2.us/News/1124-ronin-players-once-again-wandering-without-a-home|date=2018-04-17|title=Ronin players once again wandering without a home
+|publisher=[[Dust2.us]]|author=[[DuckMoriarty]]}}</ref>
+|n18={{player|REOVA|flag=tr}} and {{player|theTRUTH|flag=us}} leave '''[[Grizzlys Esports]]'''. {{player|Grt|flag=ca}} moves to a playing role in order for '''[[Grizzlys Esports]]''' to retain their MDL spot. <ref name="2 leave grizzlys">{{cite web|url=http://www.dust2.us/News/1126-reova-and-thetruth-off-grizzlys-esea-roster|date=2018-04-17|title=REOVA and theTRUTH off Grizzlys ESEA roster|publisher=[[Dust2.us]]|author=[[CarbonDogma]]}}</ref>
+|n19={{player|kaboose|flag=ca}} joins '''[[F1-racecar-PEEK]]'''. <ref name="kaboose joins f1">{{cite web|url=http://www.dust2.us/News/1127-kaboose-hops-on-for-a-ride-with-f1-racecar-peek|date=2018-04-17|title=kaboose hops on for a ride with F1-racecar-PEEK|publisher=[[Dust2.us]]|author=[[Nohte]]}}</ref>
+|n20={{player|tiz|flag=ca}} departs '''[[ex-Atmosphere Esports]]'''. {{player|GMAN|flag=us}} rejoins the squad.  <ref name="tiz leaves">{{cite web|url=https://twitter.com/tiz_cs/status/986791470949642240|date=2018-04-18|title=Leaving Ex-Atmosphere|author=[[tiz]]}}</ref>
+|n21=The players of '''[[Most Wanted]]''' part ways with the organization. They revert to '''[[LFAO]]'''. <ref name="unwanted">{{cite web|url=http://www.dust2.us/News/1158-most-wanted-organization-no-longer-wanted-by-their-players|date=2018-04-23|title=Most Wanted organization no longer wanted by their players |publisher=[[Dust2.us]]|author=[[tolkienfanatic]]}}</ref>
+|n22='''[[The Entourage]]''' remove {{player|wrath|flag=us}} from their lineup. <ref name="wrath out">{{cite web|url=http://www.dust2.us/News/1172-wrath-cut-from-the-entourage|date=2018-04-25|title=wrath cut from The Entourage |publisher=[[Dust2.us]]|author=[[CarbonDogma]]}}</ref>
+|n23={{player|tiz|flag=ca}} rejoins '''[[ex-Atmosphere Esports]]'''. <ref name="tiz rejoins">{{cite web|url=http://www.dust2.us/News/1187-tiz-hooks-back-up-with-ex-atmosphere|date=2018-04-27|title=tiz hooks back up with ex-Atmosphere |publisher=[[Dust2.us]]|author=[[CarbonDogma]]}}</ref>
+|n24={{player|sancz|flag=us}} departs '''[[The Entourage]]'''. Their roster is replenished by {{player|crashies|flag=us}} and {{player|Tex|flag=us}}. <ref name="entourage plus 2">{{cite web|url=http://www.dust2.us/News/1208-tex-and-crashies-crash-into-the-entourage|date=2018-05-01|title=Tex and crashies crash into The Entourage|publisher=[[Dust2.us]]|author=[[CarbonDogma]]}}</ref>
+|n25='''[[ESEA]]''' announce that due to a busy international schedule during Season 28, they have decided to cancel the Global Challenge. As a result, they adjusted the prize pools for the various competing leagues to make up for the cancelled LAN. <ref name="global challenge cancelled">{{cite web|url=https://play.esea.net/index.php?s=news&d=comments&id=15183|title=ESEA S28 LAN update|date=2018-05-04|publisher=[[ESEA]] |author=[[Aluminati]]}}</ref>
+|n26={{player|Shakezullah|flag=us}} leaves '''[[F1-racecar-PEEK]]'''. <ref name="shake out">{{cite web|url=http://www.dust2.us/News/1232-shakezullah-leaves-f1-racecar-peek|title=Shakezullah leaves F1-racecar-PEEK
+|date=2018-05-06|publisher=[[Dust2.us]] |author=[[DuckMoriarty]]}}</ref>
+|n27={{player|MontE|flag=ca}} leaves '''[[Freedom 35]]'''. {{player|TenZ|flag=ca}} and {{player|Toy|flag=us}} join. <ref name="freedom toy">{{cite web|url=http://www.dust2.us/News/1242-freedom-35-toy-with-winning-more-mdl-matches-drop-monte-to-add-tenz-and-toy|title=Freedom 35 Toy with winning more MDL matches, drop montE to add TenZ and Toy|date=2018-05-08|publisher=[[Dust2.us]] |author=[[Nohte]]}}</ref>
+|n28='''[[ex-Iceberg Esports]]''' renames to '''[[Squirtle Squad]]'''  and adds {{player|L0NER|flag=us}} from '''[[CheckSix Gaming]]''' and {{player|phantom|flag=us}} from '''[[ex-eRa Eternity]]'''.  <ref name="squirtle 2">{{cite web|url=http://www.dust2.us/News/1247-squirtle-squad-catch-l0ner-and-phantom|title=Squirtle Squad catch L0NER and phantom|date=2018-05-08|publisher=[[Dust2.us]] |author=[[CarbonDogma]]}}</ref>
+|n29='''[[LFAO]]''' renames to '''[[Normal People and Rustun]]'''. {{player|robby|flag=us}} leaves the team and announces his inactivity from competitive CS:GO. <ref name="robby rides">{{cite web|url=http://www.dust2.us/News/1257-robby-steps-away-from-competing-npar-down-to-four|title=robby steps away from competing; NPAR down to four|date=2018-05-10|publisher=[[Dust2.us]] |author=[[tolkienfanatic]]}}</ref>
+|n30={{player|roca|flag=us}} departs '''[[Team Dignitas]]'''.  <ref name="roca out of Dignitas">{{cite web|url=http://www.dust2.us/News/1267-roca-out-of-dignitas-infinite-likely-replacement|date=2018-05-11|title=roca out of Dignitas|author=[[tolkienfanatic]]|publisher=[[dust2.us]]}}</ref>
+|n31='''[[Freedom 35]]''' replace {{player|Winsum|flag=us}} with {{player|Jonji|flag=ca}}. <ref name="free jonji">{{cite web|url=http://www.dust2.us/News/1284-freedom-35-drop-winsum-for-jonji|date=2018-05-15|title=Freedom 35 drop Winsum for Jonji|author=[[CarbonDogma]]|publisher=[[dust2.us]]}}</ref>
+|n32={{player|SIDOF|flag=us}} leaves '''[[ex-eRa Eternity]]'''. {{player|Axed|flag=us}}, {{player|madcow|flag=us}}, and {{player|koga|flag=us}} join to complete the roster. <ref name="ex-era season 28">{{cite web|url=http://www.dust2.us/News/1286-ex-era-players-announce-new-roster|date=2018-05-15|title=ex-eRa players announce new roster|author=[[DuckMoriarty]]|publisher=[[dust2.us]]}}</ref>
+|n33={{player|krZ|flag=ca}} leaves '''[[ex-Atmosphere Esports]]'''. {{player|Hunter|flag=us}} and {{player|vEz|flag=ca}} join to complete the roster. <ref name="ex-atmos 28">{{cite web|url=http://www.dust2.us/News/1288-ex-atmosphere-drop-krz-add-vez-and-hunter|date=2018-05-15|title=ex-Atmosphere drop krZ, add vEz and Hunter|author=[[CarbonDogma]]|publisher=[[dust2.us]]}}</ref>
+|n34={{player|pauLy|flag=us}} and {{player|jae|flag=us}} join '''[[ex-Team BlackOut]]'''.  <ref name="black paul">{{cite web|url=http://www.dust2.us/News/1289-fighter-and-impsta-link-up-with-pauly-and-jae|date=2018-05-16|title=Fighter and impsta link up with pauLy and jae|author=[[Nohte]]|publisher=[[dust2.us]]}}</ref>
+|n35={{player|motm|flag=us}} joins '''[[Normal People and Rustun]]'''. <ref name="motm npar">{{cite web|url=http://www.dust2.us/News/1292-motm-stays-afloat-with-normal-people-and-rustun|date=2018-05-16|title=motm stays afloat with Normal People and Rustun|author=[[Nohte]]|publisher=[[dust2.us]]}}</ref>
+|n36={{player|OCEAN|flag=us}} announces new iteration of '''[[subtLe]]''' including {{player|m0E|flag=us}}, {{player|DaZeD|flag=us}} and {{player|no_one|flag=us}}. <ref name="subtle stream">{{cite web | url=http://www.dust2.us/News/1294-ocean-announces-new-iteration-of-subtle |title=OCEAN announces new iteration of subtLe |date=2018-05-17 | author=[[DuckMoriarty]]|publisher=[[dust2.us]]}}</ref>
+|n37='''[[FeelsUnderAgeMan]]''' becomes '''[[Really Old People]]''' with a new roster as 4/5 of the team was ineligible to play in the MDL due to age requirements. <ref name="really old">{{cite web | url=http://www.dust2.us/News/1298-feelsunderageman-mature-rapidly-to-become-really-old-people|title=FeelsUnderAgeMan mature rapidly to become Really Old People |date=2018-05-17 |author=[[tolkienfanatic]]|publisher=[[dust2.us]]}}</ref>
+|n38='''[[Normal People and Rustun]]''' are signed by '''[[Born]]'''.  <ref name="born again">{{cite web|url=http://www.dust2.us/News/1303-normal-people-and-rustun-are-born|title=Normal People and Rustun are Born
+|date=2018-05-19 |author=[[tolkienfanatic]]|publisher=[[dust2.us]]}}</ref>
+|n39='''[[CheckSix Gaming]]''' drops its CS:GO team, they will continue to play as '''[[Clutch Solutions]]'''. Additionally, {{player|bwills|flag=us}} and {{player|Skywalker|flag=us}} join the team. <ref name="check out">{{cite web|url=http://www.dust2.us/News/1307-checksix-becomes-clutch-solutions-add-two|title=CheckSix becomes Clutch Solutions; add two|date=2018-05-19|publisher=[[Dust2.us]] |author=[[DuckMoriarty]]}}</ref>
+|n40='''[[Team Dignitas]]''' cut {{player|Voltage|flag=us}} and {{player|a2z|flag=ca}} and add {{player|ryx|flag=us}} and {{player|Infinite|flag=us}}. <ref name="ryx dignitas">{{cite web|url=http://www.dust2.us/News/1308-dignitas-replace-voltage-and-a2z-with-infinite-and-ryx|date=2018-05-20|title=Dignitas replace Voltage and a2z with Infinite and ryx|author=[[Nohte]]|publisher=[[dust2.us]]}}</ref>
+|n41={{player|ryann|flag=us}} departs '''[[Swole Patrol]]'''. <ref name="ryann out">{{cite web|url=http://www.dust2.us/News/1319-ryan-not-strong-enough-for-swole-patrol|date=2018-05-21|title=ryan not strong enough for Swole Patrol|author=[[DuckMoriarty]] |publisher=[[Dust2.us]]}}</ref>
+|n42={{player|m0E|flag=us}} departs '''[[subtLe]]''' shortly after joining. {{player|a2z|flag=ca}} and {{player|summit1g|flag=us}} join to complete the roster.  <ref name="moe is less">{{cite web | url=http://www.dust2.us/News/1320-moe-leaves-subtle-summit-and-a2z-join|date=2018-05-21 |title=mOE leaves subtLe, summit and a2z join| author=[[CarbonDogma]]|publisher=[[dust2.us]]}}</ref>
+|n43=May 22nd - {{player|aproto|flag=us}} is replaced by {{player|ryann|flag=us}} on '''[[Gorilla Gang]]'''. <ref name="ryann bananas">{{cite web | url=http://www.dust2.us/News/1321-gorilla-gang-replace-aproto-with-ryan|date=2018-05-22 |title=Gorilla Gang replace aproto with ryan| author=[[tolkienfanatic]]|publisher=[[dust2.us]]}}</ref>
+|n44=May 22nd - {{player|witmer|flag=us}} leaves '''[[The Entourage]]'''. <ref name="witmer walks alone">{{cite web | url=http://www.dust2.us/News/1322-witmer-leaves-the-entourage|date=2018-05-22 |title=witmer leaves The Entourage|author=[[CarbonDogma]]|publisher=[[dust2.us]]}}</ref>
+|n45=May 22nd - '''[[Grizzlys Esports]]''' drop their MDL team. The spot will be held through {{player|vek|flag=ca}} and {{player|theTRUTH|flag=us}}, who will play the required first 8 matches before being replaced. <ref name="ex-grizzlys">{{cite web | url=http://www.dust2.us/News/1325-ex-grizzlys-form-rosters|date=2018-05-22 |title=ex-Grizzlys form rosters|author=[[CarbonDogma]]|publisher=[[dust2.us]]}}</ref>
+|n46=May 23rd - {{player|LILMAN|flag=ca}} joins '''[[Swole Patrol]]'''.  <ref name="lil swole">{{cite web|url=http://www.dust2.us/News/1326-swole-patrol-picks-up-a-lilman|date=2018-05-23|title=Swole Patrol picks up a LILMAN|author=[[Nohte]] |publisher=[[Dust2.us]]}}</ref>
+|n47=May 23rd - {{player|swag|flag=us}} leaves '''[[Torqued]]'''. <ref name="swag leaves torqued">{{cite web|url=http://www.dust2.us/News/1333-torqued-lose-swag|title=Torqued lose swag
+|date=2018-05-23 |publisher=[[Dust2.us]]|author=[[CarbonDogma]]}}</ref>
+|n48=May 23rd - {{player|tyfoon|flag=md}} replaces {{player|madcow|flag=us}} on '''[[ex-eRa Eternity]]'''.  <ref name="eternal tyfoon">{{cite web|url=http://www.dust2.us/News/1335-tyfoon-comes-into-ex-era-for-madcow|title=tyfoon comes into ex-eRa for madcow|date=2018-05-23 |publisher=[[Dust2.us]]|author=[[tolkienfanatic ]]}}</ref>
+|n49=May 24th - {{player|ptr|flag=us}} joins '''[[Team Dignitas]]'''. <ref name="ptr joins dignitas">{{cite web|url=http://www.dust2.us/News/1336-ptr-slides-into-dignitas|title=ptr slides into Dignitas|date=2018-05-24|publisher=[[Dust2.us]]|author=[[CarbonDogma]]}}</ref>
+|n50=May 24th - {{player|AZK|flag=ca}} leaves '''[[Torqued]]'''. <ref name="AZK leaves torqued">{{cite web|url=http://www.dust2.us/News/1339-azk-no-longer-the-french-star-on-torqued|title=AZK no longer the French star on Torqued|date=2018-05-24 |publisher=[[Dust2.us]]|author=[[Nohte]]}}</ref>
+|n51=May 25th - '''[[AZIO eSports]]''' replace {{player|tryhand|flag=us}} with {{player|NnyQuil|flag=us}}. <ref name="nyquil azio">{{cite web|url=http://www.dust2.us/News/1340-azio-not-sleeping-on-nnyquil-replace-tryhard|title=AZIO not sleeping on NnyQuil; replace tryhard|date=2018-05-25 |publisher=[[Dust2.us]]|author=[[DuckMoriarty ]]}}</ref>
+|n52=May 27th - {{player|swag|flag=us}} and {{player|AZK|flag=ca}} form a new team to play in the MDL spot of '''[[Torqued]]'''. <ref name="ex-torqued">{{cite web|url=http://www.dust2.us/News/1355-swag-and-azk-form-new-team-to-play-mdl|title=swag and AZK form new team to play MDL|date=2018-05-27|publisher=[[Dust2.us]]|author=[[CarbonDogma]]}}</ref>
+|n53=May 28th - {{player|tiz|flag=ca}} departs '''[[ex-Atmosphere Esports]]'''. {{player|Smiley|flag=ca}} and {{player|floppy|flag=us}} join. <ref name="flop atmos">{{cite web|url=http://www.dust2.us/News/1358-ex-atmosphere-pick-up-floppy-and-smiley|title=ex-Atmosphere pick up floppy and Smiley|date=2018-05-28|publisher=[[Dust2.us]]|author=[[DuckMoriarty]]}}</ref>
+|n54=May 29th - {{player|vEz|flag=ca}} leaves '''[[ex-Atmosphere Esports]]'''. <ref name="vez crashes">{{cite web|url=http://www.dust2.us/News/1365-vez-drops-out-of-ex-atmosphere|title=vEz drops out of ex-Atmosphere|date=2018-05-29|publisher=[[Dust2.us]]|author=[[DuckMoriarty]]}}</ref>
+|n55=May 30th - {{player|aproto|flag=us}} joins '''[[The Entourage]]'''. <ref name="aproto joins entourage">{{cite web|url=http://www.dust2.us/News/1366-the-entourage-find-a-new-member-in-aproto|title=The Entourage find a new member in aproto|date=2018-05-30|publisher=[[Dust2.us]]|author=[[DuckMoriarty]]}}</ref>
+|n56=May 30th - {{player|BOOBIE|flag=us}} joins '''[[ex-Atmosphere Esports]]'''. <ref name="boobie">{{cite web|url=http://www.dust2.us/News/1367-ex-atmosphere-grab-boobie|title=ex-Atmosphere grab BOOBIE|date=2018-05-30|publisher=[[Dust2.us]]|author=[[CarbonDogma]]}}</ref>
+|n57=May 30th - '''[[ex-eRa Eternity]]''' renames to '''[[Levitate Gaming]]'''.
+|n58=May 30th - '''[[ex-Grizzlys Esports]]''' renames to '''[[MDL Jammers]]'''.
+|n59=June 5th - {{player|gMd|flag=ca}} joins '''[[ex-Torqued]]'''. <ref name="gmd joins ex-torqued">{{cite web|url=http://www.dust2.us/News/1403-gmd-goes-rogue-and-joins-fyb|title=gMd goes rogue and joins FYB|date=2018-06-05|publisher=[[Dust2.us]]|author=[[CarbonDogma]]}}</ref>
+|n60=June 5th - {{player|GMAN|flag=us}} leaves '''[[ex-Atmosphere Esports]]'''. <ref name="gman leaves ex-atmosphere">{{cite web|url=http://www.dust2.us/News/1401-ex-atmosphere-lose-gman|title=ex-Atmosphere lose GMAN|date=2018-06-05|publisher=[[Dust2.us]]|author=[[DuckMoriarty]]}}</ref>
+|n61=June 5th - {{player|1west|flag=us}} leaves '''[[AZIO eSports]]'''. {{player|FrostayK|flag=us}} joins on trial. <ref name="1west out">{{cite web|url=http://www.dust2.us/News/1404-azio-and-1west-go-their-separate-directions|title=AZIO and 1west go their separate directions|date=2018-06-05|publisher=[[Dust2.us]]|author=[[Nohte]]}}</ref>
+|n62=June 5th - '''[[ex-Team BlackOut]]''' renames to '''[[XFORCE]]'''.
+|n63=June 6th - {{player|floppy|flag=us}} leaves '''[[ex-Atmosphere Esports]]'''. <ref name="flop out">{{cite web|url=http://www.dust2.us/News/1408-floppy-flops-out-of-ex-atmosphere|title=floppy flops out of ex-Atmosphere|date=2018-06-06|publisher=[[Dust2.us]]|author=[[CarbonDogma]]}}</ref>
+|n64=June 8th - {{player|mahone|flag=ca}} retires from competitive CS:GO and is replaced on the lineup by {{player|Strings|flag=us}}. <ref name="prospect strings">{{cite web|url=http://www.dust2.us/News/1413-prospects-rope-in-strings|date=2018-06-08|title=Prospects rope in Strings|publisher=[[Dust2.us]] |author=[[CarbonDogma]]}}</ref>
+|n65=June 11th - {{player|stellar|flag=us}} leaves '''[[Squirtle Squad]]'''. <ref name="stellar out">{{cite web|url=http://www.dust2.us/News/1432-a-critical-hit-as-stellar-departs-squirtle-squad|date=2018-06-11|title=A critical hit as stellar departs Squirtle Squad|publisher=[[Dust2.us]] |author=[[tolkienfanatic]]}}</ref>
+|n66=June 12th - {{player|jae|flag=us}} is replaced by {{player|KLUMZ|flag=us}} on '''[[XFORCE]]'''. Additionally, {{player|desi|flag=us}} is finally confirmed as a player on the team. <ref name="x klumz">{{cite web|url=http://www.dust2.us/News/1434-xforce-replace-jae-with-klumz|date=2018-06-12|title=XFORCE replace jae with KLUMZ|publisher=[[Dust2.us]] |author=[[DuckMoriarty]]}}</ref>
+|n67=June 13th - {{player|tropiiical|flag=us}} leaves '''[[F1-racecar-PEEK]]'''. <ref name="trop out f1">{{cite web|url=http://www.dust2.us/News/1438-f1-racecar-peek-left-sweating-after-tropiiicalaposs-departure|date=2018-06-13|title=F1-racecar-PEEK left sweating after tropiiical's departure|author=[[Nohte]]|publisher=[[Dust2.us]]}}</ref>
+|n68=June 17th - {{player|stamina|flag=us}}, {{player|vek|flag=ca}}, and {{player|theTRUTH|flag=us}} depart '''[[MDL Jammers]]'''. {{player|tropiiical|flag=us}} joins the team. <ref name="f1 floppy">{{cite web|url=http://www.dust2.us/News/1456-f1-racecar-peek-stiffen-roster-with-floppy-tropiiical-jams-out|date=2018-06-17|title=F1-racecar-PEEK stiffen roster with floppy; tropiiical jams out|author=[[bleghfarec]]|publisher=[[Dust2.us]]}}</ref>
+|n69=June 17th - {{player|floppy|flag=us}} joins '''[[F1-racecar-PEEK]]'''. <ref name="f1 floppy">{{cite web|url=http://www.dust2.us/News/1456-f1-racecar-peek-stiffen-roster-with-floppy-tropiiical-jams-out|date=2018-06-17|title=F1-racecar-PEEK stiffen roster with floppy; tropiiical jams out|author=[[bleghfarec]]|publisher=[[Dust2.us]]}}</ref>
+|n70=June 17th - {{player|agM|flag=us}} steps down as the coach of '''[[Squirtle Squad]]''' in order to be the team's final player. <ref name="agm player">{{cite web|url=http://www.dust2.us/News/1457-squirtle-squad-to-use-agm-as-fifth|date=2018-06-17|title=Squirtle Squad to use agM as fifth|author=[[tolkienfanatic]]|publisher=[[Dust2.us]]}}</ref>
+|n71=June 18th - {{player|MAKKA|flag=us}}, {{player|tweiss|flag=us}}, and {{player|GRAMPZ|flag=us}} leave '''[[The Pioneers]]'''. {{player|wrath|flag=us}} and {{player|MAiNLiNE|flag=us}} join the team. <ref name="pioneers switch up">{{cite web|url=http://www.dust2.us/News/1462-the-pioneers-change-multiple-wagon-wheels-in-roster-overhaul|date=2018-06-18|title=The Pioneers change multiple wagon wheels in roster overhaul|author=[[DuckMoriarty]]|publisher=[[Dust2.us]]}}</ref>
+|n72=June 18th - {{player|XotiC|flag=us}} joins '''[[MDL Jammers]]'''.  <ref name="mdl xotic">{{cite web|url=http://www.dust2.us/News/1463-mdl-jammers-queue-up-some-xotic-music|date=2018-06-18|title=MDL Jammers queue up some XotiC music|author=[[bleghfarec]]|publisher=[[Dust2.us]]}}</ref>
+|n73=June 18th - '''[[Born]]''' release their CS:GO team. They reform as '''[[Normal People and Rustun]]'''.  <ref name="npar 2">{{cite web|url=http://www.dust2.us/News/1465-normal-people-and-rustun-are-reborn|date=2018-06-18|title=Normal People and Rustun are reborn|author=[[Nohte]]|publisher=[[Dust2.us]]}}</ref>
+|n74=June 18th - {{player|k1Nky|flag=mx}} replaces {{player|SecretAgent|flag=mx}} on '''[[Forty Six and 2]]'''.  <ref name="4 mex">{{cite web|url=http://www.dust2.us/News/1466-forty-six-amp-2-get-k1nky|date=2018-06-18|title=Forty Six & 2 get k1Nky|author=[[tolkienfanatic]]|publisher=[[Dust2.us]]}}</ref>
+|n75=June 19th - {{player|emode|flag=ca}} steps down from '''[[Really Old People]]''' after playing his required eight games. {{player|gloRinsz|flag=ca}} joins the active roster to take his spot. <ref name="old gloRinsz">{{cite web|url=http://www.dust2.us/News/1470-really-old-people-get-younger-with-emode-departure|date=2018-06-19|title=Really Old People get younger with emode departure|author=[[tolkienfanatic]]|publisher=[[Dust2.us]]}}</ref>
+|n76=June 19th - '''[[MDL Jammers]]''' are signed by '''[[Velocity eSports]]'''. <ref name="velocity esports">{{cite web|url=https://twitter.com/VelocityTF2/status/1009262535743361026|date=2018-06-19|title=#VCITYCSGO Roster announcement!|publisher=[[Velocity eSports]]}}</ref>
+|n77=June 20th - {{player|rugrat|flag=ca}}, {{player|bwills|flag=us}}, and {{player|Skywalker|Flag=us}} leave '''[[Clutch Solutions]]''' following internal issues and disagreement over the composition of the team. <ref name="rugrat leaves">{{cite web|url=http://www.dust2.us/News/1474-rugrat-leaves-clutch-solutions-in-a-pickle|date=2018-06-20|title=rugrat leaves Clutch Solutions in a pickle |author=[[HydroxideAnt]]|publisher=[[Dust2.us]]}}</ref><ref name="down clutch">{{cite web|url=http://www.dust2.us/News/1478-clutch-solutions-in-freefall-after-losing-skywalker-and-bwills|date=2018-06-20|title=Clutch Solutions in freefall after losing Skywalker and Bwills|author=[[Nohte]]|publisher=[[Dust2.us]]}}</ref>
+|n78=June 21st - {{player|rugrat|flag=ca}} joins '''[[XFORCE]]''' as {{player|Fighter|flag=us}} retires from competitive CS:GO. <ref name="xrug">{{cite web|url=http://www.dust2.us/News/1481-fighter-retires-rugrat-joins-xforce|date=2018-06-21|title=Fighter retires, rugrat joins XFORCE|author=[[CarbonDogma]]|publisher=[[Dust2.us]]}}</ref>
+|n79=June 23rd - '''[[Vireo.pro]]''' sign '''[[Normal People and Rustun]]'''.  <ref name="vireo.pro">{{cite web|url=http://www.dust2.us/News/1496-normal-people-and-rustun-become-vireopro|date=2018-06-23|title=Normal People and Rustun become Vireo.pro|author=[[Nohte]]|publisher=[[Dust2.us]]}}</ref>
+|n80=June 24th - {{player|richie|flag=ca|link=richie (Canadian player)}} leves '''[[Team Prospects]]'''. <ref name="less rich">{{cite web|url=http://www.dust2.us/News/1503-richie-no-longer-a-prospect|date=2018-06-24|title=richie no longer a Prospect|author=[[bleghfarec]]|publisher=[[Dust2.us]]}}</ref>
+|n81=June 24th - '''[[F1-racecar-PEEK]]''' is signed by '''[[Vision Gaming]]'''.  <ref name="vision gaming">{{cite web|url=http://www.dust2.us/News/1504-f1-racecar-peek-gain-20-20-vision|date=2018-06-24|title=F1-racecar-PEEK gain 20/20 Vision|author=[[bleghfarec]]|publisher=[[Dust2.us]]}}</ref>
+|n82=June 25th - {{player|kuba|flag=us}}, {{player|4pack|flag=us}}, and {{player|agony|flag=us}} join '''[[Clutch Solutions]]'''. <ref name="3 clutch">{{cite web|url=http://www.dust2.us/News/1502-clutch-solutions-look-to-rival-the-competition-with-overhauled-roster|date=2018-06-25|title=Clutch Solutions look to RivaL the competition with overhauled roster|author=[[DuckMoriarty]]|publisher=[[Dust2.us]]}}</ref>
+|n83=June 26th - '''[[Freedom 35]]''' are signed by '''[[Resolute]]'''. <ref name="free and resolute">{{cite web|url=http://www.dust2.us/News/1511-decent-resolute-score-freedom-35|date=2018-06-26|title=DECENT! RESOLUTE score Freedom 35|author=[[bleghfarec]]|publisher=[[Dust2.us]]}}</ref>
+|n84=June 27th - {{player|terrorize|flag=ca}} leaves '''[[Vikings]]''' due to personal reasons. <ref name="viking terror">{{cite web|url=https://twitter.com/terrorCSGO/status/1012179835433570305|date=2018-06-27|title=Stepped down due to personal reasons|author=[[terrorize]]}}</ref>
+|n85=June 28th - {{player|bwills|flag=us}} joins '''[[Team Prospects]]'''. <ref name="bwills prospect">{{cite web|url=http://www.dust2.us/News/1520-bwills-becomes-a-prospect|date=2018-06-28|title=bwills becomes a Prospect|author=[[CarbonDogma]]|publisher=[[Dust2.us]]}}</ref>
+|n86=June 28th - {{player|tyfoon|flag=md}} leaves '''[[Levitate Gaming]]''' citing a lack of commitment from his fellow teammates to continue playing in the league. <ref name="tyfoon leaves levitate">{{cite web|url=http://www.dust2.us/News/1528-tyfoon-surfs-out-of-levitate|date=2018-06-28|title=tyfoon surfs out of Levitate|author=[[bleghfarec]]|publisher=[[Dust2.us]]}}</ref>
+|n87=June 29th - '''[[The Entourage]]''' renames to '''[[Monstars]]'''.
+|n88=June 30th - {{player|Gonnak|flag=mx}} leaves '''[[Forty Six and 2]]'''. {{player|SecretAgent|flag=mx}} returns to the roster. <ref name="gonnak forty less">{{cite web|url=http://www.dust2.us/News/1530-forty-six-and-two-lose-gonnak|date=2018-06-30|title=Forty Six and Two lose Gonnak|author=[[tolkienfanatic]]|publisher=[[Dust2.us]]}}</ref>
+|n89=June 30th - '''[[The Pioneers]]''' are signed by '''[[Team BlackOut]]'''.  Additionally, {{player|kenny-1os-|flag=us}} is replaced by {{player|Jeremy9000|flag=us}} as coach. <ref name="black back">{{cite web|url=http://www.dust2.us/News/1531-the-pioneers-venture-to-the-dark-side-join-blackout|date=2018-06-30|title=The Pioneers venture to the dark side, join BlackOut|author=[[tolkienfanatic]]|publisher=[[Dust2.us]]}}</ref>
+|n90=July 3rd - '''[[Squirtle Squad]]''' rename to '''[[Will to Win]]''' and replace {{player|phantom|flag=us}} with {{player|tweiss|flag=us}}. <ref name="will to win">{{cite web|url=http://www.dust2.us/News/1554-squirtle-squad-become-will-to-win-add-tweiss-for-phantom|date=2018-07-03|title=Squirtle Squad become Will to Win, add tweiss for phantom|author=[[tolkienfanatic]]|publisher=[[Dust2.us]]}}</ref>
+|n91=July 3rd - {{player|Siberia|flag=us}} leaves '''[[Fam143]]'''. <ref name="4 fam">{{cite web|url=http://www.dust2.us/News/1559-siberia-no-longer-part-of-the-fam143-family|date=2018-07-03|title=Siberia no longer part of the Fam143 family|author=[[Nohte]]|publisher=[[Dust2.us]]}}</ref>
+|n92=July 5th - '''[[Levitate Gaming]]''' disband and forfeit their remaining matches due to internal difficulties and an inability to find new players to replace {{player|tyfoon|flag=md}} and {{player|Axed|flag=us}}. <ref name="fall">{{cite web|url=http://www.dust2.us/News/1561-levitate-fall-to-the-ground|date=2018-07-05|title=Levitate fall to the ground|author=[[bleghfarec]]|publisher=[[Dust2.us]]}}</ref>
+|n93=July 7th - '''[[Fam143]]''' add {{player|Skywalker|flag=us}} to their roster.  <ref name="skywalker fam">{{cite web|url=http://www.dust2.us/News/1569-fam143-use-the-force-and-add-skywalker|date=2018-07-07|title=Fam143 use the Force and add Skywalker|author=[[tolkienfanatic]]|publisher=[[Dust2.us]]}}</ref>
+|n94=July 8th - '''[[Vikings]]''' add {{player|fisher|flag=ca}} to their roster. <ref name="viking fisher">{{cite web|url=http://www.dust2.us/News/1575-vikings-haul-fisher-into-their-longship-to-finish-season|date=2018-07-08|title=Vikings haul fisher into their longship to finish season|author=[[tolkienfanatic]]|publisher=[[Dust2.us]]}}</ref> 
+|n95=July 9th - {{player|rugrat|flag=ca}} leaves '''[[XFORCE]]''' to joins '''[[Team Prospects]]''''s bench. He is not expected to play for '''[[Team Prospects]]''' however. <ref name="rugrat out of xforce">{{cite web|url=http://www.dust2.us/News/1584-prospects-fill-up-the-bench-rugrat-leaves-xforce-hanging|date=2018-07-09|title=Prospects fill up the bench; rugrat leaves XFORCE hanging|author=[[tolkienfanatic]]|publisher=[[Dust2.us]]}}</ref>
+|n96=July 10th - {{player|seb|flag=us}} officially joins '''[[Team BlackOut]]'''. <ref name="blackout seb">{{cite web|url=http://www.dust2.us/News/1591-blackout-confirm-seb-addition|date=2018-07-10|title=BlackOut confirm seb addition|author=[[bleghfarec]]|publisher=[[Dust2.us]]}}</ref>
+|n97=July 12th - {{player|C0M|flag=us}} steps down from '''[[Vikings]]'''.  <ref name="com out">{{cite web|url=http://www.dust2.us/News/1597-vikings-in-rough-waters-as-c0m-steps-down|date=2018-07-12|title=Vikings in rough waters as C0M steps down|author=[[tolkienfanatic]]|publisher=[[Dust2.us]]}}</ref>
+|n98=July 12th - {{player|vberg|flag=ca}} and {{player|hero|flag=us}} step down from '''[[Team Prospects]]'''. <ref name="lone prospect">{{cite web|url=http://www.dust2.us/News/1604-new-prospects-set-to-close-out-the-season-as-vberg-and-hero-step-down|date=2018-07-12|title=New Prospects set to close out the season as vberg and hero step down|author=[[Nohte]]|publisher=[[Dust2.us]]}}</ref>
+}}
+{{roster changes end}}
+
+==Results==
+===Regular Season===
+{{GroupTableStart|League Standings|width=525px|date=|finished=true}}
+{{GroupTableSlot|{{Team|dignitas}} |place=1|win_m=15|lose_m=1|win_r=263|lose_r=157|bg=u}}
+{{GroupTableSlot|{{Team|ex-torqued}} |place=2|win_m=12|lose_m=4|win_r=239|lose_r=188|bg=u}}
+{{GroupTableSlot|{{Team|gorilla gang}} |place=3|win_m=12|lose_m=4|win_r=221|lose_r=150|bg=u}}
+{{GroupTableSlot|{{Team|monstars}} |place=4|win_m=12|lose_m=4|win_r=243|lose_r=184|bg=u}}
+{{GroupTableSlot|{{Team|vireo.pro}} |place=5|win_m=11|lose_m=5|win_r=234|lose_r=168|bg=u}}
+{{GroupTableSlot|{{Team|swole patrol}} |place=6|win_m=11|lose_m=5|win_r=236|lose_r=182|bg=u}}
+{{GroupTableSlot|{{Team|vision gaming}} |place=7|win_m=10|lose_m=6|win_r=242|lose_r=201|bg=u}}
+{{GroupTableSlot|{{Team|bravado gaming}} |place=8|win_m=10|lose_m=6|win_r=221|lose_r=166|bg=u}}
+{{GroupTableSlot|{{Team|resolute}} |place=9|win_m=10|lose_m=6|win_r=222|lose_r=157|bg=s}}
+{{GroupTableSlot|{{Team|team blackout}}	|place=10|win_m=10|lose_m=6|win_r=211|lose_r=182|bg=s}}
+{{GroupTableSlot|{{Team|mythic}} |place=11|win_m=9|lose_m=7|win_r=211|lose_r=186|bg=s}}
+{{GroupTableSlot|{{Team|will to win}} |place=12|win_m=7|lose_m=9|win_r=208|lose_r=192|bg=s}}
+{{GroupTableSlot|{{Team|fam143}} |place=13|win_m=7|lose_m=9|win_r=203|lose_r=219|bg=s}}
+{{GroupTableSlot|{{Team|azio esports}} |place=14|win_m=7|lose_m=9|win_r=195|lose_r=204|bg=s}}
+{{GroupTableSlot|{{Team|really old people}} |place=15|win_m=7|lose_m=9|win_r=190|lose_r=218|bg=s}}
+{{GroupTableSlot|{{Team|velocity esports}} |place=16|win_m=7|lose_m=9|win_r=177|lose_r=224|bg=s}}
+{{GroupTableSlot|{{Team|clutch solutions}} |place=17|win_m=6|lose_m=10|win_r=192|lose_r=225|bg=sd}}
+{{GroupTableSlot|{{Team|vikings}} |place=18|win_m=5|lose_m=11|win_r=200|lose_r=232|bg=sd}}
+{{GroupTableSlot|{{Team|forty six and 2}} |place=19|win_m=5|lose_m=11|win_r=184|lose_r=231|bg=sd}}
+{{GroupTableSlot|{{Team|ex-atmosphere esports}} |place=20|win_m=5|lose_m=11|win_r=169|lose_r=229|bg=sd}}
+{{GroupTableSlot|{{Team|team prospects}} |place=21|win_m=4|lose_m=12|win_r=160|lose_r=233|bg=sd}}
+{{GroupTableSlot|{{Team|xforce}} |place=22|win_m=4|lose_m=12|win_r=152|lose_r=226|bg=sd}}
+{{GroupTableSlot|{{Team|subtle}} |place=23|win_m=3|lose_m=13|win_r=158|lose_r=242|bg=sd}}
+{{GroupTableSlot|<s>{{Team|levitate gaming}}</s> |place=24|win_m=3|lose_m=13|win_r=105|lose_r=240|bg=d}}
+{{GroupTableEnd}}
+<br />
+:''For detailed results for Week 1 to 3, [[ESEA/Season_28/Premier/North_America/Week 1_to_3|click here]].''
+:''For detailed results for Week 4 to 6, [[ESEA/Season_28/Premier/North_America/Week_4_to_6|click here]].''
+:''For detailed results for Week 7 to 8, [[ESEA/Season_28/Premier/North_America/Week_7_to_8|click here]].''
+
+===Playoffs===
+{{8SETeamBracket
+<!-- QUARTERFINALS -->
+|R1D1team=dig |R1D1score=1 |R1D1win=
+|R1D2team=bravado |R1D2score=2 |R1D2win=2
+|R1G1details={{BracketMatchSummary
+|date=July 24, 2018 - 20:30 {{Abbr/EDT}} |finished=true
+|twitch=
+|map1t1firstside=ct|map1t1t=7|map1t1ct=6|map1t2t=9|map1t2ct=7
+|map1=Inferno|map1score=|map1win=2|vodgame1=|stats1=70706
+|map2t1firstside=t|map2t1t=12|map2t1ct=4|map2t2t=2|map2t2ct=3
+|map2=Mirage|map2score=|map2win=1|vodgame2=|stats2=70707
+|map3t1firstside=t|map3t1t=2|map3t1ct=13|map3t2t=2|map3t2ct=13
+|map3o1t1firstside=ct|map3o1t1t=2|map3o1t1ct=1|map3o1t2t=2|map3o1t2ct=1
+|map3o2t1firstside=t|map3o2t1t=1|map3o2t1ct=0|map3o2t2t=2|map3o2t2ct=2
+|map3=Dust II|map3score=|map3win=2|vodgame3=|stats3=70708
+|hltv=2324988/dignitas-vs-bravado-esea-mdl-season-28-north-america
+|esea1=13689243
+|esea2=13689244
+|esea3=13689245
+}}
+|R1D3team=vireo.pro |R1D3score=0 |R1D3win=
+|R1D4team=monstars |R1D4score=2 |R1D4win=2
+|R1G2details={{BracketMatchSummary
+|date=July 24, 2018 - 22:00 {{Abbr/EDT}} |finished=true
+|twitch=
+|map1t1firstside=t|map1t1t=11|map1t1ct=2|map1t2t=12|map1t2ct=4
+|map1=Mirage|map1score=|map1win=2|vodgame1=|stats1=70711
+|map2t1firstside=ct|map2t1t=5|map2t1ct=2|map2t2t=13|map2t2ct=3
+|map2=Overpass|map2score=|map2win=2|vodgame2=|stats2=70712
+|map3t1firstside=|map3t1t=|map3t1ct=|map3t2t=|map3t2ct=
+|map3=Cache|map3score=|map3win=skip|vodgame3=|stats3=
+|hltv=2324990/monstars-vs-vireopro-esea-mdl-season-28-north-america
+|esea1=13689249
+|esea2=13689250
+|esea3=13689251
+}}
+|R1D5team=gorilla gang |R1D5score=2 |R1D5win=1
+|R1D6team=swole patrol |R1D6score=0 |R1D6win=
+|R1G3details={{BracketMatchSummary
+|date=July 24, 2018 - 19:30 {{Abbr/EDT}} |finished=true
+|twitch=
+|map1t1firstside=ct|map1t1t=5|map1t1ct=11|map1t2t=4|map1t2ct=8
+|map1=Mirage|map1score=|map1win=1|vodgame1=|stats1=70694
+|map2t1firstside=t|map2t1t=8|map2t1ct=8|map2t2t=7|map2t2ct=7
+|map2=Inferno|map2score=|map2win=1|vodgame2=|stats2=70695
+|map3t1firstside=|map3t1t=|map3t1ct=|map3t2t=|map3t2ct=
+|map3=Train|map3score=|map3win=skip|vodgame3=|stats3=
+|hltv=2324987/gorilla-gang-vs-swole-patrol-esea-mdl-season-28-north-america
+|esea1=13689246
+|esea2=13689247
+|esea3=13689248
+}}
+|R1D7team=vision gaming |R1D7score=2 |R1D7win=1
+|R1D8team=ex-torqued |R1D8score=1 |R1D8win=
+|R1G4details={{BracketMatchSummary
+|date=July 24, 2018 - 21:30 {{Abbr/EDT}} |finished=true
+|twitch=
+|map1t1firstside=t|map1t1t=13|map1t1ct=3|map1t2t=5|map1t2ct=2
+|map1=Nuke|map1score=|map1win=1|vodgame1=|stats1=70704
+|map2t1firstside=ct|map2t1t=7|map2t1ct=6|map2t2t=9|map2t2ct=7
+|map2=Overpass|map2score=|map2win=2|vodgame2=|stats2=70705
+|map3t1firstside=ct|map3t1t=5|map3t1ct=11|map3t2t=4|map3t2ct=0
+|map3=Cache|map3score=|map3win=1|vodgame3=|stats3=70713
+|hltv=2324989/fyb-vs-vision-esea-mdl-season-28-north-america
+|esea1=13689252
+|esea2=13689253
+|esea3=13689254
+}}
+
+<!-- SEMIFINALS -->
+|R2W1team=bravado |R2W1score=2 |R2W1win=1
+|R2W2team=monstars |R2W2score=0 |R2W2win=
+|R2G1details={{BracketMatchSummary
+|date=July 25, 2018 - 19:30 {{Abbr/EDT}} |finished=true
+|twitch=ESEA
+|map1t1firstside=ct|map1t1t=6|map1t1ct=10|map1t2t=5|map1t2ct=0
+|map1=Inferno|map1score=|map1win=1|vodgame1=|stats1=70734
+|map2t1firstside=ct|map2t1t=6|map2t1ct=9|map2t2t=6|map2t2ct=9
+|map2o1t1firstside=t|map2o1t1t=2|map2o1t1ct=2|map2o1t2t=0|map2o1t2ct=1
+|map2=Mirage|map2score=|map2win=1|vodgame2=|stats2=70735
+|map3t1firstside=|map3t1t=|map3t1ct=|map3t2t=|map3t2ct=
+|map3=Dust II|map3score=|map3win=skip|vodgame3=|stats3=
+|hltv=2324991/esea-mdl-na-semi-final-1-esea-mdl-season-28-north-america
+|esea1=13695044
+|esea2=13695045
+|esea3=13695046
+}}
+|R2W3team=gorilla gang |R2W3score=1 |R2W3win=
+|R2W4team=vision gaming |R2W4score=2 |R2W4win=2
+|R2G2details={{BracketMatchSummary
+|date=July 25, 2018 - 22:00 {{Abbr/EDT}} |finished=true
+|twitch=ESEA
+|map1t1firstside=ct|map1t1t=1|map1t1ct=7|map1t2t=8|map1t2ct=8
+|map1=Train|map1score=|map1win=2|vodgame1=|stats1=70747
+|map2t1firstside=t|map2t1t=14|map2t1ct=2|map2t2t=4|map2t2ct=1
+|map2=Overpass|map2score=|map2win=1|vodgame2=|stats2=70748
+|map3t1firstside=ct|map3t1t=3|map3t1ct=9|map3t2t=6|map3t2ct=10
+|map3=Nuke|map3score=|map3win=2|vodgame3=|stats3=70749
+|hltv=2324992/esea-mdl-na-semi-final-2-esea-mdl-season-28-north-america
+|esea1=13695093
+|esea2=13695094
+|esea3=13695095
+}}
+
+<!-- FINALS -->
+|R3W1team=bravado |R3W1score=2 |R3W1win=1
+|R3W2team=vision gaming |R3W2score=1 |R3W2win=
+|R3G1details={{BracketMatchSummary
+|date=July 26, 2018 - 21:30 {{Abbr/EDT}} |finished=true
+|twitch=ESEA
+|map1t1firstside=ct|map1t1t=8|map1t1ct=8|map1t2t=7|map1t2ct=3
+|map1=Dust II|map1score=|map1win=1|vodgame1=|stats1=70792
+|map2t1firstside=ct|map2t1t=4|map2t1ct=8|map2t2t=7|map2t2ct=9
+|map2=Nuke|map2score=|map2win=2|vodgame2=|stats2=70794
+|map3t1firstside=ct|map3t1t=5|map3t1ct=11|map3t2t=4|map3t2ct=1
+|map3=Overpass|map3score=|map3win=1|vodgame3=|stats3=70799
+|hltv=2324993/esea-mdl-na-grand-final-esea-mdl-season-28-north-america
+|esea1=13699709
+|esea2=13699710
+|esea3=13699711
+}}
+}}
+
+==References==
+{{Reflist}}
