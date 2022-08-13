@@ -73,7 +73,7 @@ class MatchList(object):
 				out = out + '\n' + header
 
 		if self.matches:
-			for matchIndex, match in enumerate(self.matches):
-				out = out + '\n|M' + str(matchIndex + 1) + '=' + str(match)
+			for _, match in enumerate(self.matches):
+				out = out + '\n|' + str(match)
 
 		return out + '\n}}'

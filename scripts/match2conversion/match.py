@@ -84,35 +84,37 @@ class Match(object):
 				self.maps.append(map)
 
 	def __str__(self) -> str:
-		out = '{{Match|date=' + self.date + '|finished=' + self.finished
+		out = '{{Match'
 
+		if self.opponent1:
+			out = out + '\n\t|opponent1=' + str(self.opponent1)
+		if self.opponent2:
+			out = out + '|opponent2=' + str(self.opponent2)
+
+		out = out + '\n\t|date=' + self.date + '|finished=' + self.finished
 		if self.streams:
 			out = out + '\n\t'
 			for streamKey, streamValue in self.streams.items():
 				out = out + '|' + streamKey + '=' + streamValue
-	
-		if self.opponent1:
-			out = out + '\n\t|opponent1=' + str(self.opponent1)
-		if self.opponent2:
-			out = out + '\n\t|opponent2=' + str(self.opponent2)
-
-		if self.maps:
-			for mapIndex, map in enumerate(self.maps):
-				out = out + '\n\t'
-				out = out + '|map' + str(mapIndex + 1) + '=' + str(map)
-
-		if self.links:
-			for linkKey, linkValue in self.links.items():
-				out = out + '\n\t' + '|' + linkKey + '=' + linkValue
 
 		if self.vod:
-			out = out + '\n\t' + '|vod=' + self.vod
+			out = out + '|vod=' + self.vod
+
+		if self.links:
+			out = out + '\n\t'
+			for linkKey, linkValue in self.links.items():
+				out = out + '|' + linkKey + '=' + linkValue
 
 		if self.comment:
 			out = out + '\n\t|comment=' + self.comment
 
 		if self.overturned:
 			out = out + '\n\t|overturned=' + self.overturned
+
+		if self.maps:
+			for mapIndex, map in enumerate(self.maps):
+				out = out + '\n\t'
+				out = out + '|map' + str(mapIndex + 1) + '=' + str(map)
 
 		return out + '\n}}'
 

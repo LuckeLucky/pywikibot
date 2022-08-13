@@ -123,6 +123,6 @@ class Map(object):
 			out = out + linksOut
 
 		if self.vod:
-			out = out + '\n\t\t' + '|vod=' + self.vod
+			out = out + '|vod=' + self.vod
 
-		return out + '\n\t}}'
+		return out + '}}'
