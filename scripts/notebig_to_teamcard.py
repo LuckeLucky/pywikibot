@@ -43,6 +43,8 @@ def notebig_to_dict(noteBig: mwparserfromhell.nodes.Template) -> dict:
 		return {}
 	indexedNotes = {}
 	for parameter in noteBig.params:
+		if str(parameter.name) == 'nobox':
+			continue
 		findIndex = re.search(REGEX_INDEX, str(parameter.name))
 		if findIndex:
 			index = findIndex.group(1)
@@ -57,10 +59,12 @@ def notebig_to_dict(noteBig: mwparserfromhell.nodes.Template) -> dict:
 def notebig_to_teamcards(teamCards: list, notes: dict):
 	if (not teamCards) or (not notes):
 		return
+	x = []
+	notesInserted = 0
 	for teamCard in teamCards:
 		if teamCard.has('notes'):
 			noteIDs = str(teamCard.get('notes').value)
-			if len(noteIDs) == 0:
+			if len(noteIDs) == 0 or noteIDs == '\n':
 				continue
 			span = re.search(REGEX_SPAN, noteIDs)
 			if span:
@@ -70,13 +74,24 @@ def notebig_to_teamcards(teamCards: list, notes: dict):
 			index = 1
 			for noteID in noteIDs.split(', '):
 				id = noteID.rstrip()
+				if not id in x:
+					x.append(id)
+				else:
+					print("Lacking ref in " + str(teamCard.get('team').value) + notes[id])
+					continue
 				iNotes = iNotes + '|n' + str(index) + '=' + notes[id]
 				index += 1
+				notesInserted += 1
 
 			iNotes = iNotes + '}}'
 
 			teamCard.remove('notes')
 			teamCard.add('inotes', iNotes)
+
+	print("Notes Moved:" + str(len(x)))
+	for id, text in notes.items():
+		if id not in x:
+			print(id + "refering to ?")
 
 def process_text(text: str):
 	wikicode = mwparserfromhell.parse(text)
@@ -91,6 +106,7 @@ def process_text(text: str):
 
 	indexedNotes = notebig_to_dict(noteBig)
 
+	print("Notes Found:" + str(len(indexedNotes)))
 	templatesToRemove = []
 	for template in wikicode.filter_templates():
 		if template.name.matches('NoteBig'):
@@ -114,17 +130,23 @@ def main(*args):
 	# Read commandline parameters.
 	local_args = pywikibot.handle_args(args)
 	genFactory = pagegenerators.GeneratorFactory()
-
+	save = True
 	for arg in local_args:
 		if genFactory.handle_arg(arg):
 			continue
+		if arg == '-nosave':
+			save = False
+
+
+	print(local_args)
 
 	generator = genFactory.getCombinedGenerator()
 
 	for page in generator:
 		text = utils.get_text(page)
 		new_text = process_text(text)
-		utils.put_text(page, summary=edit_summary, new=new_text)
+		if save:
+			utils.put_text(page, summary=edit_summary, new=new_text)
 
 
 if __name__ == '__main__':
