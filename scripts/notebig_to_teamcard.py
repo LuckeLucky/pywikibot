@@ -74,14 +74,15 @@ def notebig_to_teamcards(teamCards: list, notes: dict):
 			index = 1
 			for noteID in noteIDs.split(', '):
 				id = noteID.rstrip()
+				text = notes[id]
+				iNotes = iNotes + '|n' + str(index) + '='
 				if not id in x:
 					x.append(id)
+					iNotes = iNotes + text
+					notesInserted += 1
 				else:
-					print("Lacking ref in " + str(teamCard.get('team').value) + notes[id])
-					continue
-				iNotes = iNotes + '|n' + str(index) + '=' + notes[id]
+					iNotes = iNotes + '(USE_REF_NAME)' + text
 				index += 1
-				notesInserted += 1
 
 			iNotes = iNotes + '}}'
 
@@ -130,21 +131,18 @@ def main(*args):
 	# Read commandline parameters.
 	local_args = pywikibot.handle_args(args)
 	genFactory = pagegenerators.GeneratorFactory()
-	save = True
+	save = False
 	for arg in local_args:
 		if genFactory.handle_arg(arg):
 			continue
-		if arg == '-nosave':
-			save = False
-
-
-	print(local_args)
+		if arg == '-save':
+			save = True
 
 	generator = genFactory.getCombinedGenerator()
 
 	for page in generator:
-		text = utils.get_text(page)
-		new_text = process_text(text)
+		original_text = utils.get_text(page)
+		new_text = process_text(original_text)
 		if save:
 			utils.put_text(page, summary=edit_summary, new=new_text)
 
