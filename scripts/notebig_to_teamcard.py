@@ -1,3 +1,4 @@
+from pipes import Template
 import re
 import utils
 import mwparserfromhell
@@ -7,9 +8,7 @@ from datetime import datetime
 from pywikibot import pagegenerators
 
 REGEX_INDEX = r'n(\d*)'
-REGEX_UNTIL_FULL_STOP = r'([^.]+)'
-REGEX_DATE = r'^(\w* \d*\w*) - '
-REGEX_REF = r'<ref .*>(.*?)</ref>'
+REGEX_SPAN = r'<span .*>(.*?)</span>'
 
 def day_to_ordinal(day: str):
 	intDay = int(day)
@@ -52,22 +51,59 @@ def notebig_to_dict(noteBig: mwparserfromhell.nodes.Template) -> dict:
 			indexedNotes[index] = value
 	return indexedNotes
 
+def notebig_to_teamcards(teamCards: list, notes: dict):
+	for teamCard in teamCards:
+		if teamCard.has('notes'):
+			noteIDs = str(teamCard.get('notes').value)
+			span = re.search(REGEX_SPAN, noteIDs)
+			if span:
+				noteIDs = span.group(1)
+			
+			iNotes = '{{NoteBig\n'
+			index = 1
+			for noteID in noteIDs.split(', '):
+				id = noteID.rstrip()
+				iNotes = iNotes + '|n' + str(index) + '=' + notes[id]
+				index += 1
+
+			iNotes = iNotes + '}}'
+
+			teamCard.remove('notes')
+			teamCard.add('inotes', iNotes)
+
+
 
 def process_text(text: str):
 	wikicode = mwparserfromhell.parse(text)
 
+	teamCards = []
 	noteBig = None
 	for template in wikicode.filter_templates():
+		if template.name.matches('TeamCard') or template.name.matches('TeamCardLeague'):
+			teamCards.append(template)
 		if template.name.matches('NoteBig'):
 			noteBig = template
 
 	indexedNotes = notebig_to_dict(noteBig)
-	print(indexedNotes['1'])
+	notebig_to_teamcards(teamCards, indexedNotes)
 
+	templatesToRemove = []
+	for template in wikicode.filter_templates():
+		if template.name.matches('NoteBig'):
+			templatesToRemove.append(template)
+		if template.name.matches('roster changes start'):
+			templatesToRemove.append(template)
+		if template.name.matches('roster changes end'):
+			templatesToRemove.append(template)
+
+	for template in templatesToRemove:
+		utils.remove_and_squash(wikicode, template)
+
+	return wikicode
 
 def main(*args):
 	# summary message
-	""" edit_summary = 'Move NoteBig to Teamcard'
+	edit_summary = 'Move NoteBig to Teamcard'
 
 	# Read commandline parameters.
 	local_args = pywikibot.handle_args(args)
@@ -82,12 +118,8 @@ def main(*args):
 	for page in generator:
 		text = utils.get_text(page)
 		new_text = process_text(text)
-		utils.put_text(page, summary=edit_summary, new=new_text) """
+		utils.put_text(page, summary=edit_summary, new=new_text)
 
-	text = ''
-	with open('input.txt', 'r') as file:
-		text = file.read()
-	new_text = process_text(text)
 
 if __name__ == '__main__':
 	main()
