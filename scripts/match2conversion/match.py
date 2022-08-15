@@ -74,6 +74,12 @@ class Match(object):
 		if 'overturned' in self.parameters:
 			self.overturned = self.parameters['overturned']
 
+		#Stats for bo1
+		if 'stats' in self.parameters:
+			self.summary.remove('stats')
+			self.summary.add('stats1', self.parameters.pop('stats'))
+
+
 		self.streams = self._get_streams()
 		self.links = self._get_links()
 
@@ -98,6 +104,8 @@ class Match(object):
 				out = out + '|' + streamKey + '=' + streamValue
 
 		if self.vod:
+			if not self.streams:
+				out = out + '\n\t'
 			out = out + '|vod=' + self.vod
 
 		if self.links:
