@@ -107,7 +107,7 @@ class Map(object):
 				if not (key + 't1firstside' in self.halfs):
 					break
 				insertedHalfKeys = False
-				for halfKey in [key + 't1firstside', key + 't1ct', key + 't1t', key + 't2ct', key + 't2t']:
+				for halfKey in [key + 't1firstside', key + 't1t', key + 't1ct', key + 't2t', key + 't2ct']:
 					if halfKey in self.halfs:
 						halfsOut = halfsOut + '|' + halfKey + '=' + self.halfs[halfKey]
 						insertedHalfKeys = True
