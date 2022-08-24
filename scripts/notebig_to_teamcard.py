@@ -1,4 +1,3 @@
-from pipes import Template
 import re
 import utils
 import mwparserfromhell
@@ -56,7 +55,7 @@ def notebig_to_dict(noteBig: mwparserfromhell.nodes.Template) -> dict:
 			indexedNotes[index] = value
 	return indexedNotes
 
-def notebig_to_teamcards(teamCards: list, notes: dict):
+def notebig_to_teamcards(teamCards: list, notes: dict) -> int:
 	if (not teamCards) or (not notes):
 		return
 	x = []
@@ -93,9 +92,13 @@ def notebig_to_teamcards(teamCards: list, notes: dict):
 
 	print("Notes Moved:" + str(len(x)))
 	print("Notes Duplicated:" + str(notesDuplicated))
+
+	#Find notes that are not in teamcard
 	for id, text in notes.items():
 		if id not in x:
 			print(id + "refering to ?")
+
+	return str(len(x))
 
 def process_text(text: str):
 	wikicode = mwparserfromhell.parse(text)
@@ -105,7 +108,7 @@ def process_text(text: str):
 	for template in wikicode.filter_templates():
 		if template.name.matches('TeamCard') or template.name.matches('TeamCardLeague'):
 			teamCards.append(template)
-		if template.name.matches('NoteBig'):
+		if template.name.matches('NoteBig') or template.name.matches('note15'):
 			noteBig = template
 
 	indexedNotes = notebig_to_dict(noteBig)
@@ -113,7 +116,7 @@ def process_text(text: str):
 	print("Notes Found:" + str(len(indexedNotes)))
 	templatesToRemove = []
 	for template in wikicode.filter_templates():
-		if template.name.matches('NoteBig'):
+		if template.name.matches('NoteBig') or template.name.matches('note15'):
 			templatesToRemove.append(template)
 		if template.name.matches('roster changes start'):
 			templatesToRemove.append(template)
@@ -123,13 +126,15 @@ def process_text(text: str):
 	for template in templatesToRemove:
 		utils.remove_and_squash(wikicode, template)
 
-	notebig_to_teamcards(teamCards, indexedNotes)
+	notesMoved = notebig_to_teamcards(teamCards, indexedNotes)
 
+	if notesMoved != str(len(indexedNotes)):
+		return ''
 	return str(wikicode)
 
 def main(*args):
 	# summary message
-	edit_summary = 'Move NoteBig to Teamcard'
+	editSummary = 'Move NoteBig to Teamcard'
 
 	# Read commandline parameters.
 	local_args = pywikibot.handle_args(args)
@@ -144,10 +149,17 @@ def main(*args):
 	generator = genFactory.getCombinedGenerator()
 
 	for page in generator:
-		original_text = utils.get_text(page)
-		new_text = process_text(original_text)
-		if save:
-			utils.put_text(page, summary=edit_summary, new=new_text)
+		originalText = utils.get_text(page)
+		newText = process_text(originalText)
+		if newText == '':
+			print("FIX NOTES FOUND")
+		else:
+			if save:
+				utils.put_text(page, summary=editSummary, new=newText)
+			else:
+				answer = input("Wanna save?(y/n)")
+				if answer.lower() == 'y':
+					utils.put_text(page, summary=editSummary, new=newText)
 
 
 if __name__ == '__main__':
