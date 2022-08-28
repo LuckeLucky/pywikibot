@@ -48,7 +48,8 @@ def notebig_to_dict(noteBig: mwparserfromhell.nodes.Template) -> dict:
 		if findIndex:
 			index = findIndex.group(1)
 			value = str(parameter.value)
-			if not (' - ' in value):
+			dateString = value[:21]
+			if not (' - ' in dateString):
 				date = get_date(value)
 				if date:
 					value = date + ' - ' + value
@@ -66,16 +67,30 @@ def notebig_to_teamcards(teamCards: list, notes: dict) -> int:
 			noteIDs = str(teamCard.get('notes').value)
 			if len(noteIDs) == 0 or noteIDs == '\n':
 				continue
+			#remove <span>
 			span = re.search(REGEX_SPAN, noteIDs)
 			if span:
 				noteIDs = span.group(1)
-			
 			iNotes = '{{NoteBig\n'
 			index = 1
-			for noteID in noteIDs.split(', '):
+
+			#Split notes
+			splittedNotes = []
+			if ', ' in noteIDs:
+				splittedNotes = noteIDs.split(', ')
+			elif '&' in noteIDs:
+				splittedNotes = noteIDs.split('& ')
+			else:
+				splittedNotes = noteIDs.split(',')
+			#Each note number
+			for noteID in splittedNotes:
 				id = noteID.rstrip()
+				id = id.lstrip()
+				if id not in notes:
+					return -1
 				text = notes[id]
 				iNotes = iNotes + '|n' + str(index) + '='
+
 				if not id in x:
 					x.append(id)
 					iNotes = iNotes + text
@@ -93,27 +108,34 @@ def notebig_to_teamcards(teamCards: list, notes: dict) -> int:
 	print("Notes Moved:" + str(len(x)))
 	print("Notes Duplicated:" + str(notesDuplicated))
 
-	#Find notes that are not in teamcard
+	#Find notes present in NoteBig but not on teamCardNotes
 	for id, text in notes.items():
 		if id not in x:
 			print(id + "refering to ?")
 
-	return str(len(x))
+	return len(x)
 
 def process_text(text: str):
 	wikicode = mwparserfromhell.parse(text)
 
 	teamCards = []
 	noteBig = None
+	countNoteBigFound = 0
 	for template in wikicode.filter_templates():
-		if template.name.matches('TeamCard') or template.name.matches('TeamCardLeague'):
+		if (template.name.matches('TeamCard') or
+			template.name.matches('TeamCardLeague') or
+			template.name.matches('TeamCardMix') or 
+			template.name.matches('TeamCardSubs')):
 			teamCards.append(template)
 		if template.name.matches('NoteBig') or template.name.matches('note15'):
 			noteBig = template
+			countNoteBigFound +=1
 
 	indexedNotes = notebig_to_dict(noteBig)
 
 	print("Notes Found:" + str(len(indexedNotes)))
+
+	#Remove templates
 	templatesToRemove = []
 	for template in wikicode.filter_templates():
 		if template.name.matches('NoteBig') or template.name.matches('note15'):
@@ -126,9 +148,10 @@ def process_text(text: str):
 	for template in templatesToRemove:
 		utils.remove_and_squash(wikicode, template)
 
+	#Set inotes
 	notesMoved = notebig_to_teamcards(teamCards, indexedNotes)
 
-	if notesMoved != str(len(indexedNotes)):
+	if notesMoved != len(indexedNotes):
 		return ''
 	return str(wikicode)
 
@@ -150,7 +173,10 @@ def main(*args):
 
 	for page in generator:
 		originalText = utils.get_text(page)
+		print(page.full_url())
+
 		newText = process_text(originalText)
+
 		if newText == '':
 			print("FIX NOTES FOUND")
 		else:
