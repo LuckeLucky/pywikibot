@@ -49,7 +49,7 @@ def notebig_to_dict(noteBig: mwparserfromhell.nodes.Template) -> dict:
 			index = findIndex.group(1)
 			value = str(parameter.value)
 			dateString = value[:21]
-			if not (' - ' in dateString):
+			if not ('-' in dateString):
 				date = get_date(value)
 				if date:
 					value = date + ' - ' + value
