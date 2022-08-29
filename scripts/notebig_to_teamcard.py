@@ -6,6 +6,10 @@ import pywikibot
 from datetime import datetime
 from pywikibot import pagegenerators
 
+""" Known bugs
+	-Fail to close wikicode tags cause parameter to be skiped
+	- ex-Team in start of frase can cause date to not be addded """
+
 REGEX_INDEX = r'n(\d*)'
 REGEX_SPAN = r'<span .*>(.*?)</span>'
 
@@ -87,6 +91,7 @@ def set_teamcard_inotes(teamCards: list, foundNotes: dict) -> int:
 				id = noteID.rstrip()
 				id = id.lstrip()
 				if id not in foundNotes:
+					print("Note ["+ id + "] missing in NoteBig")
 					return -1
 				text = foundNotes[id]
 				iNotes = iNotes + '|n' + str(inotesIndex) + '='
