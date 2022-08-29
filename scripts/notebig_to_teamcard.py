@@ -9,7 +9,8 @@ from pywikibot import pagegenerators
 REGEX_INDEX = r'n(\d*)'
 REGEX_SPAN = r'<span .*>(.*?)</span>'
 
-def day_to_ordinal(day: str):
+#Returns day ordinal
+def day_to_ordinal(day: str) -> str:
 	intDay = int(day)
 
 	suffix = ''
@@ -23,6 +24,7 @@ def day_to_ordinal(day: str):
 
 	return day + suffix
 
+#Returns the date in format Month Day from a cite_web template
 def get_date(text: str):
 	wikicode = mwparserfromhell.parse(text)
 	for template in wikicode.filter_templates():
@@ -33,7 +35,6 @@ def get_date(text: str):
 				month = dt.strftime('%B')
 				day = day_to_ordinal(dt.strftime('%d'))
 				return month + ' ' + day
-
 	return ''
 
 
@@ -48,6 +49,7 @@ def notebig_to_dict(noteBig: mwparserfromhell.nodes.Template) -> dict:
 		if findIndex:
 			index = findIndex.group(1)
 			value = str(parameter.value)
+			#Check if note has string Month Day - 
 			dateString = value[:21]
 			if not ('-' in dateString):
 				date = get_date(value)
@@ -56,10 +58,11 @@ def notebig_to_dict(noteBig: mwparserfromhell.nodes.Template) -> dict:
 			indexedNotes[index] = value
 	return indexedNotes
 
-def notebig_to_teamcards(teamCards: list, notes: dict) -> int:
-	if (not teamCards) or (not notes):
+#Sets the teamcards inotes using notes found in notebig template
+def set_teamcard_inotes(teamCards: list, foundNotes: dict) -> int:
+	if (not teamCards) or (not foundNotes):
 		return
-	x = []
+	notesAdded = []
 	notesInserted = 0
 	notesDuplicated = 0
 	for teamCard in teamCards:
@@ -67,12 +70,9 @@ def notebig_to_teamcards(teamCards: list, notes: dict) -> int:
 			noteIDs = str(teamCard.get('notes').value)
 			if len(noteIDs) == 0 or noteIDs == '\n':
 				continue
-			#remove <span>
-			span = re.search(REGEX_SPAN, noteIDs)
-			if span:
-				noteIDs = span.group(1)
+
 			iNotes = '{{NoteBig\n'
-			index = 1
+			inotesIndex = 1
 
 			#Split notes
 			splittedNotes = []
@@ -86,34 +86,34 @@ def notebig_to_teamcards(teamCards: list, notes: dict) -> int:
 			for noteID in splittedNotes:
 				id = noteID.rstrip()
 				id = id.lstrip()
-				if id not in notes:
+				if id not in foundNotes:
 					return -1
-				text = notes[id]
-				iNotes = iNotes + '|n' + str(index) + '='
+				text = foundNotes[id]
+				iNotes = iNotes + '|n' + str(inotesIndex) + '='
 
-				if not id in x:
-					x.append(id)
+				if not id in notesAdded:
+					notesAdded.append(id)
 					iNotes = iNotes + text
 					notesInserted += 1
 				else:
 					iNotes = iNotes + '(USE_REF_NAME)' + text
 					notesDuplicated += 1
-				index += 1
+				inotesIndex += 1
 
 			iNotes = iNotes + '}}'
 
 			teamCard.remove('notes')
 			teamCard.add('inotes', iNotes)
 
-	print("Notes Moved:" + str(len(x)))
+	print("Notes Moved:" + str(len(notesAdded)))
 	print("Notes Duplicated:" + str(notesDuplicated))
 
 	#Find notes present in NoteBig but not on teamCardNotes
-	for id, text in notes.items():
-		if id not in x:
-			print(id + "refering to ?")
+	for id, text in foundNotes.items():
+		if id not in notesAdded:
+			print("Note ["+ id + "] missing in TeamCard")
 
-	return len(x)
+	return len(notesAdded)
 
 def process_text(text: str):
 	wikicode = mwparserfromhell.parse(text)
@@ -131,9 +131,9 @@ def process_text(text: str):
 			noteBig = template
 			countNoteBigFound +=1
 
-	indexedNotes = notebig_to_dict(noteBig)
+	foundNotes = notebig_to_dict(noteBig)
 
-	print("Notes Found:" + str(len(indexedNotes)))
+	print("Notes Found:" + str(len(foundNotes)))
 
 	#Remove templates
 	templatesToRemove = []
@@ -147,11 +147,10 @@ def process_text(text: str):
 
 	for template in templatesToRemove:
 		utils.remove_and_squash(wikicode, template)
-
 	#Set inotes
-	notesMoved = notebig_to_teamcards(teamCards, indexedNotes)
+	notesMoved = set_teamcard_inotes(teamCards, foundNotes)
 
-	if notesMoved != len(indexedNotes):
+	if notesMoved != len(foundNotes):
 		return ''
 	return str(wikicode)
 
