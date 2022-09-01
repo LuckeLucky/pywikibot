@@ -71,3 +71,4 @@ def sanitize_template(template: Template):
 	for parameter in template.params:
 		value = str(parameter.value)
 		template.add(str(parameter.name), value.rstrip(), preserve_spacing=False)
+	return template
