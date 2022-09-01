@@ -37,19 +37,19 @@ class Bracket(object):
 			if 'id=' in line:
 				line = line.replace('id=', 'id=' + generate_id())
 			if line.startswith('|R') and (not 'header' in line):
-				equalSplit = line.split('=')
-				if len(equalSplit) > 1:
-					newBracket = newBracket + equalSplit[0] + '='
-					rightSide = equalSplit[1]
-					rightSide = rightSide.rstrip()
-					parameters = rightSide.split('*')
+				match2parameter, equal, matchParameters = line.partition('=')
+				matchParameters =  matchParameters.rstrip()
+				if matchParameters:
+					parameters = matchParameters.split('*')
+
 					opponent1 = self.get_opponent(parameters[0])
 					opponent2 = self.get_opponent(parameters[1])
 					details = self.get_summary(parameters[2])
 					match = Match(opponent1, opponent2)
 					match.set_summary(details)
 					match.process()
-					newBracket = newBracket + str(match) + '\n'
+
+					newBracket = newBracket + match2parameter + equal + str(match) + '\n'
 			else:
 				newBracket = newBracket + line
 

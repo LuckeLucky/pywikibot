@@ -74,7 +74,8 @@ class Map(object):
 
 		if self.prefix + 'score' in self.parameters:
 			score = self.parameters[self.prefix + 'score']
-			self.score1, self.score2 = score.split('-', 1)
+			if score:
+				self.score1, self.score2 = score.split('-', 1)
 
 		self.handle_finished()
 		self.handle_halfs()

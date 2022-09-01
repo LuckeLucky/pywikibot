@@ -6,16 +6,16 @@ from pywikibot import pagegenerators
 from scripts.match2conversion.bracket import Bracket
 from utils import get_text, put_text
 
-def process_text(text: str):
+def process_text(text: str, templateName: str):
 	wikicode = mwparserfromhell.parse(text)
 	bracket = None
 	for template in wikicode.filter_templates():
-		if template.name.matches('32DETeamBracket'):
+		if template.name.matches(templateName):
 			bracket = template
-	
-	newBracket = Bracket('32DETeamBracket', bracket)
-	
-	wikicode.replace(bracket, str(newBracket))
+
+	if bracket:
+		newBracket = Bracket(templateName, bracket)	
+		wikicode.replace(bracket, str(newBracket))
 
 	return wikicode
 
@@ -28,17 +28,27 @@ def main(*args):
 	local_args = pywikibot.handle_args(args)
 	genFactory = pagegenerators.GeneratorFactory()
 
+	templateName = ''
+
 	for arg in local_args:
 		if genFactory.handle_arg(arg):
 			continue
+		if arg.startswith('-'):
+			arg = arg[1:]
+			arg, _, value = arg.partition(':')
+			if arg == 'template':
+				templateName = value
+
+	if not templateName:
+		print("Template to replace missing")
+		return
 
 	generator = genFactory.getCombinedGenerator()
 
 	for page in generator:
 		text = get_text(page)
-		new_text = process_text(text)
-		print(new_text)
-		#put_text(page, summary=edit_summary, new=new_text)
+		new_text = process_text(text, templateName)
+		put_text(page, summary=edit_summary, new=new_text)
 
 if __name__ == '__main__':
 	main()
