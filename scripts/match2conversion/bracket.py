@@ -14,7 +14,7 @@ SUPPORTED_TEMPLATES = [
 class Bracket(object):
 
 	def __init__(self, oldTemplateName: str, bracket: Template) -> None:
-		self.oldTemplate = oldTemplateName
+		self.oldTemplateName = oldTemplateName
 		self.bracket = sanitize_template(bracket)
 
 	@staticmethod
@@ -38,7 +38,7 @@ class Bracket(object):
 
 	def __str__(self) -> str:
 		p = Path(__file__).with_name('bracketconfigs')
-		p = p / (self.oldTemplate + '.txt')
+		p = p / (self.oldTemplateName + '.txt')
 		file = p.open('r')
 
 		newBracket = ''
