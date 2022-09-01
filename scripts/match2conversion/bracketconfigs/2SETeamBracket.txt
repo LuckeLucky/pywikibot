@@ -1,0 +1,5 @@
+{{Bracket|Bracket/2|id=
+
+<!-- Grand Final -->
+|R1M1=R1D1*R1D2*R1G1
+}}

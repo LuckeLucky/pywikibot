@@ -36,7 +36,7 @@ class Bracket(object):
 		for line in file:
 			if 'id=' in line:
 				line = line.replace('id=', 'id=' + generate_id())
-			if line.startswith('|R'):
+			if line.startswith('|R') and (not 'header' in line):
 				equalSplit = line.split('=')
 				if len(equalSplit) > 1:
 					newBracket = newBracket + equalSplit[0] + '='
