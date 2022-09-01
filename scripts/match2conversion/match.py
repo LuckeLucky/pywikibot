@@ -1,7 +1,7 @@
 import re
 from os import link
 from mwparserfromhell.nodes import Template
-from .external_links import ALL_LINKS, STREAMS, MAP_LINKS, MATCH_LINKS
+from .external_links import STREAMS, MATCH_LINKS
 from .map import Map
 from .opponent import Opponent
 
@@ -27,6 +27,8 @@ class Match(object):
 		self.comment = ''
 		self.overturned = ''
 
+		self.bestof = 0
+
 	def set_summary(self, summary: Template):
 		self.summary = summary
 
@@ -39,18 +41,14 @@ class Match(object):
 
 		return streams
 
-	def _get_links(self):
-		links = {}
-
+	def handle_links(self):
 		for paramKey, paramValue in self.parameters.items():
-			if paramKey in ALL_LINKS:
-				links[paramKey] = paramValue
+			if paramKey in MATCH_LINKS:
+				self.links[paramKey] = paramValue
 
-		if 'hltv' in links:
-			result = re.sub(r'(\d*)/.*', '\\1', links['hltv'], 0, re.MULTILINE)
-			links['hltv'] = result
-
-		return links
+		if 'hltv' in self.links:
+			result = re.sub(r'(\d*)/.*', '\\1', self.links['hltv'], 0, re.MULTILINE)
+			self.links['hltv'] = result
 
 	def process(self):
 		if self.summary is None:
@@ -81,13 +79,14 @@ class Match(object):
 
 
 		self.streams = self._get_streams()
-		self.links = self._get_links()
 
 		for mapIndex in range(1, MAX_MAPS):
 			if 'map' + str(mapIndex) in self.parameters:
 				map = Map(mapIndex, self.summary)
-				map.process()
 				self.maps.append(map)
+				self.bestof = self.bestof + 1
+
+		self.handle_links()
 
 	def __str__(self) -> str:
 		out = '{{Match'
@@ -110,6 +109,7 @@ class Match(object):
 
 		if self.links:
 			out = out + '\n\t'
+			self.handle_links()
 			for linkKey, linkValue in self.links.items():
 				out = out + '|' + linkKey + '=' + linkValue
 
@@ -121,6 +121,8 @@ class Match(object):
 
 		if self.maps:
 			for mapIndex, map in enumerate(self.maps):
+				map.process()
+				map.handle_links(self.bestof)
 				out = out + '\n\t'
 				out = out + '|map' + str(mapIndex + 1) + '=' + str(map)
 

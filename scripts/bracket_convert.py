@@ -21,23 +21,24 @@ def process_text(text: str):
 
 def main(*args):
 
-    # summary message
-    edit_summary = 'Converting Brackets to Match2'
+	# summary message
+	edit_summary = 'Converting Brackets to Match2'
 
-    # Read commandline parameters.
-    local_args = pywikibot.handle_args(args)
-    genFactory = pagegenerators.GeneratorFactory()
+	# Read commandline parameters.
+	local_args = pywikibot.handle_args(args)
+	genFactory = pagegenerators.GeneratorFactory()
 
-    for arg in local_args:
-        if genFactory.handle_arg(arg):
-            continue
+	for arg in local_args:
+		if genFactory.handle_arg(arg):
+			continue
 
-    generator = genFactory.getCombinedGenerator()
+	generator = genFactory.getCombinedGenerator()
 
-    for page in generator:
-        text = get_text(page)
-        new_text = process_text(text)
-        put_text(page, summary=edit_summary, new=new_text)
+	for page in generator:
+		text = get_text(page)
+		new_text = process_text(text)
+		print(new_text)
+		#put_text(page, summary=edit_summary, new=new_text)
 
 if __name__ == '__main__':
-    main()
+	main()

@@ -21,46 +21,41 @@ class Map(object):
 		self.halfs = {}
 		self.links = {}
 
-	def _remove_map_prefix(self, text: str) -> str:
+	def remove_map_prefix(self, text: str) -> str:
 		if text.startswith(self.prefix):
 			return text[len(self.prefix):]
 		return text
 
-	def _get_finished(self):
+	def handle_finished(self):
 		winner = self.parameters.get(self.prefix + 'win')
 
 		if winner in ['1', '2', '0', 'draw']:
-			return 'true'
+			self.finished = 'true'
+		elif winner == 'skip':
+			self.finished = 'skip'
+		else:
+			self.finished = ''
 
-		if winner == 'skip':
-			return 'skip'
-
-		return ''
-
-	def _get_halfs(self):
-		halfs = {}
-
+	def handle_halfs(self):
 		for paramKey, paramValue in self.parameters.items():
-			key = self._remove_map_prefix(paramKey)
+			key = self.remove_map_prefix(paramKey)
 			if ('t1firstside' in key or 
 				't1ct' in key or 
 				't1t' in key or
 				't2ct' in key or
 				't2t' in key):
-				halfs[key] = paramValue
-		
-		return halfs
+				self.halfs[key] = paramValue
 
-	def _get_links(self):
-		links = {}
-
+	def handle_links(self, bestof):
 		for paramKey, paramValue in self.parameters.items():
 			if paramKey.endswith(str(self.index)):
 				key = paramKey[:-1]
 				if key in MAP_LINKS:
-					links[key] = paramValue
-
-		return links
+					self.links[key] = paramValue
+			#In bestof 1 sometimes parameters like esea exist intead of eseaX
+			if bestof == 1:
+				if paramKey in MAP_LINKS:
+					self.links[paramKey] = paramValue
 
 	def process(self):
 		for parameter in self.summary.params:
@@ -76,17 +71,13 @@ class Map(object):
 			self.vod = self.parameters['vodgame' + str(self.index)]
 
 		self.map = self.parameters[self.prefix] or ''
-		self.finished = self._get_finished()
-		self.halfs = self._get_halfs()
-		self.links = self._get_links()
 
 		if self.prefix + 'score' in self.parameters:
 			score = self.parameters[self.prefix + 'score']
-			score = score.split('-', 1)
-			if len(score) == 1:
-				self.score1 = score[0] or ''
-			if len(score) == 2:
-				self.score2 = score[1] or ''
+			self.score1, self.score2 = score.split('-', 1)
+
+		self.handle_finished()
+		self.handle_halfs()
 
 	def __str__(self) -> str:
 		out = '{{Map|map=' + self.map
