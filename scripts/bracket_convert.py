@@ -40,7 +40,10 @@ def main(*args):
 				templateName = value
 
 	if not templateName:
-		print("Template to replace missing")
+		templateName = pywikibot.input('Template to replace:')
+
+	if not Bracket.check_support(templateName):
+		pywikibot.stdout("<<lightred>>Missing support for template: " + templateName)
 		return
 
 	generator = genFactory.getCombinedGenerator()

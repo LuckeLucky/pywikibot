@@ -6,11 +6,20 @@ from ..utils import sanitize_template
 
 from pathlib import Path
 
+SUPPORTED_TEMPLATES = [
+	'32DETeamBracket',
+	'2SETeamBracket'
+]
+
 class Bracket(object):
 
 	def __init__(self, oldTemplateName: str, bracket: Template) -> None:
 		self.oldTemplate = oldTemplateName
 		self.bracket = sanitize_template(bracket)
+
+	@staticmethod
+	def check_support(templateName: str):
+		return templateName in SUPPORTED_TEMPLATES
 
 	def get_opponent(self, parameter):
 		if self.bracket.has(parameter + 'team'):
