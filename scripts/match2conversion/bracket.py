@@ -1,10 +1,9 @@
 from mwparserfromhell.nodes import Template
 
-from scripts.utils.parser_helper import get_value
 from .helpers import generate_id
 from .match import Match
 from .opponent import Opponent
-from ..utils import sanitize_template
+from scripts.utils.parser_helper import get_value, sanitize_template
 
 from pathlib import Path
 

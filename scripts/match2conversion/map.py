@@ -1,6 +1,6 @@
 from mwparserfromhell.nodes import Template
 from .external_links import MAP_LINKS
-from ..utils import get_value, dict_has_value_set
+from scripts.utils.parser_helper import get_value
 
 PREFIX = 'map'
 
