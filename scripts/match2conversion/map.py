@@ -64,6 +64,9 @@ class Map(object):
 					self.links[key] = str(parameter.value)
 
 	def process(self, bestof):
+		if self.summary is None:
+			return
+
 		self.map = get_value(self.summary, self.prefix)
 
 		self.score = get_value(self.summary, self.prefix + 'score')

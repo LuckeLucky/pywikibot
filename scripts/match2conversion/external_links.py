@@ -12,7 +12,8 @@ STREAMS = [
 	'pandatv',
 	'huya',
 	'bilibili',
-	'steamtv'
+	'steamtv',
+	'vod'
 ]
 
 MAP_LINKS = [
