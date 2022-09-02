@@ -34,8 +34,12 @@ class MatchList(object):
 		return None
 
 	def get_winner(self, matchMap: Template) -> int:
-		if get_value(matchMap, 'winner'):
+		value = get_value(matchMap, 'winner')
+		if value == '1':
 			return 1
+		if value == '2':
+			return 2
+		return 0
 
 	def handle_gsl(self):
 		gsl = get_value(self.matchListStart, 'gsl')
