@@ -1,4 +1,6 @@
 from mwparserfromhell.nodes import Template
+
+from scripts.utils.parser_helper import get_value
 from .helpers import generate_id
 from .match import Match
 from .opponent import Opponent
@@ -23,12 +25,9 @@ class Bracket(object):
 		return templateName in SUPPORTED_TEMPLATES
 
 	def get_opponent(self, parameter):
-		if self.bracket.has(parameter + 'team'):
-			teamName = str(self.bracket.get(parameter + 'team').value)
-			teamScore = ''
-			if self.bracket.has(parameter + 'score'):
-				teamScore = str(self.bracket.get(parameter + 'score').value)
-		
+		teamName = get_value(self.bracket, parameter + 'team')
+		teamScore = get_value(self.bracket, parameter + 'score')
+		if teamName:
 			return Opponent(teamName, teamScore)
 		return None
 
@@ -38,12 +37,10 @@ class Bracket(object):
 		return None
 
 	def get_winner(self, team1parameter, team2parameter) -> int:
-		if self.bracket.has(team1parameter + 'win'):
-			if str(self.bracket.get(team1parameter + 'win').value):
-				return 1
-		if self.bracket.has(team2parameter + 'win'):
-			if str(self.bracket.get(team2parameter + 'win').value):
-				return 2
+		if get_value(self.bracket, team1parameter + 'win'):
+			return 1
+		if get_value(self.bracket, team2parameter + 'win'):
+			return 2
 		return 0
 
 	def __str__(self) -> str:
@@ -67,10 +64,12 @@ class Bracket(object):
 					opponent2 = self.get_opponent(parameters[1])
 					details = self.get_summary(parameters[2])
 					winner = self.get_winner(parameters[0], parameters[1])
+
 					if match2parameter == '|RxMTP':
 						hasResetMatch = True
 						if opponent1 and opponent2 and details:
 							resetMatch = True
+
 					match = Match(opponent1, opponent2, winner)
 					match.set_summary(details)
 					match.process()

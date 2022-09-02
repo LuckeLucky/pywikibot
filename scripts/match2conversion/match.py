@@ -43,7 +43,7 @@ class Match(object):
 	def _handle_finished(self):
 		self.finished = get_value(self.summary, 'finished')
 		if not self.finished:
-			if self.winner > 0:
+			if int(self.winner) > 0:
 				self.finished = 'true'
 
 	def _handle_links(self):
@@ -57,11 +57,13 @@ class Match(object):
 			self.links['hltv'] = result
 
 	def process(self):
+		#finished can be set via winner of the match
+		self._handle_finished()
+
 		if self.summary is None:
 			return
 
 		self.date = get_value(self.summary, 'date')
-		self._handle_finished()
 
 		self._handle_streams()
 		self._handle_links()
