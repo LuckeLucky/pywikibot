@@ -71,3 +71,15 @@ def sanitize_template(template: Template):
 	for parameter in template.params:
 		value = str(parameter.value)
 		template.add(str(parameter.name), value.rstrip(), preserve_spacing=False)
+	return template
+
+def get_value(template: Template, key: str) -> str:
+	if template.has(key):
+		return str(template.get(key).value)
+	return ''
+
+def dict_has_value_set(dictionary: dict) -> bool:
+	for _, v in dictionary.items():
+		if v != '':
+			return True
+	return False

@@ -12,7 +12,8 @@ STREAMS = [
 	'pandatv',
 	'huya',
 	'bilibili',
-	'steamtv'
+	'steamtv',
+	'vod'
 ]
 
 MAP_LINKS = [
@@ -54,5 +55,3 @@ MATCH_LINKS = [
 	'hltv',
 	'hltv2',
 ]
-
-ALL_LINKS = MAP_LINKS + MATCH_LINKS

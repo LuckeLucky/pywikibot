@@ -1,5 +1,6 @@
 from mwparserfromhell.nodes import Template
 from .external_links import MAP_LINKS
+from ..utils import get_value, dict_has_value_set
 
 PREFIX = 'map'
 
@@ -10,6 +11,7 @@ class Map(object):
 		self.map = ''
 		self.finished = ''
 		self.vod = ''
+		self.score = ''
 		self.score1 = ''
 		self.score2 = ''
 
@@ -17,7 +19,6 @@ class Map(object):
 
 		self.summary = summary
 
-		self.parameters = {}
 		self.halfs = {}
 		self.links = {}
 
@@ -26,67 +27,57 @@ class Map(object):
 			return text[len(self.prefix):]
 		return text
 
-	def _get_finished(self):
-		winner = self.parameters.get(self.prefix + 'win')
+	def _handle_finished(self):
+		winner = get_value(self.summary, self.prefix + 'win')
 
 		if winner in ['1', '2', '0', 'draw']:
-			return 'true'
+			self.finished = 'true'
+		elif winner == 'skip':
+			self.finished = 'skip'
+		else:
+			self.finished = ''
 
-		if winner == 'skip':
-			return 'skip'
-
-		return ''
-
-	def _get_halfs(self):
-		halfs = {}
-
-		for paramKey, paramValue in self.parameters.items():
-			key = self._remove_map_prefix(paramKey)
+	def _handle_halfs(self):
+		for parameter in self.summary.params:
+			key = str(parameter.name)
+			#Ignore other maps
+			if not(self.prefix in key):
+				continue
 			if ('t1firstside' in key or 
 				't1ct' in key or 
 				't1t' in key or
 				't2ct' in key or
 				't2t' in key):
-				halfs[key] = paramValue
-		
-		return halfs
+				self.halfs[self._remove_map_prefix(key)] = str(parameter.value)
 
-	def _get_links(self):
-		links = {}
-
-		for paramKey, paramValue in self.parameters.items():
-			if paramKey.endswith(str(self.index)):
-				key = paramKey[:-1]
-				if key in MAP_LINKS:
-					links[key] = paramValue
-
-		return links
-
-	def process(self):
+	def _handle_links(self, bestof):
 		for parameter in self.summary.params:
-			name = str(parameter.name)
-			#catch map1x
-			if self.prefix in name:
-				self.parameters[name] = str(parameter.value)
-			#catch x1
-			if name.endswith(str(self.index)):
-				self.parameters[name] = str(parameter.value)
+			key = str(parameter.name)
+			#catch parameters like eseaX
+			if key.endswith(str(self.index)):
+				key = key[:-1]
+				if key in MAP_LINKS:
+					self.links[key] = str(parameter.value)
+			#In bestof 1 sometimes parameters like esea exist intead of eseaX
+			if bestof == 1:
+				if key in MAP_LINKS:
+					self.links[key] = str(parameter.value)
 
-		if 'vodgame' + str(self.index) in self.parameters:
-			self.vod = self.parameters['vodgame' + str(self.index)]
+	def process(self, bestof):
+		if self.summary is None:
+			return
 
-		self.map = self.parameters[self.prefix] or ''
-		self.finished = self._get_finished()
-		self.halfs = self._get_halfs()
-		self.links = self._get_links()
+		self.map = get_value(self.summary, self.prefix)
 
-		if self.prefix + 'score' in self.parameters:
-			score = self.parameters[self.prefix + 'score']
-			score = score.split('-', 1)
-			if len(score) == 1:
-				self.score1 = score[0] or ''
-			if len(score) == 2:
-				self.score2 = score[1] or ''
+		self.score = get_value(self.summary, self.prefix + 'score')
+		if self.score:
+			self.score1, self.score2 = self.score.split('-', 1)
+
+		self.vod = get_value(self.summary, 'vodgame' + str(self.index))
+
+		self._handle_finished()
+		self._handle_halfs()
+		self._handle_links(bestof)
 
 	def __str__(self) -> str:
 		out = '{{Map|map=' + self.map
@@ -96,7 +87,7 @@ class Map(object):
 			out = out + '|score2=' + self.score2
 		out = out + '|finished=' + self.finished
 
-		if (not self.halfs) and (not self.links):
+		if self.finished == 'skip':
 			return out + '}}'
 
 		if self.halfs:
