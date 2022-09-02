@@ -10,8 +10,8 @@ MAX_MAPS = 10
 
 class Match(object):
 
-	def __init__(self, opponent1: Opponent, opponent2: Opponent, winner: int = 0) -> None:
-		self.summary = None
+	def __init__(self, opponent1: Opponent, opponent2: Opponent, winner: int = 0, summary: Template = None) -> None:
+		self.summary = summary
 
 		self.opponent1 = opponent1
 		self.opponent2 = opponent2
@@ -30,9 +30,6 @@ class Match(object):
 
 		self.winner = winner
 		self.bestof = 0
-
-	def set_summary(self, summary: Template):
-		self.summary = summary
 
 	def _handle_streams(self):
 		for parameter in self.summary.params:

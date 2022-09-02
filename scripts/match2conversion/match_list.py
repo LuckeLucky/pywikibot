@@ -78,8 +78,7 @@ class MatchList(object):
 			details = self.get_summary(matchMap)
 			winner = self.get_winner(matchMap)
 
-			match = Match(opponent1, opponent2, winner)
-			match.set_summary(details)
+			match = Match(opponent1, opponent2, winner, details)
 			match.process()
 			self.matches.append(match)
 

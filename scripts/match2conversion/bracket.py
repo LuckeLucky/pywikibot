@@ -67,8 +67,7 @@ class Bracket(object):
 						if opponent1 and opponent2 and details:
 							resetMatch = True
 
-					match = Match(opponent1, opponent2, winner)
-					match.set_summary(details)
+					match = Match(opponent1, opponent2, winner, details)
 					match.process()
 					wikicode.append(match2parameter + equal + str(match) + '\n')
 			else:
