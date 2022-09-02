@@ -1,10 +1,17 @@
-from .match import Match
+from mwparserfromhell.nodes import Template
 
+from scripts.match2conversion.opponent import Opponent
+from scripts.utils.parser_helper import get_value, sanitize_template
+
+from .match import Match
 from .helpers import generate_id
 
 class MatchList(object):
 
-	def __init__(self) -> None:
+	def __init__(self, matchListStart: Template, matchMaps: list) -> None:
+		self.matchListStart = sanitize_template(matchListStart)
+		self.matchMaps = matchMaps
+
 		self.title = ''
 		self.matchsection = ''
 		self.width = ''
@@ -13,40 +20,68 @@ class MatchList(object):
 		self.gsl = ''
 
 		self.headers = []
+
 		self.matches = []
 
-	def set_title(self, value: str) -> None:
-		self.title = value
+	def get_opponent(self, matchMap: Template, opponentIndex: int) -> Opponent:
+		teamName = get_value(matchMap, 'team' + str(opponentIndex))
+		teamScore = get_value(matchMap, 'games' + str(opponentIndex))
+		return Opponent(teamName, teamScore)
 
-	def set_width(self, value: str) -> None:
-		self.width = value
+	def get_summary(self, matchMap: Template):
+		if matchMap.has('details'):
+			return sanitize_template(matchMap.get('details').value.filter_templates()[0])
+		return None
 
-	def set_collapsed(self, value: str) -> None:
-		self.collapsed = value
+	def get_winner(self, matchMap: Template) -> int:
+		if get_value(matchMap, 'winner'):
+			return 1
 
-	def set_attached(self, value: str) -> None:
-		self.attached = value
-		self.collapsed = value
-
-	def set_matchsection(self, value: str) -> None:
-		self.matchsection = value
-
-	def set_gsl(self, value):
-		if value == 'winners':
+	def handle_gsl(self):
+		gsl = get_value(self.matchListStart, 'gsl')
+		if gsl == 'winners':
 			self.gsl = 'winnersfirst'
-		elif value == 'losers':
+		elif gsl == 'losers':
 			self.gsl = 'losersfirst'
 		else:
-			self.gsl = value
+			self.gsl = gsl
 
-	def has_gsl(self) -> bool:
-		return self.gsl == ''
-
-	def add_match(self, match: Match) -> None:
-		self.matches.append(match)
-
-	def add_header(self, index: int, value: str) -> None:
+	def add_header(self, index, value):
 		self.headers.append('|M' + str(index) + 'header=' + value)
+
+	def process(self):
+		if self.matchListStart is None:
+			return
+
+		self.title = get_value(self.matchListStart, 'title')
+		self.matchsection = get_value(self.matchListStart, 'matchsection')
+		self.width = get_value(self.matchListStart, 'width')
+		self.collapsed = get_value(self.matchListStart, 'hide')
+		self.attached = get_value(self.matchListStart, 'attached')
+		#If attached to GroupTable the matches are collapsed
+		if self.attached:
+			self.collapsed = self.attached
+		self.handle_gsl()
+
+		if self.matchMaps is None:
+			return
+
+		for matchMapIndex, matchMap in enumerate(self.matchMaps):
+			matchMap = sanitize_template(matchMap)
+			#date ouside of details count as header
+			header = get_value(matchMap, 'date')
+			if header:
+				self.add_header(matchMapIndex, header)
+
+			opponent1 = self.get_opponent(matchMap, 1)
+			opponent2 = self.get_opponent(matchMap, 2)
+			details = self.get_summary(matchMap)
+			winner = self.get_winner(matchMap)
+
+			match = Match(opponent1, opponent2, winner)
+			match.set_summary(details)
+			match.process()
+			self.matches.append(match)
 
 	def __str__(self) -> str:
 		out = '{{Matchlist|id=' + generate_id()
