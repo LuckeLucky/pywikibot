@@ -1,5 +1,4 @@
 import re
-from os import link
 from mwparserfromhell.nodes import Template
 from .external_links import STREAMS, MATCH_LINKS
 from .map import Map
@@ -33,18 +32,13 @@ class Match(object):
 	def set_summary(self, summary: Template):
 		self.summary = summary
 
-	def _get_streams(self):
-		streams = {}
-
+	def handle_streams(self):
 		for paramKey, paramValue in self.parameters.items():
 			if paramKey in STREAMS:
-				streams[paramKey] = paramValue
-
-		return streams
+				self.streams[paramKey] = paramValue
 
 	def handle_finished(self):
 		self.finished = self.parameters['finished']
-
 		if not self.finished:
 			if self.winner > 0:
 				self.finished = 'true'
@@ -67,8 +61,6 @@ class Match(object):
 
 		if 'date' in self.parameters:
 			self.date = self.parameters['date']
-			
-		self.handle_finished()
 
 		if 'vod' in self.parameters:
 			self.vod = self.parameters['vod']
@@ -79,21 +71,16 @@ class Match(object):
 		if 'overturned' in self.parameters:
 			self.overturned = self.parameters['overturned']
 
-		#Stats for bo1
-		if 'stats' in self.parameters:
-			self.summary.remove('stats')
-			self.summary.add('stats1', self.parameters.pop('stats'))
-
-
-		self.streams = self._get_streams()
-
 		for mapIndex in range(1, MAX_MAPS):
 			if 'map' + str(mapIndex) in self.parameters:
 				map = Map(mapIndex, self.summary)
 				self.maps.append(map)
 				self.bestof = self.bestof + 1
 
+		self.handle_finished()
 		self.handle_links()
+		self.handle_streams()
+		print("ola")
 
 	def __str__(self) -> str:
 		out = '{{Match'
@@ -120,7 +107,6 @@ class Match(object):
 
 		if self.links:
 			out = out + '\n\t'
-			self.handle_links()
 			for linkKey, linkValue in self.links.items():
 				out = out + '|' + linkKey + '=' + linkValue
 
@@ -132,8 +118,7 @@ class Match(object):
 
 		if self.maps:
 			for mapIndex, map in enumerate(self.maps):
-				map.process()
-				map.handle_links(self.bestof)
+				map.process(self.bestof)
 				out = out + '\n\t'
 				out = out + '|map' + str(mapIndex + 1) + '=' + str(map)
 
