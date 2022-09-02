@@ -1,10 +1,8 @@
-from match2conversion import Match, Opponent, MatchList
-
 import mwparserfromhell
-from mwparserfromhell.nodes import Template
-
 import pywikibot
 from pywikibot import pagegenerators
+
+from match2conversion import MatchList
 from scripts.utils.parser_helper import remove_and_squash
 from scripts.utils.text_handler import get_text, put_text
 
@@ -51,7 +49,7 @@ def process_text(text: str):
 def main(*args):
 
 	# summary message
-	edit_summary = 'Converting MatchLists to Match2'
+	edit_summary = 'Convert MatchLists to Match2'
 
 	# Read commandline parameters.
 	local_args = pywikibot.handle_args(args)

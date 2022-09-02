@@ -1,9 +1,8 @@
-import pywikibot
 import mwparserfromhell
-
+import pywikibot
 from pywikibot import pagegenerators
 
-from scripts.match2conversion.bracket import Bracket
+from match2conversion.bracket import Bracket
 from utils import get_text, put_text
 
 def process_text(text: str, templateToReplace: str):
@@ -43,7 +42,7 @@ def main(*args):
 		pywikibot.stdout("<<lightred>>Missing support for template: " + templateToReplace)
 		return
 
-	edit_summary = f'Converting Bracket {templateToReplace} to Match2'
+	edit_summary = f'Convert Bracket {templateToReplace} to Match2'
 	generator = genFactory.getCombinedGenerator()
 	for page in generator:
 		text = get_text(page)
