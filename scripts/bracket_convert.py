@@ -21,9 +21,6 @@ def process_text(text: str, templateToReplace: str):
 
 def main(*args):
 
-	# summary message
-	edit_summary = 'Converting Brackets to Match2'
-
 	# Read commandline parameters.
 	local_args = pywikibot.handle_args(args)
 	genFactory = pagegenerators.GeneratorFactory()
@@ -46,8 +43,8 @@ def main(*args):
 		pywikibot.stdout("<<lightred>>Missing support for template: " + templateToReplace)
 		return
 
+	edit_summary = f'Converting Bracket {templateToReplace} to Match2'
 	generator = genFactory.getCombinedGenerator()
-
 	for page in generator:
 		text = get_text(page)
 		new_text = process_text(text, templateToReplace)
