@@ -74,6 +74,10 @@ def sanitize_template(template: Template):
 	return template
 
 def get_value(template: Template, key: str) -> str:
+	'''Check if template has a key, if true return str(value) or empty string'''
+
+	if template is None:
+		return ''
 	if template.has(key):
 		return str(template.get(key).value)
 	return ''
