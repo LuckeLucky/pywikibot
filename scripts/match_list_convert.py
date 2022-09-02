@@ -21,7 +21,7 @@ def process_text(text: str):
 			if template.name.matches('MatchListStart'):
 				matchListStart = template
 				if previousTemplate.name.matches('GroupTableLeague'):
-						template.add('attached', 'true')
+					template.add('attached', 'true')
 
 			if template.name.matches('MatchMaps'):
 				matchMaps.append(template)
