@@ -24,12 +24,10 @@ class Bracket(object):
 	def check_support(templateName: str):
 		return templateName in SUPPORTED_TEMPLATES
 
-	def get_opponent(self, parameter):
+	def get_opponent(self, parameter) -> Opponent:
 		teamName = get_value(self.bracket, parameter + 'team')
 		teamScore = get_value(self.bracket, parameter + 'score')
-		if teamName:
-			return Opponent(teamName, teamScore)
-		return None
+		return Opponent(teamName, teamScore)
 
 	def get_summary(self, parameter):
 		if self.bracket.has(parameter + 'details'):
