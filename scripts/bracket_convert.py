@@ -6,17 +6,21 @@ from match2conversion.bracket import Bracket
 from utils import get_text, put_text
 
 def process_text(text: str, templateToReplace: str):
-	wikicode = mwparserfromhell.parse(text)
-	bracket = None
-	for template in wikicode.filter_templates():
-		if template.name.matches(templateToReplace):
-			bracket = template
+	while(True):
+		wikicode = mwparserfromhell.parse(text)
+		bracket = None
+		for template in wikicode.filter_templates():
+			if template.name.matches(templateToReplace):
+				bracket = template
 
-	if bracket:
+		if bracket is None:
+			break
+
 		newBracket = Bracket(templateToReplace, bracket)	
 		wikicode.replace(bracket, str(newBracket))
+		text = str(wikicode)
 
-	return wikicode
+	return text
 
 def main(*args):
 
