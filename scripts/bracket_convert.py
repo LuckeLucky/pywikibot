@@ -37,7 +37,7 @@ def main(*args):
 			arg = arg[1:]
 			arg, _, value = arg.partition(':')
 			if arg == 'template':
-				templateName = value
+				templateToReplace = value
 
 	if not templateToReplace:
 		templateToReplace = pywikibot.input('Template to replace:')

@@ -8,7 +8,8 @@ from pathlib import Path
 
 SUPPORTED_TEMPLATES = [
 	'32DETeamBracket',
-	'2SETeamBracket'
+	'2SETeamBracket',
+	'8SE2STeamBracket'
 ]
 
 class Bracket(object):
@@ -36,16 +37,27 @@ class Bracket(object):
 			return sanitize_template(self.bracket.get(parameter + 'details').value.filter_templates()[0])
 		return None
 
+	def get_winner(self, team1parameter, team2parameter) -> int:
+		if self.bracket.has(team1parameter + 'win'):
+			if str(self.bracket.get(team1parameter + 'win').value):
+				return 1
+		if self.bracket.has(team2parameter + 'win'):
+			if str(self.bracket.get(team2parameter + 'win').value):
+				return 2
+		return 0
+
 	def __str__(self) -> str:
 		p = Path(__file__).with_name('bracketconfigs')
 		p = p / (self.oldTemplateName + '.txt')
 		file = p.open('r')
 
-		newBracket = ''
+		wikicode = []
+		resetMatch = False
+		hasResetMatch = False
 		for line in file:
 			if 'id=' in line:
-				line = line.replace('id=', 'id=' + generate_id())
-			if line.startswith('|R') and (not 'header' in line):
+				wikicode.append(line.replace('id=', 'id=' + generate_id()))
+			elif line.startswith('|R') and (not 'header' in line):
 				match2parameter, equal, matchParameters = line.partition('=')
 				matchParameters =  matchParameters.rstrip()
 				if matchParameters:
@@ -54,13 +66,23 @@ class Bracket(object):
 					opponent1 = self.get_opponent(parameters[0])
 					opponent2 = self.get_opponent(parameters[1])
 					details = self.get_summary(parameters[2])
-					match = Match(opponent1, opponent2)
+					winner = self.get_winner(parameters[0], parameters[1])
+					if match2parameter == '|RxMTP':
+						hasResetMatch = True
+						if opponent1 and opponent2 and details:
+							resetMatch = True
+					
+					match = Match(opponent1, opponent2, winner)
 					match.set_summary(details)
 					match.process()
 
-					newBracket = newBracket + match2parameter + equal + str(match) + '\n'
+					wikicode.append(match2parameter + equal + str(match) + '\n')
 			else:
-				newBracket = newBracket + line
+				wikicode.append(line)
 
-
-		return newBracket
+		if hasResetMatch:
+			#Remove third place things
+			if not resetMatch:
+				for _ in range(3):
+					wikicode.pop(len(wikicode) - 2)
+		return ''.join(wikicode)

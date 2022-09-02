@@ -9,7 +9,7 @@ MAX_MAPS = 10
 
 class Match(object):
 
-	def __init__(self, opponent1: Opponent, opponent2: Opponent) -> None:
+	def __init__(self, opponent1: Opponent, opponent2: Opponent, winner: int = 0) -> None:
 		self.summary = None
 
 		self.opponent1 = opponent1
@@ -27,6 +27,7 @@ class Match(object):
 		self.comment = ''
 		self.overturned = ''
 
+		self.winner = winner
 		self.bestof = 0
 
 	def set_summary(self, summary: Template):
@@ -40,6 +41,13 @@ class Match(object):
 				streams[paramKey] = paramValue
 
 		return streams
+
+	def handle_finished(self):
+		self.finished = self.parameters['finished']
+
+		if not self.finished:
+			if self.winner > 0:
+				self.finished = 'true'
 
 	def handle_links(self):
 		for paramKey, paramValue in self.parameters.items():
@@ -59,9 +67,8 @@ class Match(object):
 
 		if 'date' in self.parameters:
 			self.date = self.parameters['date']
-
-		if 'finished' in self.parameters:
-			self.finished = self.parameters['finished']
+			
+		self.handle_finished()
 
 		if 'vod' in self.parameters:
 			self.vod = self.parameters['vod']
@@ -96,7 +103,11 @@ class Match(object):
 		if self.opponent2:
 			out = out + '|opponent2=' + str(self.opponent2)
 
-		out = out + '\n\t|date=' + self.date + '|finished=' + self.finished
+		if self.finished and (not self.date):
+			out = out + '\n\t|finished=' + self.finished
+		else:
+			out = out + '\n\t|date=' + self.date + '|finished=' + self.finished
+
 		if self.streams:
 			out = out + '\n\t'
 			for streamKey, streamValue in self.streams.items():
