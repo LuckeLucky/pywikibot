@@ -1,14 +1,14 @@
 class Opponent(object):
 	
 	def __init__(self, name, score):
-		self._name = name
-		self._score = score
+		self.name = name
+		self.score = score
 
 	def __str__(self) -> str:
 		out = '{{TeamOpponent|'
-		if self._name != '':
-			out = out + self._name
-		if self._score != '':
-			out = out + '|score=' + self._score 
+		if self.name:
+			out = out + self.name
+		if self.score:
+			out = out + '|score=' + self.score 
 
 		return out + '}}'
