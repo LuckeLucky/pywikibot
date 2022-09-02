@@ -42,8 +42,7 @@ def main(*args):
 	for page in generator:
 		text = get_text(page)
 		new_text = process_text(text)
-		print(new_text)
-		#put_text(page, summary=edit_summary, new=new_text)
+		put_text(page, summary=edit_summary, new=new_text)
 
 if __name__ == '__main__':
 	main()
