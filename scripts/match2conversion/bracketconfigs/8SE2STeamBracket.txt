@@ -1,4 +1,8 @@
 {{Bracket|Bracket/8L2DS|id=
+|R1M1header=R1
+|R2M1header=R2
+|R3M1header=R3
+|R4M1header=R4
 
 <!-- Round 1 -->
 |R1M1=R1D1*R1D2*R1G1
