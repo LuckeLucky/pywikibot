@@ -1,4 +1,18 @@
 {{Bracket|Bracket/32U16L8DSL4DSL2DSL1D|id=
+|R1M1header=R1
+|R2M1header=R2
+|R4M1header=R4
+|R6M1header=R6
+|R8M1header=R8
+|R1M17header=L1
+|R2M9header=L2
+|R3M1header=L3
+|R4M5header=L4
+|R5M1header=L5
+|R6M3header=L6
+|R7M1header=L7
+|R8M2header=L8
+|R9M1header=R9
 
 <!-- Upper Bracket Round 1 -->
 |R1M1=R1D1*R1D2*R1G1

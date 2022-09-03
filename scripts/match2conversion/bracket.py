@@ -40,6 +40,9 @@ class Bracket(object):
 			return 2
 		return 0
 
+	def get_header(self, parameter):
+		return get_value(self.bracket, parameter)
+
 	def __str__(self) -> str:
 		p = Path(__file__).with_name('bracketconfigs')
 		p = p / (self.oldTemplateName + '.txt')
@@ -51,25 +54,30 @@ class Bracket(object):
 		for line in file:
 			if 'id=' in line:
 				wikicode.append(line.replace('id=', 'id=' + generate_id()))
-			elif line.startswith('|R') and (not 'header' in line):
+			elif line.startswith('|R'):
 				match2parameter, equal, matchParameters = line.partition('=')
-				matchParameters =  matchParameters.rstrip()
+				matchParameters = matchParameters.rstrip()
 				if matchParameters:
-					parameters = matchParameters.split('*')
+					if (not 'header' in match2parameter):
+						parameters = matchParameters.split('*')
 
-					opponent1 = self.get_opponent(parameters[0])
-					opponent2 = self.get_opponent(parameters[1])
-					details = self.get_summary(parameters[2])
-					winner = self.get_winner(parameters[0], parameters[1])
+						opponent1 = self.get_opponent(parameters[0])
+						opponent2 = self.get_opponent(parameters[1])
+						details = self.get_summary(parameters[2])
+						winner = self.get_winner(parameters[0], parameters[1])
 
-					if match2parameter == '|RxMTP':
-						hasResetMatch = True
-						if opponent1 and opponent2 and details:
-							resetMatch = True
+						if match2parameter == '|RxMTP':
+							hasResetMatch = True
+							if opponent1 and opponent2 and details:
+								resetMatch = True
 
-					match = Match(opponent1, opponent2, winner, details)
-					match.process()
-					wikicode.append(match2parameter + equal + str(match) + '\n')
+						match = Match(opponent1, opponent2, winner, details)
+						match.process()
+						wikicode.append(match2parameter + equal + str(match) + '\n')
+					else:
+						header = self.get_header(matchParameters)
+						if header:
+							wikicode.append(match2parameter + equal + header + '\n')
 			else:
 				wikicode.append(line)
 
