@@ -1,4 +1,5 @@
 #merit to https://github.com/lahwaacz/wiki-scripts :)
+import re
 from mwparserfromhell.nodes import Text, Template
 
 def get_parent_wikicode(wikicode, node):
@@ -67,19 +68,26 @@ def remove_and_squash(wikicode, obj):
         prev.value += next_.value
         parent.remove(next_)
 
-def sanitize_template(template: Template):
+def sanitize_template(template: Template, removeComments: bool = False):
 	for parameter in template.params:
 		value = str(parameter.value)
+		if '<!--' in value and removeComments:
+			value = re.sub(r'(<!--.*?-->)', '', value, 0, re.MULTILINE)
 		template.add(str(parameter.name), value.rstrip(), preserve_spacing=False)
 	return template
 
-def get_value(template: Template, key: str) -> str:
+def get_value(template: Template, key: str, index: int = -1) -> str:
 	'''Check if template has a key, if true return str(value) or empty string'''
 
 	if template is None:
 		return ''
-	if template.has(key):
-		return str(template.get(key).value)
+	if key:
+		if template.has(key):
+			return str(template.get(key).value)
+	if index >= 0:
+		for paramIndex, param in enumerate(template.params):
+			if paramIndex == index:
+				return str(param.value)
 	return ''
 
 def dict_has_value_set(dictionary: dict) -> bool:
