@@ -26,7 +26,7 @@ class Bracket(object):
 
 	@staticmethod
 	def partition_id(id: str):
-		id = id.split('_')[1] or id
+		id = id.split('_')[1] if len(id.split('_')) > 1 else id
 		if id == 'RxMTP':
 			return id, 0, 0
 		elif id == 'RxMBR':
@@ -155,17 +155,13 @@ class Bracket(object):
 
 			for index, _ in enumerate(min(iteamAsort, iteamBsort)):
 				if iteamAsort[index] < iteamBsort[index]:
-					return 1
-				elif iteamAsort[index] > iteamBsort[index]:
 					return -1
+				elif iteamAsort[index] > iteamBsort[index]:
+					return 1
 			
-			if len(iteamA) < len(itemB):
-				return 1
-			else:
-				return -1
-		sorted(bracketDataList, key=cmp_to_key(compare))
+			return 1 if len(iteamA) < len(itemB) else -1
 
-		return bracketDataList
+		return sorted(bracketDataList, key=cmp_to_key(compare))
 
 	def process(self):
 		if (self.bracket is None):
@@ -178,10 +174,10 @@ class Bracket(object):
 		self.lastRound = None
 
 	def __str__(self) -> str:
-		ola = self.prepare_output()
+		matches = self.prepare_output()
 		out = '{{Bracket|'+ self.newTemplateName + '|id=' + generate_id() + '\n'
-		for match in self.matches:
-			id, roundIndex, matchIndex = Bracket.partition_id(match['match2id'])
+		for match in matches:
+			id, roundIndex, matchIndex = Bracket.partition_id(match['matchKey'])
 			if not id in self.bracketData:
 				continue
 			match2 = self.bracketData[id]
