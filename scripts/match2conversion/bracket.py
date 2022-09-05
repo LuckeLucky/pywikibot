@@ -24,6 +24,19 @@ class Bracket(object):
 		data = json.load(file)
 		Bracket.configs = data
 
+	@staticmethod
+	def partition_id(id: str):
+		id = id.split('_')[1] or id
+		if id == 'RxMTP':
+			return id, 0, 0
+		elif id == 'RxMBR':
+			return id, 0, 0
+		else:
+			id = id.replace('-', '')
+			roundNumber, _, matchNumber = id.partition('M')
+			return id, int(roundNumber[1:]), int(matchNumber)
+
+
 	def __init__(self, oldTemplateName: str, bracket: Template) -> None:
 		if Bracket.configs is None:
 			Bracket.read_config()
@@ -33,6 +46,8 @@ class Bracket(object):
 		self.roundData = {}
 		self.bracketData = {}
 		self.lastRound = None
+
+		self.newTemplateName = 'Bracket/' + bracketAlias[self.oldTemplateName]
 
 	def get_opponent(self, parameter) -> Opponent:
 		teamName = get_value(self.bracket, parameter + 'team')
@@ -50,9 +65,7 @@ class Bracket(object):
 		return 0
 
 	def get_match_mappings(self, match):
-		id = match['match2id'].split('_')[1] or match['match2id']
-		id = id.replace('-', '')
-		
+		id, roundNumber, _ = Bracket.partition_id(match['match2id'])
 		reset = False
 		if id == 'RxMTP':
 			round = self.lastRound
@@ -63,8 +76,6 @@ class Bracket(object):
 			round['D'] = round['D'] - 2
 			reset = True
 		else:
-			id = id[1:]
-			roundNumber = int(id.split('M')[0])
 			if roundNumber in self.roundData:
 				round = self.roundData[roundNumber]
 			else:
@@ -113,14 +124,27 @@ class Bracket(object):
 		if (self.bracket is None):
 			return
 
-		templateID = 'Bracket/' + bracketAlias[self.oldTemplateName]
-		matches = Bracket.configs[templateID]
+		matches = Bracket.configs[self.newTemplateName]
 
 		for match in matches:
 			self.get_match_mappings(match)
+
+		self.roundData = None
+		self.lastRound = None
 
 	def get_header(self, parameter):
 		return get_value(self.bracket, parameter)
 
 	def __str__(self) -> str:
-		return ''
+		matches = Bracket.configs[self.newTemplateName]
+
+		out = '{{'+ self.newTemplateName + '|id=' + generate_id() + '\n'
+		for match in matches:
+			id, roundIndex, matchIndex = Bracket.partition_id(match['match2id'])
+			match2 = self.bracketData[id]
+			match2.process()
+			if roundIndex > 0:
+				out = out + '|R' + str(roundIndex) + 'M' + str(matchIndex) + '=' + str(match2) + '\n'
+			else:
+				out = out + '|' + id + '=' + str(match2) + '\n'
+		return out + '}}'
