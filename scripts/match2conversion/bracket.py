@@ -1,27 +1,38 @@
+from cgitb import reset
+import json
 from mwparserfromhell.nodes import Template
 
 from .helpers import generate_id
 from .match import Match
 from .opponent import Opponent
+from .bracket_alias import bracketAlias
 from scripts.utils.parser_helper import get_value, sanitize_template
 
 from pathlib import Path
 
-SUPPORTED_TEMPLATES = [
-	'32DETeamBracket',
-	'2SETeamBracket',
-	'8SE2STeamBracket'
-]
-
 class Bracket(object):
-
-	def __init__(self, oldTemplateName: str, bracket: Template) -> None:
-		self.oldTemplateName = oldTemplateName
-		self.bracket = sanitize_template(bracket)
+	configs = None
 
 	@staticmethod
 	def check_support(templateName: str):
-		return templateName in SUPPORTED_TEMPLATES
+		return templateName in bracketAlias
+
+	@staticmethod
+	def read_config():
+		p = Path(__file__).with_name('bracket_templates.json')
+		file = p.open()
+		data = json.load(file)
+		Bracket.configs = data
+
+	def __init__(self, oldTemplateName: str, bracket: Template) -> None:
+		if Bracket.configs is None:
+			Bracket.read_config()
+		self.oldTemplateName = oldTemplateName
+		self.bracket = sanitize_template(bracket)
+
+		self.roundData = {}
+		self.bracketData = {}
+		self.lastRound = None
 
 	def get_opponent(self, parameter) -> Opponent:
 		teamName = get_value(self.bracket, parameter + 'team')
@@ -33,57 +44,83 @@ class Bracket(object):
 			return sanitize_template(self.bracket.get(parameter + 'details').value.filter_templates()[0])
 		return None
 
-	def get_winner(self, team1parameter, team2parameter) -> int:
-		if get_value(self.bracket, team1parameter + 'win'):
+	def get_winner(self, parameter) -> int:
+		if get_value(self.bracket, parameter + 'win'):
 			return 1
-		if get_value(self.bracket, team2parameter + 'win'):
-			return 2
 		return 0
+
+	def get_match_mappings(self, match):
+		id = match['match2id'].split('_')[1] or match['match2id']
+		id = id.replace('-', '')
+		
+		reset = False
+		if id == 'RxMTP':
+			round = self.lastRound
+		elif id == 'RxMBR':
+			round = self.lastRound
+			round.G = round.G - 2
+			round['W'] = round['W'] - 2
+			round['D'] = round['D'] - 2
+			reset = True
+		else:
+			id = id[1:]
+			roundNumber = int(id.split('M')[0])
+			if roundNumber in self.roundData:
+				round = self.roundData[roundNumber]
+			else:
+				round = {'R': roundNumber, 'G': 0, 'D': 1, 'W': 1}
+		round['G'] = round['G'] + 1
+
+		bd = match['match2bracketdata']
+
+		opponent1 = None
+		winner1 = 0
+		if (not 'toupper' in bd) and not reset:
+			param = 'R' + str(round['R']) + 'D' + str(round['D'])
+			#RxDx
+			opponent1 = self.get_opponent(param)
+			winner1 = self.get_winner(param)
+			round['D'] = round['D'] + 1
+		else:
+			param = 'R' + str(round['R']) + 'W' + str(round['W'])
+			#RxWx
+			opponent1 = self.get_opponent(param)
+			winner1 = self.get_winner(param)
+			round['W'] = round['W'] + 1
+
+		opponent2 = None
+		winner2 = 0
+		if (not 'tolower' in bd) and not reset:
+			param = 'R' + str(round['R']) + 'D' + str(round['D'])
+			#RxDx
+			opponent2 = self.get_opponent(param)
+			winner2 = self.get_winner(param)
+			round['D'] = round['D'] + 1
+		else:
+			param = 'R' + str(round['R']) + 'W' + str(round['W'])
+			#RxWx
+			opponent2 = self.get_opponent(param)
+			winner2 = self.get_winner(param)
+			round['W'] = round['W'] + 1
+
+		details = self.get_summary('R' + str(round['R']) + 'G' + str(round['G']))
+		winner = winner1 > winner2 and 1 or 0
+		self.bracketData[id] = Match(opponent1, opponent2, winner, details)
+		self.lastRound = round
+		self.roundData[round['R']] = round
+
+	def process(self):
+		if (self.bracket is None):
+			return
+
+		templateID = 'Bracket/' + bracketAlias[self.oldTemplateName]
+		matches = Bracket.configs[templateID]
+
+		for match in matches:
+			self.get_match_mappings(match)
 
 	def get_header(self, parameter):
 		return get_value(self.bracket, parameter)
 
 	def __str__(self) -> str:
-		p = Path(__file__).with_name('bracketconfigs')
-		p = p / (self.oldTemplateName + '.txt')
-		file = p.open('r')
-
-		wikicode = []
-		resetMatch = False
-		hasResetMatch = False
-		for line in file:
-			if 'id=' in line:
-				wikicode.append(line.replace('id=', 'id=' + generate_id()))
-			elif line.startswith('|R'):
-				match2parameter, equal, matchParameters = line.partition('=')
-				matchParameters = matchParameters.rstrip()
-				if matchParameters:
-					if (not 'header' in match2parameter):
-						parameters = matchParameters.split('*')
-
-						opponent1 = self.get_opponent(parameters[0])
-						opponent2 = self.get_opponent(parameters[1])
-						details = self.get_summary(parameters[2])
-						winner = self.get_winner(parameters[0], parameters[1])
-
-						if match2parameter == '|RxMTP':
-							hasResetMatch = True
-							if opponent1 and opponent2 and details:
-								resetMatch = True
-
-						match = Match(opponent1, opponent2, winner, details)
-						match.process()
-						wikicode.append(match2parameter + equal + str(match) + '\n')
-					else:
-						header = self.get_header(matchParameters)
-						if header:
-							wikicode.append(match2parameter + equal + header + '\n')
-			else:
-				wikicode.append(line)
-
-		if hasResetMatch:
-			#Remove third place things
-			if not resetMatch:
-				for _ in range(3):
-					wikicode.pop(len(wikicode) - 2)
-		return ''.join(wikicode)
+		return ''
