@@ -17,7 +17,7 @@ class Bracket(object):
 
 	def __init__(self, oldTemplateName: str, bracket: Template) -> None:
 		self.oldTemplateName = oldTemplateName
-		self.bracket = sanitize_template(bracket)
+		self.bracket = sanitize_template(bracket, removeComments=True)
 
 	@staticmethod
 	def check_support(templateName: str):
@@ -43,47 +43,51 @@ class Bracket(object):
 	def get_header(self, parameter):
 		return get_value(self.bracket, parameter)
 
+	def handle_round(self, wikicode: list, line: str):
+		match2parameter, equal, matchParameters = line.partition('=')
+		matchParameters = matchParameters.rstrip()
+		#Means we don't have a mapping
+		if not matchParameters:
+			return
+
+		if 'header' in match2parameter:
+			header = self.get_header(matchParameters)
+			if header:
+				wikicode.append(match2parameter + equal + header + '\n')
+		else:
+			parameters = matchParameters.split('*')
+			opponent1 = self.get_opponent(parameters[0])
+			opponent2 = self.get_opponent(parameters[1])
+			details = self.get_summary(parameters[2])
+			winner = self.get_winner(parameters[0], parameters[1])
+
+			match = Match(opponent1, opponent2, winner, details)
+			match.process()
+
+			if '|RxMTP' in match2parameter:
+				#Means all match mapping to reset match are empty
+				if ((not get_value(parameters[0]))
+					and (not get_value(parameters[1]))
+					and (not get_value(parameters[2]))):
+					#Pop <!-- Third Place Match --> and newline
+					wikicode.pop(len(wikicode) - 1)
+					wikicode.pop(len(wikicode) - 2)
+					return
+
+			wikicode.append(match2parameter + equal + str(match) + '\n')
+
 	def __str__(self) -> str:
 		p = Path(__file__).with_name('bracketconfigs')
 		p = p / (self.oldTemplateName + '.txt')
 		file = p.open('r')
 
 		wikicode = []
-		resetMatch = False
-		hasResetMatch = False
 		for line in file:
 			if 'id=' in line:
 				wikicode.append(line.replace('id=', 'id=' + generate_id()))
 			elif line.startswith('|R'):
-				match2parameter, equal, matchParameters = line.partition('=')
-				matchParameters = matchParameters.rstrip()
-				if matchParameters:
-					if (not 'header' in match2parameter):
-						parameters = matchParameters.split('*')
-
-						opponent1 = self.get_opponent(parameters[0])
-						opponent2 = self.get_opponent(parameters[1])
-						details = self.get_summary(parameters[2])
-						winner = self.get_winner(parameters[0], parameters[1])
-
-						if match2parameter == '|RxMTP':
-							hasResetMatch = True
-							if opponent1 and opponent2 and details:
-								resetMatch = True
-
-						match = Match(opponent1, opponent2, winner, details)
-						match.process()
-						wikicode.append(match2parameter + equal + str(match) + '\n')
-					else:
-						header = self.get_header(matchParameters)
-						if header:
-							wikicode.append(match2parameter + equal + header + '\n')
+				self.handle_round(wikicode, line)	
 			else:
 				wikicode.append(line)
-
-		if hasResetMatch:
-			#Remove third place things
-			if not resetMatch:
-				for _ in range(3):
-					wikicode.pop(len(wikicode) - 2)
+		
 		return ''.join(wikicode)
