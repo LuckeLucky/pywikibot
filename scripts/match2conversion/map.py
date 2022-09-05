@@ -116,6 +116,8 @@ class Map(object):
 			out = out + linksOut
 
 		if self.vod:
+			if not self.links:
+				out = out + '\n\t\t'
 			out = out + '|vod=' + self.vod
 
 		return out + '}}'
