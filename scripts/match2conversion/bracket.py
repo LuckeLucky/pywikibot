@@ -1,5 +1,5 @@
-from cgitb import reset
 import json
+from functools import cmp_to_key
 from mwparserfromhell.nodes import Template
 
 from .helpers import generate_id
@@ -36,18 +36,22 @@ class Bracket(object):
 			roundNumber, _, matchNumber = id.partition('M')
 			return id, int(roundNumber[1:]), int(matchNumber)
 
+	@staticmethod
+	def convertIDtoKey(id):
+		key, _, _ = Bracket.partition_id(id)
+		return key
 
 	def __init__(self, oldTemplateName: str, bracket: Template) -> None:
 		if Bracket.configs is None:
 			Bracket.read_config()
 		self.oldTemplateName = oldTemplateName
+		self.newTemplateName = 'Bracket/' + bracketAlias[self.oldTemplateName]
 		self.bracket = sanitize_template(bracket)
 
+		self.matches =  Bracket.configs[self.newTemplateName]
 		self.roundData = {}
 		self.bracketData = {}
 		self.lastRound = None
-
-		self.newTemplateName = 'Bracket/' + bracketAlias[self.oldTemplateName]
 
 	def get_opponent(self, parameter) -> Opponent:
 		teamName = get_value(self.bracket, parameter + 'team')
@@ -73,7 +77,7 @@ class Bracket(object):
 			round = self.lastRound
 		elif id == 'RxMBR':
 			round = self.lastRound
-			round.G = round.G - 2
+			round['G'] = round['G'] - 2
 			round['W'] = round['W'] - 2
 			round['D'] = round['D'] - 2
 			reset = True
@@ -123,26 +127,60 @@ class Bracket(object):
 			self.lastRound = round
 			self.roundData[round['R']] = round
 
+	def prepare_output(self):
+		bracketDataList = []
+
+		for match in self.matches:
+			bracketData = match['match2bracketdata']
+			bracketData['matchKey'] = Bracket.convertIDtoKey(match['match2id'])
+			bracketDataList.append(bracketData)
+
+		def sortKey(bracketData):
+			coordinates = bracketData['coordinates'] if 'coordinates' in bracketData else None
+			if bracketData['matchKey'] == 'RxMTP' or bracketData['matchKey'] == 'RxMBR':
+				#RxMTP and RxMBR entries appear immediately after the match they're attached to
+				#So that match need to be found
+				finalBracketData = next((x for x in bracketDataList if (('thirdplace' in x) or ('bracketreset' in x))), None)
+				result = sortKey(finalBracketData)
+				result.append(1)
+				return result
+			elif coordinates['semanticDepth'] == 0:
+				return [1, -coordinates['sectionIndex']]
+			else:
+				return [0, coordinates['sectionIndex'], coordinates['roundIndex'], coordinates['matchIndexInRound']]
+
+		def compare(iteamA, itemB):
+			iteamAsort = sortKey(iteamA)
+			iteamBsort = sortKey(itemB)
+
+			for index, _ in enumerate(min(iteamAsort, iteamBsort)):
+				if iteamAsort[index] < iteamBsort[index]:
+					return 1
+				elif iteamAsort[index] > iteamBsort[index]:
+					return -1
+			
+			if len(iteamA) < len(itemB):
+				return 1
+			else:
+				return -1
+		sorted(bracketDataList, key=cmp_to_key(compare))
+
+		return bracketDataList
+
 	def process(self):
 		if (self.bracket is None):
 			return
 
-		matches = Bracket.configs[self.newTemplateName]
-
-		for match in matches:
+		for match in self.matches:
 			self.get_match_mappings(match)
 
 		self.roundData = None
 		self.lastRound = None
 
-	def get_header(self, parameter):
-		return get_value(self.bracket, parameter)
-
 	def __str__(self) -> str:
-		matches = Bracket.configs[self.newTemplateName]
-
-		out = '{{'+ self.newTemplateName + '|id=' + generate_id() + '\n'
-		for match in matches:
+		ola = self.prepare_output()
+		out = '{{Bracket|'+ self.newTemplateName + '|id=' + generate_id() + '\n'
+		for match in self.matches:
 			id, roundIndex, matchIndex = Bracket.partition_id(match['match2id'])
 			if not id in self.bracketData:
 				continue
