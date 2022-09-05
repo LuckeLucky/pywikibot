@@ -52,6 +52,8 @@ class Bracket(object):
 	def get_opponent(self, parameter) -> Opponent:
 		teamName = get_value(self.bracket, parameter + 'team')
 		teamScore = get_value(self.bracket, parameter + 'score')
+		if (teamName is None) and (teamScore is None):
+			return None
 		return Opponent(teamName, teamScore)
 
 	def get_summary(self, parameter):
@@ -116,9 +118,10 @@ class Bracket(object):
 
 		details = self.get_summary('R' + str(round['R']) + 'G' + str(round['G']))
 		winner = winner1 > winner2 and 1 or 0
-		self.bracketData[id] = Match(opponent1, opponent2, winner, details)
-		self.lastRound = round
-		self.roundData[round['R']] = round
+		if opponent1 and opponent2:
+			self.bracketData[id] = Match(opponent1, opponent2, winner, details)
+			self.lastRound = round
+			self.roundData[round['R']] = round
 
 	def process(self):
 		if (self.bracket is None):
@@ -141,6 +144,8 @@ class Bracket(object):
 		out = '{{'+ self.newTemplateName + '|id=' + generate_id() + '\n'
 		for match in matches:
 			id, roundIndex, matchIndex = Bracket.partition_id(match['match2id'])
+			if not id in self.bracketData:
+				continue
 			match2 = self.bracketData[id]
 			match2.process()
 			if roundIndex > 0:

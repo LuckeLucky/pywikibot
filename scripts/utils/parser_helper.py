@@ -80,7 +80,7 @@ def get_value(template: Template, key: str) -> str:
 		return ''
 	if template.has(key):
 		return str(template.get(key).value)
-	return ''
+	return None
 
 def dict_has_value_set(dictionary: dict) -> bool:
 	for _, v in dictionary.items():
