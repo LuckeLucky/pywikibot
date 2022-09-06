@@ -180,8 +180,6 @@ class Bracket(object):
 			id, roundIndex, matchIndex = Bracket.partition_id(match['matchKey'])
 			if not id in self.bracketData:
 				continue
-			if id == 'RxMTP' or id == 'RxMBR':
-				continue
 			match2 = self.bracketData[id]
 			match2.process()
 			out = out + '|R' + str(roundIndex) + 'M' + str(matchIndex) + '=' + str(match2) + '\n'
