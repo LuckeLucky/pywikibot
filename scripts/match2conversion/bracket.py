@@ -53,6 +53,9 @@ class Bracket(object):
 		self.bracketData = {}
 		self.lastRound = None
 
+		self.shortNames = ''
+		self.columnwidth = ''
+
 	def get_opponent(self, parameter) -> Opponent:
 		teamName = get_value(self.bracket, parameter + 'team')
 		teamScore = get_value(self.bracket, parameter + 'score')
@@ -173,9 +176,23 @@ class Bracket(object):
 		self.roundData = None
 		self.lastRound = None
 
+		self.shortNames = get_value(self.bracket, 'shortNames')
+		self.columnwidth = get_value(self.bracket, 'column-width')
+		if not self.columnwidth:
+			self.columnwidth = get_value(self.bracket, 'column-width1')
+
+	def output_bracket_start(self):
+		out = '{{Bracket|'+ self.newTemplateName + '|id=' + generate_id()
+		if self.shortNames:
+			out = out + '|forceShortName=true'
+		if self.columnwidth:
+			out = out + '|matchWidth=' + self.columnwidth
+
+		return out
+
 	def __str__(self) -> str:
 		matches = self.prepare_output()
-		out = '{{Bracket|'+ self.newTemplateName + '|id=' + generate_id() + '\n'
+		out = self.output_bracket_start ()+ '\n'
 		for match in matches:
 			id, roundIndex, matchIndex = Bracket.partition_id(match['matchKey'])
 			if not id in self.bracketData:
