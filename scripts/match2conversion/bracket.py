@@ -136,8 +136,8 @@ class Bracket(object):
 		match2 = Match(opponent1, opponent2, winner, details)
 		if match2.isValid():
 			self.idToMatch[id] = match2
-			roundData[round['R']] = round
-			lastRound = round
+		roundData[round['R']] = round
+		lastRound = round
 
 		return roundData, lastRound
 
@@ -165,8 +165,8 @@ class Bracket(object):
 			else:
 				return [0, coordinates['sectionIndex'], coordinates['roundIndex'], coordinates['matchIndexInRound']]
 
-		def compare(iteamA, itemB):
-			iteamAsort = sortKey(iteamA)
+		def compare(itemA, itemB):
+			iteamAsort = sortKey(itemA)
 			iteamBsort = sortKey(itemB)
 
 			for index, _ in enumerate(min(iteamAsort, iteamBsort)):
@@ -175,14 +175,34 @@ class Bracket(object):
 				elif iteamAsort[index] > iteamBsort[index]:
 					return 1
 			
-			return 1 if len(iteamA) < len(itemB) else -1
+			return 1 if len(itemA) < len(itemB) else -1
 
-		_bracketDataList = sorted(_bracketDataList, key=cmp_to_key(compare))
+		_bracketDataList = sorted(_bracketDataList, key = cmp_to_key(compare))
 
 		return [x['matchKey'] for x in _bracketDataList]
 
-	def order_header_keys(self):
-		pass
+	def get_header_output_order(self):
+		_headerList = []
+
+		for headerKey in self.idToHeader.keys():
+			_headerList.append(headerKey)
+
+		def compare(itemA, itemB):
+			rA, _, mA = itemA[1:].partition('M')
+			rB, _, mB = itemB[1:].partition('M')
+			if rA < rB:
+				return -1
+			elif rA > rB:
+				return 1
+
+			if mA < mB:
+				return -1
+			elif mA > mB:
+				return 1
+
+			return 0
+
+		return sorted(_headerList, key = cmp_to_key(compare))
 
 
 	def process(self):
@@ -205,8 +225,12 @@ class Bracket(object):
 			out = out + '|forceShortName=true'
 		if self.columnwidth:
 			out = out + '|matchWidth=' + self.columnwidth
-		out = out + '\n'
 
+		headerOutputOrder = self.get_header_output_order()
+		for param in headerOutputOrder:
+			out = out + '\n|' + param + '=' + self.idToHeader[param]
+
+		out = out + '\n'
 		roundOutputOrder = self.get_round_output_order()
 		for param in roundOutputOrder:
 			if not param in self.idToMatch:
