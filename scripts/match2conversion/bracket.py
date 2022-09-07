@@ -51,16 +51,18 @@ class Bracket(object):
 		self.shortNames = ''
 		self.columnwidth = ''
 
-	def get_opponent(self, parameter) -> Opponent:
+	def get_opponent(self, parameter, scoreKey:str = 'score') -> Opponent:
 		teamName = get_value(self.bracket, parameter + 'team')
-		teamScore = get_value(self.bracket, parameter + 'score')
+		teamScore = get_value(self.bracket, parameter + scoreKey)
 		if (teamName is None) and (teamScore is None):
 			return None
 		return Opponent(teamName, teamScore)
 
-	def get_summary(self, parameter):
+	def get_summary(self, parameter, index = 0):
 		if self.bracket.has(parameter + 'details'):
-			return sanitize_template(self.bracket.get(parameter + 'details').value.filter_templates()[0])
+			templates = self.bracket.get(parameter + 'details').value.filter_templates()
+			if len(templates) > index:
+				return sanitize_template(templates[index])
 		return None
 
 	def get_winner(self, team1Param: str, team2Param) -> int:
@@ -112,7 +114,7 @@ class Bracket(object):
 		else:
 			param = 'R' + str(round['R']) + 'W' + str(round['W'])
 			#RxWx
-			opponent1 = self.get_opponent(param)
+			opponent1 = self.get_opponent(param, scoreKey= 'score2' if reset else 'score')
 			winner1Param = param
 			round['W'] = round['W'] + 1
 
@@ -127,15 +129,19 @@ class Bracket(object):
 		else:
 			param = 'R' + str(round['R']) + 'W' + str(round['W'])
 			#RxWx
-			opponent2 = self.get_opponent(param)
+			opponent2 = self.get_opponent(param, scoreKey= 'score2' if reset else 'score')
 			winner2Param = param
 			round['W'] = round['W'] + 1
 
 		winner = self.get_winner(winner1Param, winner2Param)
-		details = self.get_summary('R' + str(round['R']) + 'G' + str(round['G']))
+		details = self.get_summary('R' + str(round['R']) + 'G' + str(round['G']), index = 1 if reset else 0)
 		match2 = Match(opponent1, opponent2, winner, details)
 		if match2.isValid():
-			self.idToMatch[id] = match2
+			if not reset:
+				self.idToMatch[id] = match2
+			else:
+				if opponent1.score or opponent2.score:
+					self.idToMatch[id] = match2
 		roundData[round['R']] = round
 		lastRound = round
 
@@ -225,12 +231,12 @@ class Bracket(object):
 			out = out + '|forceShortName=true'
 		if self.columnwidth:
 			out = out + '|matchWidth=' + self.columnwidth
+		out = out + '\n'
 
 		headerOutputOrder = self.get_header_output_order()
 		for param in headerOutputOrder:
-			out = out + '\n|' + param + '=' + self.idToHeader[param]
+			out = out + '|' + param + '=' + self.idToHeader[param] + '\n'
 
-		out = out + '\n'
 		roundOutputOrder = self.get_round_output_order()
 		for param in roundOutputOrder:
 			if not param in self.idToMatch:
