@@ -56,8 +56,7 @@ class Bracket(object):
 
 		self.lpdbMatches = Bracket.configs[self.newTemplateName]
 		self.customMapping = Bracket.mappings[self.newTemplateName] if self.newTemplateName in Bracket.mappings else None
-		self.idToMatch = {}
-		self.idToHeader = {}
+		self.match2param = {}
 
 		self.shortNames = ''
 		self.columnwidth = ''
@@ -143,7 +142,7 @@ class Bracket(object):
 		winner = self.get_winner(winner1Param, winner2Param)
 		details = self.get_summary('R' + str(round['R']) + 'G' + str(round['G']), index = 1 if reset else 0)
 		match2 = Match(opponent1, opponent2, winner, details)
-		self.idToMatch[id] = match2
+		self.match2param[id] = match2
 		roundData[round['R']] = round
 		lastRound = round
 
@@ -158,7 +157,7 @@ class Bracket(object):
 			opponent2 = self.get_opponent(opp2param)
 			winner = self.get_winner(opp1param, opp2param)
 			match2 = Match(opponent1, opponent2, winner, details)
-			self.idToMatch[roundParam] = match2
+			self.match2param[roundParam] = match2
 
 	def get_round_output_order(self):
 		#Return the expected round output order
@@ -200,30 +199,6 @@ class Bracket(object):
 
 		return [x['matchKey'] for x in _bracketDataList]
 
-	def get_header_output_order(self):
-		_headerList = []
-
-		for headerKey in self.idToHeader.keys():
-			_headerList.append(headerKey)
-
-		def compare(itemA, itemB):
-			rA, _, mA = itemA[1:].partition('M')
-			rB, _, mB = itemB[1:].partition('M')
-			if rA < rB:
-				return -1
-			elif rA > rB:
-				return 1
-
-			if mA < mB:
-				return -1
-			elif mA > mB:
-				return 1
-
-			return 0
-
-		return sorted(_headerList, key = cmp_to_key(compare))
-
-
 	def process(self):
 		if (self.bracket is None):
 			return
@@ -238,10 +213,10 @@ class Bracket(object):
 		for n in range(1, lastRound['R'] + 1):
 			headerUp = get_value(self.bracket, 'R' + str(n))
 			if headerUp:
-				self.idToHeader['R' + str(n) + 'M1header'] = headerUp
+				self.match2param['R' + str(n) + 'M1header'] = headerUp
 			headerLow = get_value(self.bracket, 'L' + str(n))
 			if headerLow and (n in lowerHeaders):
-				self.idToHeader['R' + str(n) + 'M' + str(lowerHeaders[n]) + 'header'] = headerLow
+				self.match2param['R' + str(n) + 'M' + str(lowerHeaders[n]) + 'header'] = headerLow
 	
 		if self.customMapping:
 			self.handle_custom_mapping()
@@ -258,18 +233,17 @@ class Bracket(object):
 		if self.columnwidth:
 			out = out + '|matchWidth=' + self.columnwidth
 		out = out + '\n'
-
-		headerOutputOrder = self.get_header_output_order()
-		for param in headerOutputOrder:
-			out = out + '|' + param + '=' + self.idToHeader[param] + '\n'
-
+			
+		matchOut = ''
 		roundOutputOrder = self.get_round_output_order()
 		for param in roundOutputOrder:
-			if not param in self.idToMatch:
+			if param + 'header' in self.match2param:
+				out = out + '|' + param + 'header=' + self.match2param[param + 'header'] + '\n'
+			if not param in self.match2param:
 				continue
-			match = self.idToMatch[param]
+			match = self.match2param[param]
 			match.process()
 			if match.isValid():
-				out = out + '|' + param + '=' + str(match) + '\n'
+				matchOut = matchOut + '|' + param + '=' + str(match) + '\n'
 
-		return out + '}}'
+		return out + matchOut + '}}'
