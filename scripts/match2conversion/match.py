@@ -32,7 +32,7 @@ class Match(object):
 		self.bestof = 0
 
 	def isValid(self):
-		return (self.opponent1 and self.opponent2) or self.summary
+		return self.opponent1.score or self.opponent2.score or self.summary
 
 	def _handle_streams(self):
 		for parameter in self.summary.params:
