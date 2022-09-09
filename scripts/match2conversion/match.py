@@ -32,6 +32,8 @@ class Match(object):
 		self.bestof = 0
 
 	def isValid(self):
+		if (self.opponent1 is None) and (self.opponent2 is None) and (self.summary is None):
+			return False
 		return self.opponent1.score or self.opponent2.score or self.summary
 
 	def _handle_streams(self):
