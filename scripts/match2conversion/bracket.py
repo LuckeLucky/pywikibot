@@ -34,7 +34,7 @@ class Bracket(object):
 		Bracket.mappings = data
 
 	@staticmethod
-	def simplify_id(id: str):
+	def get_simplified_id(id: str):
 		id = id.split('_')[1] if len(id.split('_')) > 1 else id
 		if id == 'RxMTP':
 			return id
@@ -56,7 +56,7 @@ class Bracket(object):
 
 		self.lpdbMatches = Bracket.configs[self.newTemplateName]
 		self.customMapping = Bracket.mappings[self.newTemplateName] if self.newTemplateName in Bracket.mappings else None
-		self.match2param = {}
+		self.roundData = {}
 
 		self.shortNames = ''
 		self.columnwidth = ''
@@ -82,8 +82,8 @@ class Bracket(object):
 			return 2
 		return -1
 
-	def handle_round_mapping(self, match, roundData, lastRound, lowerHeaders):
-		id = Bracket.simplify_id(match['match2id'])
+	def populate_round_data(self, match, roundData, lastRound, lowerHeaders):
+		id = Bracket.get_simplified_id(match['match2id'])
 		roundNumber, _, _ = id[1:].partition('M')
 		if roundNumber.isnumeric():
 			roundNumber = int(roundNumber)
@@ -142,7 +142,7 @@ class Bracket(object):
 		winner = self.get_winner(winner1Param, winner2Param)
 		details = self.get_summary('R' + str(round['R']) + 'G' + str(round['G']), index = 1 if reset else 0)
 		match2 = Match(opponent1, opponent2, winner, details)
-		self.match2param[id] = match2
+		self.roundData[id] = match2
 		roundData[round['R']] = round
 		lastRound = round
 
@@ -157,14 +157,14 @@ class Bracket(object):
 			opponent2 = self.get_opponent(opp2param)
 			winner = self.get_winner(opp1param, opp2param)
 			match2 = Match(opponent1, opponent2, winner, details)
-			self.match2param[roundParam] = match2
+			self.roundData[roundParam] = match2
 
 	def get_round_output_order(self):
 		#Return the expected round output order
 		_bracketDataList = []
 
 		for match in self.lpdbMatches:
-			id = Bracket.simplify_id(match['match2id'])
+			id = Bracket.get_simplified_id(match['match2id'])
 			bracketData = match['match2bracketdata']
 			bracketData['matchKey'] = id
 			_bracketDataList.append(bracketData)
@@ -203,28 +203,28 @@ class Bracket(object):
 		if (self.bracket is None):
 			return
 
+		self.shortNames = get_value(self.bracket, 'shortNames')
+		self.columnwidth = get_value(self.bracket, 'column-width')
+		if not self.columnwidth:
+			self.columnwidth = get_value(self.bracket, 'column-width1')
+
 		roundData = {}
 		lowerHeaders = {}
 		lastRound = None
 		#Mapping via lpdb template data
 		for match in self.lpdbMatches:
-			roundData, lastRound, lowerHeaders = self.handle_round_mapping(match, roundData, lastRound, lowerHeaders)
+			roundData, lastRound, lowerHeaders = self.populate_round_data(match, roundData, lastRound, lowerHeaders)
 
 		for n in range(1, lastRound['R'] + 1):
 			headerUp = get_value(self.bracket, 'R' + str(n))
 			if headerUp:
-				self.match2param['R' + str(n) + 'M1header'] = headerUp
+				self.roundData['R' + str(n) + 'M1header'] = headerUp
 			headerLow = get_value(self.bracket, 'L' + str(n))
 			if headerLow and (n in lowerHeaders):
-				self.match2param['R' + str(n) + 'M' + str(lowerHeaders[n]) + 'header'] = headerLow
+				self.roundData['R' + str(n) + 'M' + str(lowerHeaders[n]) + 'header'] = headerLow
 	
 		if self.customMapping:
 			self.handle_custom_mapping()
-
-		self.shortNames = get_value(self.bracket, 'shortNames')
-		self.columnwidth = get_value(self.bracket, 'column-width')
-		if not self.columnwidth:
-			self.columnwidth = get_value(self.bracket, 'column-width1')
 
 	def __str__(self) -> str:
 		out = '{{Bracket|'+ self.newTemplateName + '|id=' + generate_id()
@@ -237,11 +237,11 @@ class Bracket(object):
 		matchOut = ''
 		roundOutputOrder = self.get_round_output_order()
 		for param in roundOutputOrder:
-			if param + 'header' in self.match2param:
-				out = out + '|' + param + 'header=' + self.match2param[param + 'header'] + '\n'
-			if not param in self.match2param:
+			if param + 'header' in self.roundData:
+				out = out + '|' + param + 'header=' + self.roundData[param + 'header'] + '\n'
+			if not param in self.roundData:
 				continue
-			match = self.match2param[param]
+			match = self.roundData[param]
 			match.process()
 			if match.isValid():
 				matchOut = matchOut + '|' + param + '=' + str(match) + '\n'

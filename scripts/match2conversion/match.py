@@ -31,24 +31,25 @@ class Match(object):
 		self.winner = winner
 		self.bestof = 0
 
-	def isValid(self):
+	def isValid(self) -> bool:
 		if (self.opponent1 is None) and (self.opponent2 is None) and (self.summary is None):
 			return False
 		return self.opponent1.score or self.opponent2.score or self.summary
 
-	def _handle_streams(self):
+	def get_finished(self) -> str:
+		finished = get_value(self.summary, 'finished')
+		if not finished:
+			if self.winner >= 0:
+				return 'true'
+		return finished
+
+	def populate_streams(self):
 		for parameter in self.summary.params:
 			key = str(parameter.name)
 			if key in STREAMS:
 				self.streams[key] = str(parameter.value)
 
-	def _handle_finished(self):
-		self.finished = get_value(self.summary, 'finished')
-		if not self.finished:
-			if self.winner >= 0:
-				self.finished = 'true'
-
-	def _handle_links(self):
+	def populate_links(self):
 		for parameter in self.summary.params:
 			key = str(parameter.name)
 			if key in MATCH_LINKS:
@@ -60,20 +61,19 @@ class Match(object):
 
 	def process(self):
 		#finished can be set via winner of the match
-		self._handle_finished()
+		self.finished = self.get_finished()
 
 		if self.summary is None:
 			return
 
 		self.date = get_value(self.summary, 'date')
-
-		self._handle_streams()
-		self._handle_links()
-
 		self.comment = get_value(self.summary, 'comment')
 		self.overturned = get_value(self.summary, 'overturned')
 		self.nostats = get_value(self.summary, 'nostats')
 		self.nosides = get_value(self.summary, 'nosides')
+
+		self.populate_streams()
+		self.populate_links()
 
 		for mapIndex in range(1, MAX_MAPS):
 			mapX = get_value(self.summary, 'map' + str(mapIndex))

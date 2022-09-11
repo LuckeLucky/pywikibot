@@ -34,7 +34,7 @@ class MatchList(object):
 		return None
 
 	def get_winner(self, matchMap: Template) -> int:
-		winner = get_value(self.showmatchTemplate, 'win')
+		winner = get_value(matchMap, 'win')
 		if winner in ['1', '2', '0']:
 			return int(winner)
 		elif winner == 'draw':
@@ -42,14 +42,13 @@ class MatchList(object):
 		else:
 			return -1
 
-	def handle_gsl(self):
+	def get_gsl(self):
 		gsl = get_value(self.matchListStart, 'gsl')
 		if gsl == 'winners':
-			self.gsl = 'winnersfirst'
+			return 'winnersfirst'
 		elif gsl == 'losers':
-			self.gsl = 'losersfirst'
-		else:
-			self.gsl = gsl
+			return 'losersfirst'
+		return gsl
 
 	def add_header(self, index, value):
 		self.headers.append('|M' + str(index) + 'header=' + value)
@@ -66,7 +65,7 @@ class MatchList(object):
 		#If attached to GroupTable the matches are collapsed
 		if self.attached:
 			self.collapsed = self.attached
-		self.handle_gsl()
+		self.gsl = self.get_gsl()
 
 		if self.matchMaps is None:
 			return

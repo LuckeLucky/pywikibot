@@ -28,7 +28,7 @@ class Map(object):
 			return text[len(self.prefix):]
 		return text
 
-	def _handle_winner_finsihed(self):
+	def populate_winner_and_finished(self):
 		winner = get_value(self.summary, self.prefix + 'win')
 		if winner in ['1', '2', '0']:
 			self.winner = int(winner)
@@ -39,7 +39,7 @@ class Map(object):
 		elif winner == 'skip':
 			self.finished = 'skip'
 
-	def _handle_halfs(self):
+	def populate_halfs(self):
 		for parameter in self.summary.params:
 			key = str(parameter.name)
 			#Ignore other maps
@@ -52,7 +52,7 @@ class Map(object):
 				't2t' in key):
 				self.halfs[self._remove_map_prefix(key)] = str(parameter.value)
 
-	def _handle_links(self, bestof):
+	def populate_links(self, bestof):
 		for parameter in self.summary.params:
 			key = str(parameter.name)
 			#catch parameters like eseaX
@@ -77,9 +77,9 @@ class Map(object):
 
 		self.vod = get_value(self.summary, 'vodgame' + str(self.index))
 
-		self._handle_winner_finsihed()
-		self._handle_halfs()
-		self._handle_links(bestof)
+		self.populate_winner_and_finished()
+		self.populate_halfs()
+		self.populate_links(bestof)
 
 	def __str__(self) -> str:
 		out = '{{Map|map=' + self.map
