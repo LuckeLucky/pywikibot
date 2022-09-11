@@ -24,12 +24,13 @@ class Showmatch(object):
 		return None
 
 	def get_winner(self) -> int:
-		value = get_value(self.showmatchTemplate, 'win')
-		if value == '1':
-			return 1
-		if value == '2':
-			return 2
-		return 0
+		winner = get_value(self.showmatchTemplate, 'win')
+		if winner in ['1', '2', '0']:
+			return int(winner)
+		elif winner == 'draw':
+			return 0
+		else:
+			return -1
 
 	def process(self):
 		opponent1 = self.get_opponent(1)

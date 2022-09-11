@@ -1,6 +1,6 @@
 from mwparserfromhell.nodes import Template
 from .external_links import MAP_LINKS
-from scripts.utils.parser_helper import get_value
+from scripts.utils.parser_helper import get_value, dict_has_value_set
 
 PREFIX = 'map'
 
@@ -14,6 +14,7 @@ class Map(object):
 		self.score = ''
 		self.score1 = ''
 		self.score2 = ''
+		self.winner = -1
 
 		self.index = index
 
@@ -27,15 +28,16 @@ class Map(object):
 			return text[len(self.prefix):]
 		return text
 
-	def _handle_finished(self):
+	def _handle_winner_finsihed(self):
 		winner = get_value(self.summary, self.prefix + 'win')
-
-		if winner in ['1', '2', '0', 'draw']:
+		if winner in ['1', '2', '0']:
+			self.winner = int(winner)
+			self.finished = 'true'
+		elif winner == 'draw':
+			self.winner = 0
 			self.finished = 'true'
 		elif winner == 'skip':
 			self.finished = 'skip'
-		else:
-			self.finished = ''
 
 	def _handle_halfs(self):
 		for parameter in self.summary.params:
@@ -75,7 +77,7 @@ class Map(object):
 
 		self.vod = get_value(self.summary, 'vodgame' + str(self.index))
 
-		self._handle_finished()
+		self._handle_winner_finsihed()
 		self._handle_halfs()
 		self._handle_links(bestof)
 
@@ -88,6 +90,11 @@ class Map(object):
 		out = out + '|finished=' + self.finished
 
 		if self.finished == 'skip':
+			return out + '}}'
+
+		#Sometimes only the winner is set
+		if (not self.score) and (not dict_has_value_set(self.halfs)) and (self.winner > -1):
+			out = out + '|winner=' + str(self.winner)
 			return out + '}}'
 
 		if self.halfs:

@@ -45,7 +45,7 @@ class Match(object):
 	def _handle_finished(self):
 		self.finished = get_value(self.summary, 'finished')
 		if not self.finished:
-			if self.winner > 0:
+			if self.winner >= 0:
 				self.finished = 'true'
 
 	def _handle_links(self):
