@@ -34,6 +34,9 @@ class Match(object):
 		self.reset = reset
 		self.bye = False
 
+	def is_valid(self) -> bool:
+		return (self.opponent1 and self.opponent2) or self.summary
+
 	def is_reset(self) -> bool:
 		return self.reset
 

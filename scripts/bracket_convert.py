@@ -14,7 +14,7 @@ def process_text(text: str, templateToReplace: str):
 		bracket = None
 		for template in wikicode.filter_templates():
 			templateName = str(template.name).strip()
-			if templateName == templateToReplace:
+			if template.name.matches(templateToReplace):
 				bracket = template
 				if shortNames:
 					bracket.add('shortNames', shortNames)

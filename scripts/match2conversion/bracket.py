@@ -243,8 +243,9 @@ class Bracket(object):
 				continue
 			match = self.roundData[param]
 			match.process()
-			if match.is_reset() and (not match.opponent1.score) and (not match.opponent2.score):
-				continue
-			matchOut = matchOut + '|' + param + '=' + str(match) + '\n'
+			if match.is_valid():
+				if match.is_reset() and (not match.opponent1.score) and (not match.opponent2.score):
+					continue
+				matchOut = matchOut + '|' + param + '=' + str(match) + '\n'
 
 		return out + matchOut + '}}'
