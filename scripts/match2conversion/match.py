@@ -101,7 +101,7 @@ class Match(object):
 			out = out + '|opponent2=' + str(self.opponent2)
 
 		if self.bye:
-			return out + '\n}}'
+			return out + '|finished=true\n}}'
 
 		if self.finished and (not self.date):
 			out = out + '\n\t|finished=' + self.finished
