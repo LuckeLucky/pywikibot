@@ -18,7 +18,8 @@ def process_text(text: str):
 		for template in wikicode.filter_templates():
 			if template.name.matches('MatchListStart'):
 				matchListStart = template
-				if previousTemplate.name.matches('GroupTableLeague'):
+				if (previousTemplate.name.matches('GroupTableLeague')
+					or previousTemplate.name.matches('GroupTableEnd')):
 					template.add('attached', 'true')
 
 			if template.name.matches('MatchMaps'):
