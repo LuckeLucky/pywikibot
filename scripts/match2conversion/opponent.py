@@ -1,8 +1,11 @@
 class Opponent(object):
 	
-	def __init__(self, name, score):
+	def __init__(self, name: str = '', score: str = ''):
 		self.name = name
 		self.score = score
+
+	def is_bye(self) -> bool:
+		return self.name.lower() == 'bye'
 
 	def __str__(self) -> str:
 		out = '{{TeamOpponent|'

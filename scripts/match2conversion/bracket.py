@@ -141,7 +141,7 @@ class Bracket(object):
 
 		winner = self.get_winner(winner1Param, winner2Param)
 		details = self.get_summary('R' + str(round['R']) + 'G' + str(round['G']), index = 1 if reset else 0)
-		match2 = Match(opponent1, opponent2, winner, details)
+		match2 = Match(opponent1, opponent2, winner, details, reset)
 		self.roundData[id] = match2
 		roundData[round['R']] = round
 		lastRound = round
@@ -243,7 +243,8 @@ class Bracket(object):
 				continue
 			match = self.roundData[param]
 			match.process()
-			if match.isValid():
-				matchOut = matchOut + '|' + param + '=' + str(match) + '\n'
+			if match.is_reset() and (not match.opponent1.score) and (not match.opponent2.score):
+				continue
+			matchOut = matchOut + '|' + param + '=' + str(match) + '\n'
 
 		return out + matchOut + '}}'
