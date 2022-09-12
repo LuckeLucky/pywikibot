@@ -85,7 +85,7 @@ def get_value(template: Template, key: str = None, index: int = -1) -> str:
 			return str(template.get(key).value)
 	if index >= 0:
 		if len(template.params) > index:
-			return str(template.params[0].value)
+			return str(template.params[index].value)
 	return None
 
 def dict_has_value_set(dictionary: dict) -> bool:
