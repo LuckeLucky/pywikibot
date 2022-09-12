@@ -226,6 +226,39 @@ class Bracket(object):
 		if self.customMapping:
 			self.handle_custom_mapping()
 
+	def handle_round(self, wikicode: list, line: str):
+		match2parameter, equal, matchParameters = line.partition('=')
+		matchParameters = matchParameters.rstrip()
+		#Means we don't have a mapping
+		if not matchParameters:
+			return
+
+		if 'header' in match2parameter:
+			header = self.get_header(matchParameters)
+			if header:
+				wikicode.append(match2parameter + equal + header + '\n')
+		else:
+			parameters = matchParameters.split('*')
+			opponent1 = self.get_opponent(parameters[0])
+			opponent2 = self.get_opponent(parameters[1])
+			details = self.get_summary(parameters[2])
+			winner = self.get_winner(parameters[0], parameters[1])
+
+			match = Match(opponent1, opponent2, winner, details)
+			match.process()
+
+			if '|RxMTP' in match2parameter:
+				#Means all match mapping to reset match are empty
+				if ((not get_value(parameters[0]))
+					and (not get_value(parameters[1]))
+					and (not get_value(parameters[2]))):
+					#Pop <!-- Third Place Match --> and newline
+					wikicode.pop(len(wikicode) - 1)
+					wikicode.pop(len(wikicode) - 2)
+					return
+
+			wikicode.append(match2parameter + equal + str(match) + '\n')
+
 	def __str__(self) -> str:
 		out = '{{Bracket|'+ self.newTemplateName + '|id=' + generate_id()
 		if self.shortNames:
