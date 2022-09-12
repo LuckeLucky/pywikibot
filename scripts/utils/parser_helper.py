@@ -76,19 +76,17 @@ def sanitize_template(template: Template, removeComments: bool = False):
 		template.add(str(parameter.name), value.rstrip(), preserve_spacing=False)
 	return template
 
-def get_value(template: Template, key: str, index: int = -1) -> str:
+def get_value(template: Template, key: str = None, index: int = -1) -> str:
 	'''Check if template has a key, if true return str(value) or empty string'''
-
 	if template is None:
-		return ''
+		return None
 	if key:
 		if template.has(key):
 			return str(template.get(key).value)
 	if index >= 0:
-		for paramIndex, param in enumerate(template.params):
-			if paramIndex == index:
-				return str(param.value)
-	return ''
+		if len(template.params) > index:
+			return str(template.params[index].value)
+	return None
 
 def dict_has_value_set(dictionary: dict) -> bool:
 	for _, v in dictionary.items():

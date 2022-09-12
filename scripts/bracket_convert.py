@@ -3,21 +3,35 @@ import pywikibot
 from pywikibot import pagegenerators
 
 from match2conversion.bracket import Bracket
+from scripts.utils.parser_helper import get_value, remove_and_squash
 from utils import get_text, put_text
 
 def process_text(text: str, templateToReplace: str):
+	shortNames = ''
 	while(True):
+		templatesToRemove = []
 		wikicode = mwparserfromhell.parse(text)
 		bracket = None
 		for template in wikicode.filter_templates():
+			templateName = str(template.name).strip()
 			if template.name.matches(templateToReplace):
 				bracket = template
+				if shortNames:
+					bracket.add('shortNames', shortNames)
+			if templateName == '#vardefine:bracket_short_teams':
+				shortNames = get_value(template, index = 0)
+				templatesToRemove.append(template)
 
 		if bracket is None:
 			break
 
 		newBracket = Bracket(templateToReplace, bracket)	
+		newBracket.process()
 		wikicode.replace(bracket, str(newBracket))
+
+		for template in templatesToRemove:
+			remove_and_squash(wikicode, template)
+
 		text = str(wikicode)
 
 	return text
