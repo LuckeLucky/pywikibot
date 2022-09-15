@@ -89,7 +89,7 @@ class Match(object):
 
 		for mapIndex in range(1, MAX_MAPS):
 			mapX = get_value(self.summary, 'map' + str(mapIndex))
-			if mapX:
+			if mapX is not None:
 				map = Map(mapIndex, self.summary)
 				self.maps.append(map)
 				self.bestof = self.bestof + 1
