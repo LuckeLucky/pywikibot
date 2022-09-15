@@ -2,7 +2,7 @@ import re
 from mwparserfromhell.nodes import Template
 
 from scripts.utils.parser_helper import get_value
-from .external_links import STREAMS, MATCH_LINKS
+from .external_links import MAP_LINKS, STREAMS, MATCH_LINKS
 from .map import Map
 from .opponent import Opponent
 
@@ -58,6 +58,9 @@ class Match(object):
 			key = str(parameter.name)
 			if key in MATCH_LINKS:
 				self.links[key] = str(parameter.value)
+			if self.bestof > 1:
+				if key in MAP_LINKS:
+					self.links[key] = str(parameter.value)
 
 		if 'hltv' in self.links:
 			result = re.sub(r'(\d*)/.*', '\\1', self.links['hltv'], 0, re.MULTILINE)
@@ -84,9 +87,6 @@ class Match(object):
 		self.nostats = get_value(self.summary, 'nostats')
 		self.nosides = get_value(self.summary, 'nosides')
 
-		self.populate_streams()
-		self.populate_links()
-
 		for mapIndex in range(1, MAX_MAPS):
 			mapX = get_value(self.summary, 'map' + str(mapIndex))
 			if mapX is not None:
@@ -94,6 +94,11 @@ class Match(object):
 				self.maps.append(map)
 				self.bestof = self.bestof + 1
 
+		for map in self.maps:
+			map.process(self.bestof)
+
+		self.populate_streams()
+		self.populate_links()
 
 	def __str__(self) -> str:
 		out = '{{Match'
@@ -135,7 +140,6 @@ class Match(object):
 
 		if self.maps:
 			for mapIndex, map in enumerate(self.maps):
-				map.process(self.bestof)
 				out = out + '\n\t'
 				out = out + '|map' + str(mapIndex + 1) + '=' + str(map)
 
