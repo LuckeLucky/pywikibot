@@ -72,11 +72,11 @@ class Match(object):
 				self.opponent1.score = 'W'
 				self.bye = True
 
-		if self.summary is None:
-			return
-
 		#finished can be set via winner of the match
 		self.finished = self.get_finished()
+
+		if self.summary is None:
+			return
 
 		self.date = get_value(self.summary, 'date')
 		self.comment = get_value(self.summary, 'comment')
@@ -107,7 +107,7 @@ class Match(object):
 			return out + '|finished=true\n}}'
 
 		if self.finished and (not self.date):
-			out = out + '\n\t|finished=' + self.finished
+			out = out + '\n\t|winner=' + str(self.winner) + '|finished=' + self.finished
 		else:
 			out = out + '\n\t|date=' + self.date + '|finished=' + self.finished
 
