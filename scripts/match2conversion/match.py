@@ -72,11 +72,11 @@ class Match(object):
 				self.opponent1.score = 'W'
 				self.bye = True
 
-		if self.summary is None:
-			return
-
 		#finished can be set via winner of the match
 		self.finished = self.get_finished()
+
+		if self.summary is None:
+			return
 
 		self.date = get_value(self.summary, 'date')
 		self.comment = get_value(self.summary, 'comment')
@@ -89,7 +89,7 @@ class Match(object):
 
 		for mapIndex in range(1, MAX_MAPS):
 			mapX = get_value(self.summary, 'map' + str(mapIndex))
-			if mapX:
+			if mapX is not None:
 				map = Map(mapIndex, self.summary)
 				self.maps.append(map)
 				self.bestof = self.bestof + 1
@@ -107,7 +107,7 @@ class Match(object):
 			return out + '|finished=true\n}}'
 
 		if self.finished and (not self.date):
-			out = out + '\n\t|finished=' + self.finished
+			out = out + '\n\t|winner=' + str(self.winner) + '|finished=' + self.finished
 		else:
 			out = out + '\n\t|date=' + self.date + '|finished=' + self.finished
 
