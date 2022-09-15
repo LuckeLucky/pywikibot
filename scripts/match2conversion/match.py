@@ -107,7 +107,7 @@ class Match(object):
 			return out + '|finished=true\n}}'
 
 		if self.finished and (not self.date):
-			out = out + '\n\t|winner=' + str(self.winner) + '|finished=' + self.finished
+			out = out + '\n\t|finished=' + self.finished
 		else:
 			out = out + '\n\t|date=' + self.date + '|finished=' + self.finished
 
