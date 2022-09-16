@@ -126,7 +126,7 @@ class MatchList(MatchListAbstract):
 			#date ouside of details count as header
 			header = get_value(matchMap, 'date')
 			if header:
-				self.add_header(matchMapIndex, header)
+				self.add_header(matchMapIndex+1, header)
 
 			opponent1 = self.get_opponent(matchMap, 1)
 			opponent2 = self.get_opponent(matchMap, 2)
