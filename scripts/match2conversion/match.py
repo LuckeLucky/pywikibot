@@ -113,6 +113,8 @@ class Match(object):
 
 		if self.finished and (not self.date):
 			out = out + '\n\t|finished=' + self.finished
+		elif (not self.finished) and (not self.date):
+			out = out + '\n\t|date=|finished='
 		else:
 			out = out + '\n\t|date=' + self.date + '|finished=' + self.finished
 
