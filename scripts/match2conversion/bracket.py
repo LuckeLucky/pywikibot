@@ -5,7 +5,7 @@ from mwparserfromhell.nodes import Template
 
 from .helpers import generate_id
 from .match import Match
-from .opponent import Opponent
+from .opponent import Opponent, TeamOpponent
 from .bracket_alias import bracketAlias
 from scripts.utils.parser_helper import get_value, sanitize_template
 
@@ -66,7 +66,7 @@ class Bracket(object):
 		teamScore = get_value(self.bracket, parameter + scoreKey)
 		if (teamName is None) and (teamScore is None):
 			return None
-		return Opponent(teamName, teamScore)
+		return TeamOpponent(teamName, teamScore)
 
 	def get_summary(self, parameter, index = 0):
 		if self.bracket.has(parameter + 'details'):
