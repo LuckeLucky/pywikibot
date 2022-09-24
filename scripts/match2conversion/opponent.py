@@ -20,6 +20,7 @@ class Opponent(object):
 		return out + '}}'
 
 class TeamOpponent(Opponent):
+
 	def __init__(self, name: str = '', score: str = ''):
 		super().__init__(name, score)
 
