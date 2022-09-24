@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from mwparserfromhell.nodes import Template
 
-from scripts.match2conversion.opponent import Opponent
+from scripts.match2conversion.opponent import Opponent, SoloOpponent, TeamOpponent
 from scripts.utils.parser_helper import get_value, sanitize_template
 
 from .match import Match
@@ -21,8 +21,14 @@ class MatchListAbstract(object):
 
 	def get_opponent(self, matchMap: Template, opponentIndex: int) -> Opponent:
 		teamName = get_value(matchMap, 'team' + str(opponentIndex))
-		teamScore = get_value(matchMap, 'games' + str(opponentIndex))
-		return Opponent(teamName, teamScore)
+		score = get_value(matchMap, 'games' + str(opponentIndex))
+		if teamName is None:
+			playerName = get_value(matchMap, 'player' + str(opponentIndex))
+			if playerName is not None:
+				link = get_value(matchMap, 'player' + str(opponentIndex) + 'link')
+				flag = get_value(matchMap, 'player' + str(opponentIndex) + 'flag')
+				return SoloOpponent(playerName, score, link, flag)
+		return TeamOpponent(teamName, score)
 
 	def get_summary(self, matchMap: Template):
 		if matchMap.has('details'):
@@ -130,6 +136,7 @@ class MatchList(MatchListAbstract):
 
 			opponent1 = self.get_opponent(matchMap, 1)
 			opponent2 = self.get_opponent(matchMap, 2)
+			assert(opponent1.type() == opponent2.type())
 			details = self.get_summary(matchMap)
 			winner = self.get_winner(matchMap)
 
@@ -186,6 +193,7 @@ class MatchListLegacy(MatchListAbstract):
 
 				opponent1 = self.get_opponent(matchMap, 1)
 				opponent2 = self.get_opponent(matchMap, 2)
+				assert(opponent1.type() == opponent2.type())
 				details = self.get_summary(matchMap)
 				winner = self.get_winner(matchMap)
 
