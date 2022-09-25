@@ -1,3 +1,5 @@
+import re
+
 from abc import abstractmethod
 from mwparserfromhell.nodes import Template
 
@@ -46,9 +48,14 @@ class MatchListAbstract(object):
 	def add_header(self, index, value):
 		self.headers.append('|M' + str(index) + 'header=' + value)
 
-	@abstractmethod
 	def get_winner(self, matchMap: Template) -> int:
-		pass
+		winner = get_value(matchMap, 'winner')
+		if winner in ['1', '2', '0']:
+			return int(winner)
+		elif winner == 'draw':
+			return 0
+		else:
+			return -1
 
 	@abstractmethod
 	def process(self):
@@ -92,15 +99,6 @@ class MatchList(MatchListAbstract):
 		self.matchListStart = sanitize_template(matchListStart)
 		self.matchMaps = matchMaps
 		super().__init__()
-
-	def get_winner(self, matchMap: Template) -> int:
-		winner = get_value(matchMap, 'win')
-		if winner in ['1', '2', '0']:
-			return int(winner)
-		elif winner == 'draw':
-			return 0
-		else:
-			return -1
 
 	def process(self):
 		if self.matchListStart is None:
@@ -150,15 +148,6 @@ class MatchListLegacy(MatchListAbstract):
 		self.matchList = sanitize_template(matchList)
 		super().__init__()
 
-	def get_winner(self, matchMap: Template) -> int:
-		winner = get_value(matchMap, 'winner')
-		if winner in ['1', '2', '0']:
-			return int(winner)
-		elif winner == 'draw':
-			return 0
-		else:
-			return -1
-
 	def process(self):
 		if self.matchList is None:
 			return
@@ -189,7 +178,9 @@ class MatchListLegacy(MatchListAbstract):
 
 				header = get_value(matchMap, 'date')
 				if header:
-					self.add_header(int(paramName[-1]), header)
+					result = re.search(r"match(\d*)", paramName)
+					if result:
+						self.add_header(int(result.group(1)), header)
 
 				opponent1 = self.get_opponent(matchMap, 1)
 				opponent2 = self.get_opponent(matchMap, 2)
