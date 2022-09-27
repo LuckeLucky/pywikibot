@@ -1,65 +1,21 @@
-import json
-from functools import cmp_to_key
-from os import name
 from mwparserfromhell.nodes import Template
 
 from .helpers import generate_id
 from .match import Match
 from .opponent import Opponent, TeamOpponent
-from .bracket_alias import bracketAlias
+from scripts.match2conversion.bracket_helper import BracketHelpder
 from scripts.utils.parser_helper import get_value, sanitize_template
-
-from pathlib import Path
 
 class Bracket(object):
 	configs = None
 	mappings = None
 
-	@staticmethod
-	def check_support(templateName: str):
-		return templateName in bracketAlias
-
-	@staticmethod
-	def read_config():
-		p = Path(__file__).with_name('bracket_templates.json')
-		file = p.open()
-		data = json.load(file)
-		Bracket.configs = data
-
-	@staticmethod
-	def read_custom_mappings():
-		p = Path(__file__).with_name('custom_mappings.json')
-		file = p.open()
-		data = json.load(file)
-		Bracket.mappings = data
-
-	@staticmethod
-	def get_simplified_id(id: str):
-		id = id.split('_')[1] if len(id.split('_')) > 1 else id
-		if id == 'RxMTP':
-			return id
-		elif id == 'RxMBR':
-			return id
-		else:
-			id = id.replace('-', '')
-			roundNumber, _, matchNumber = id[1:].partition('M')
-			return 'R' + str(int(roundNumber)) + 'M' + str(int(matchNumber))
-
 	def __init__(self, oldTemplateName: str, bracket: Template) -> None:
-		if Bracket.configs is None:
-			Bracket.read_config()
-		if Bracket.mappings is None:
-			Bracket.read_custom_mappings()
-		self.oldTemplateName = oldTemplateName
-		self.newTemplateName = 'Bracket/' + bracketAlias[self.oldTemplateName]
-		self.bracket = sanitize_template(bracket, removeComments = True)
-
-		self.lpdbMatches = Bracket.configs[self.newTemplateName]
-		self.customMapping = Bracket.mappings[self.newTemplateName] if self.newTemplateName in Bracket.mappings else None
-		self.roundData = {}
-
+		self.bracket = sanitize_template(bracket, removeComments = True)	
+		self.newName = BracketHelpder.get_new_bracket_name(oldTemplateName)
 		self.shortNames = ''
 		self.columnwidth = ''
+		self.roundData = {}
 
 	def get_opponent(self, parameter, scoreKey:str = 'score') -> Opponent:
 		teamName = get_value(self.bracket, parameter + 'team')
@@ -83,7 +39,7 @@ class Bracket(object):
 		return -1
 
 	def populate_round_data(self, match, roundData, lastRound, lowerHeaders):
-		id = Bracket.get_simplified_id(match['match2id'])
+		id = BracketHelpder.get_simplified_id(match['match2id'])
 		roundNumber, _, _ = id[1:].partition('M')
 		if roundNumber.isnumeric():
 			roundNumber = int(roundNumber)
@@ -149,7 +105,7 @@ class Bracket(object):
 		return roundData, lastRound, lowerHeaders
 
 	def handle_custom_mapping(self):
-		for roundParam, match1Param in self.customMapping.items():
+		for roundParam, match1Param in BracketHelpder.mapping:
 			reset = False
 			if roundParam == 'RxMBR':
 				reset = True
@@ -161,46 +117,6 @@ class Bracket(object):
 			winner = self.get_winner(opp1param, opp2param)
 			match2 = Match(opponent1, opponent2, winner, details)
 			self.roundData[roundParam] = match2
-
-	def get_round_output_order(self):
-		#Return the expected round output order
-		_bracketDataList = []
-
-		for match in self.lpdbMatches:
-			id = Bracket.get_simplified_id(match['match2id'])
-			bracketData = match['match2bracketdata']
-			bracketData['matchKey'] = id
-			_bracketDataList.append(bracketData)
-
-		def sortKey(bracketData):
-			coordinates = bracketData['coordinates'] if 'coordinates' in bracketData else None
-			if bracketData['matchKey'] == 'RxMTP' or bracketData['matchKey'] == 'RxMBR':
-				#RxMTP and RxMBR entries appear immediately after the match they're attached to
-				#So that match need to be found
-				finalBracketData = next((x for x in _bracketDataList if (('thirdplace' in x) or ('bracketreset' in x))), None)
-				result = sortKey(finalBracketData)
-				result.append(1)
-				return result
-			elif coordinates['semanticDepth'] == 0:
-				return [1, -coordinates['sectionIndex']]
-			else:
-				return [0, coordinates['sectionIndex'], coordinates['roundIndex'], coordinates['matchIndexInRound']]
-
-		def compare(itemA, itemB):
-			iteamAsort = sortKey(itemA)
-			iteamBsort = sortKey(itemB)
-
-			for index, _ in enumerate(min(iteamAsort, iteamBsort)):
-				if iteamAsort[index] < iteamBsort[index]:
-					return -1
-				elif iteamAsort[index] > iteamBsort[index]:
-					return 1
-			
-			return 1 if len(itemA) < len(itemB) else -1
-
-		_bracketDataList = sorted(_bracketDataList, key = cmp_to_key(compare))
-
-		return [x['matchKey'] for x in _bracketDataList]
 
 	def process(self):
 		if (self.bracket is None):
@@ -215,7 +131,7 @@ class Bracket(object):
 		lowerHeaders = {}
 		lastRound = None
 		#Mapping via lpdb template data
-		for match in self.lpdbMatches:
+		for match in BracketHelpder.bracketData:
 			roundData, lastRound, lowerHeaders = self.populate_round_data(match, roundData, lastRound, lowerHeaders)
 
 		for n in range(1, lastRound['R'] + 1):
@@ -226,44 +142,11 @@ class Bracket(object):
 			if headerLow and (n in lowerHeaders):
 				self.roundData['R' + str(n) + 'M' + str(lowerHeaders[n]) + 'header'] = headerLow
 	
-		if self.customMapping:
+		if BracketHelpder.mapping:
 			self.handle_custom_mapping()
 
-	def handle_round(self, wikicode: list, line: str):
-		match2parameter, equal, matchParameters = line.partition('=')
-		matchParameters = matchParameters.rstrip()
-		#Means we don't have a mapping
-		if not matchParameters:
-			return
-
-		if 'header' in match2parameter:
-			header = self.get_header(matchParameters)
-			if header:
-				wikicode.append(match2parameter + equal + header + '\n')
-		else:
-			parameters = matchParameters.split('*')
-			opponent1 = self.get_opponent(parameters[0])
-			opponent2 = self.get_opponent(parameters[1])
-			details = self.get_summary(parameters[2])
-			winner = self.get_winner(parameters[0], parameters[1])
-
-			match = Match(opponent1, opponent2, winner, details)
-			match.process()
-
-			if '|RxMTP' in match2parameter:
-				#Means all match mapping to reset match are empty
-				if ((not get_value(parameters[0]))
-					and (not get_value(parameters[1]))
-					and (not get_value(parameters[2]))):
-					#Pop <!-- Third Place Match --> and newline
-					wikicode.pop(len(wikicode) - 1)
-					wikicode.pop(len(wikicode) - 2)
-					return
-
-			wikicode.append(match2parameter + equal + str(match) + '\n')
-
 	def __str__(self) -> str:
-		out = '{{Bracket|'+ self.newTemplateName + '|id=' + generate_id()
+		out = '{{Bracket|'+ self.newName + '|id=' + generate_id()
 		if self.shortNames:
 			out = out + '|forceShortName=true'
 		if self.columnwidth:
@@ -271,17 +154,29 @@ class Bracket(object):
 		out = out + '\n'
 			
 		matchOut = ''
-		roundOutputOrder = self.get_round_output_order()
-		for param in roundOutputOrder:
+		roundOutputOrder = BracketHelpder.get_round_output_order()
+		for round in roundOutputOrder:
+			param = round['matchKey']
 			if param + 'header' in self.roundData:
 				out = out + '|' + param + 'header=' + self.roundData[param + 'header'] + '\n'
+
 			if not param in self.roundData:
+				#Todo add empty match
+				if param != 'RxMTP' and param != 'RxMBR':
+					matchOut = matchOut + '|' + param + '=' + '\n'
 				continue
 			match = self.roundData[param]
 			match.process()
 			if match.is_valid():
 				if match.is_reset() and (not match.opponent1.score) and (not match.opponent2.score):
 					continue
+				header = ''
+				if param == 'RxMTP' or param == 'RxMBR':
+					if param == 'RxMTP':
+						header = '\n\n' + '<!-- Third Place Match -->'
+				elif 'header' in round:
+					header = BracketHelpder.get_header(round['header'])
+				matchOut = matchOut + header
 				matchOut = matchOut + '|' + param + '=' + str(match) + '\n'
 
 		return out + matchOut + '}}'

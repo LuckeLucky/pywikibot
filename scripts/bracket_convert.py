@@ -3,6 +3,7 @@ import pywikibot
 from pywikibot import pagegenerators
 
 from match2conversion.bracket import Bracket
+from scripts.match2conversion.bracket_helper import BracketHelpder
 from scripts.utils.parser_helper import get_value, remove_and_squash
 from utils import get_text, put_text
 
@@ -56,7 +57,7 @@ def main(*args):
 	if not templateToReplace:
 		templateToReplace = pywikibot.input('Template to replace:')
 
-	if not Bracket.check_support(templateToReplace):
+	if not BracketHelpder.load(templateToReplace):
 		pywikibot.stdout("<<lightred>>Missing support for template: " + templateToReplace)
 		return
 
