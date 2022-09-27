@@ -11,6 +11,7 @@ class Map(object):
 		self.map = ''
 		self.finished = ''
 		self.vod = ''
+		self.vod2 = ''
 		self.score = ''
 		self.score1 = ''
 		self.score2 = ''
@@ -76,6 +77,7 @@ class Map(object):
 			self.score1, self.score2 = self.score.split('-', 1)
 
 		self.vod = get_value(self.summary, 'vodgame' + str(self.index))
+		self.vod2 = get_value(self.summary, '2vodgame' + str(self.index))
 
 		self.populate_winner_and_finished()
 		self.populate_halfs()
@@ -93,7 +95,7 @@ class Map(object):
 			return out + '}}'
 
 		#Sometimes only the winner is set
-		if (not self.score) and (not dict_has_value_set(self.halfs)) and (self.winner > -1):
+		if (not self.score) and (not dict_has_value_set(self.halfs)) and (self.winner > -1) and (not self.vod):
 			out = out + '|winner=' + str(self.winner)
 			return out + '}}'
 
@@ -126,5 +128,8 @@ class Map(object):
 			if not self.links:
 				out = out + '\n\t\t'
 			out = out + '|vod=' + self.vod
+
+		if self.vod and self.vod2:
+			out = out + '|vod2=' + self.vod2
 
 		return out + '}}'
