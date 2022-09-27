@@ -111,6 +111,9 @@ class Match(object):
 		if self.bye:
 			return out + '|finished=true\n}}'
 
+		if self.overturned == 'true' and self.winner >= 0:
+			out = out + '\n\t|winner=' + str(self.winner)
+
 		if self.finished and (not self.date):
 			out = out + '\n\t|finished=' + self.finished
 		elif (not self.finished) and (not self.date):
