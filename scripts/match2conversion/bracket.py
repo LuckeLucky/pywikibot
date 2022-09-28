@@ -2,9 +2,12 @@ from mwparserfromhell.nodes import Template
 
 from .helpers import generate_id
 from .match import Match
-from .opponent import Opponent, TeamOpponent
+from .opponent import Opponent, SoloOpponent, TeamOpponent
 from scripts.match2conversion.bracket_helper import BracketHelpder
 from scripts.utils.parser_helper import get_value, sanitize_template
+
+TEAM = 'team'
+SOLO = 'solo'
 
 class Bracket(object):
 	configs = None
@@ -13,16 +16,27 @@ class Bracket(object):
 	def __init__(self, oldTemplateName: str, bracket: Template) -> None:
 		self.bracket = sanitize_template(bracket, removeComments = True)	
 		self.newName = BracketHelpder.get_new_bracket_name(oldTemplateName)
+		self.bracketType = TEAM if TEAM in oldTemplateName.lower() else SOLO
 		self.shortNames = ''
 		self.columnwidth = ''
 		self.roundData = {}
 
 	def get_opponent(self, parameter, scoreKey:str = 'score') -> Opponent:
-		teamName = get_value(self.bracket, parameter + 'team')
-		teamScore = get_value(self.bracket, parameter + scoreKey)
-		if (teamName is None) and (teamScore is None):
+		if self.bracketType == TEAM:
+			teamName = get_value(self.bracket, parameter + 'team')
+			teamScore = get_value(self.bracket, parameter + scoreKey)
+			if (teamName is None) and (teamScore is None):
+				return None
+			return TeamOpponent(teamName, teamScore)
+		elif self.bracketType == SOLO:
+			playerName = get_value(self.bracket, parameter)
+			playerFlag = get_value(self.bracket, parameter + 'flag')
+			playerScore = get_value(self.bracket, parameter + 'score')
+			if (playerName is None) and (playerScore is None) and (playerFlag is None):
+				return None
+			return SoloOpponent(playerName, playerScore, '', playerFlag)
+		else:
 			return None
-		return TeamOpponent(teamName, teamScore)
 
 	def get_summary(self, parameter, index = 0):
 		if self.bracket.has(parameter + 'details'):
@@ -151,19 +165,18 @@ class Bracket(object):
 			out = out + '|forceShortName=true'
 		if self.columnwidth:
 			out = out + '|matchWidth=' + self.columnwidth
-		out = out + '\n'
 			
 		matchOut = ''
 		roundOutputOrder = BracketHelpder.get_round_output_order()
 		for round in roundOutputOrder:
 			param = round['matchKey']
 			if param + 'header' in self.roundData:
-				out = out + '|' + param + 'header=' + self.roundData[param + 'header'] + '\n'
+				out = out + '\n|' + param + 'header=' + self.roundData[param + 'header']
 
 			if not param in self.roundData:
 				#Todo add empty match
 				if param != 'RxMTP' and param != 'RxMBR':
-					matchOut = matchOut + '|' + param + '=' + '\n'
+					matchOut = matchOut + '\n|' + param + '=' + '\n'
 				continue
 			match = self.roundData[param]
 			match.process()
@@ -177,6 +190,6 @@ class Bracket(object):
 				elif 'header' in round:
 					header = BracketHelpder.get_header(round['header'])
 				matchOut = matchOut + header
-				matchOut = matchOut + '|' + param + '=' + str(match) + '\n'
+				matchOut = matchOut + '\n|' + param + '=' + str(match)
 
-		return out + matchOut + '}}'
+		return out + matchOut + '\n}}'
