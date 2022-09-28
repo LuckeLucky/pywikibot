@@ -78,8 +78,9 @@ def sanitize_template(template: Template, removeComments: bool = False):
 			raise VodX
 		if isValueSet and ('2vod' in name):
 			raise VodX
-		if isValueSet and ('[' in value or "''" in value or ']' in value):
-			raise WikiStyle
+		if 'score' in name:
+			if isValueSet and ("''" in value):
+				raise WikiStyle
 		if '<!--' in value and removeComments:
 			value = re.sub(r'(<!--.*?-->)', '', value, 0, re.MULTILINE)
 		template.add(str(parameter.name), value.strip(), preserve_spacing=False)

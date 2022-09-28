@@ -1,4 +1,6 @@
 import logging
+
+from scripts.match2conversion.match2exceptions import WikiStyle
 log = logging.getLogger(__name__)
 
 from mwparserfromhell.nodes import Template
@@ -24,6 +26,10 @@ class Bracket(object):
 		self.columnwidth = ''
 		self.roundData = {}
 
+	def check_name(self, name:str):
+		if ('[' in name) or (']' in name):
+			raise WikiStyle
+
 	def get_opponent(self, parameter, scoreKey:str = 'score') -> Opponent:
 		if self.bracketType == TEAM:
 			teamName = get_value(self.bracket, parameter + 'team')
@@ -31,8 +37,10 @@ class Bracket(object):
 			literal = get_value(self.bracket, parameter + 'literal')
 			teamScore = get_value(self.bracket, parameter + scoreKey)
 			if (teamName is not None):
+				self.check_name(teamName)
 				return TeamOpponent(teamName, teamScore)
 			elif(teamcsName is not None):
+				self.check_name(teamcsName)
 				return Opponent(teamcsName, teamScore)
 			elif(literal is not None):
 				return Opponent(literal, teamScore)
@@ -191,8 +199,10 @@ class Bracket(object):
 			match = self.roundData[param]
 			match.process()
 			if match.is_valid():
-				if match.is_reset() and (not match.opponent1.score) and (not match.opponent2.score):
-					continue
+				if param == 'RxMTP' or param == 'RxMBR':
+					#Check if scores are set to avoid ghost round
+					if (not match.opponent1.score) and (not match.opponent2.score):
+						continue
 				header = ''
 				if param == 'RxMTP' or param == 'RxMBR':
 					if param == 'RxMTP':
