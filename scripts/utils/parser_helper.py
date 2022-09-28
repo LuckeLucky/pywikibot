@@ -1,6 +1,6 @@
-#merit to https://github.com/lahwaacz/wiki-scripts :)
 import re
 from mwparserfromhell.nodes import Text, Template
+from scripts.match2conversion.match2exceptions import VodX, WikiStyle
 
 def get_parent_wikicode(wikicode, node):
     """
@@ -12,6 +12,7 @@ def get_parent_wikicode(wikicode, node):
 
 def remove_and_squash(wikicode, obj):
     """
+	merit to https://github.com/lahwaacz/wiki-scripts :)
     Remove `obj` from `wikicode` and fix whitespace in the place it was removed from.
     """
     parent = get_parent_wikicode(wikicode, obj)
@@ -70,10 +71,18 @@ def remove_and_squash(wikicode, obj):
 
 def sanitize_template(template: Template, removeComments: bool = False):
 	for parameter in template.params:
-		value = str(parameter.value)
+		name = str(parameter.name)
+		value = str(parameter.value).strip()
+		isValueSet = True if len(value) > 0 else False
+		if isValueSet and (('vod2' in name) or ('vod3' in name) or ('vod4' in name) or ('vod5' in name) or ('vod1' in name)):
+			raise VodX
+		if isValueSet and ('2vod' in name):
+			raise VodX
+		if isValueSet and ('[' in value or "''" in value or ']' in value):
+			raise WikiStyle
 		if '<!--' in value and removeComments:
 			value = re.sub(r'(<!--.*?-->)', '', value, 0, re.MULTILINE)
-		template.add(str(parameter.name), value.rstrip(), preserve_spacing=False)
+		template.add(str(parameter.name), value.strip(), preserve_spacing=False)
 	return template
 
 def get_value(template: Template, key: str = None, index: int = -1) -> str:

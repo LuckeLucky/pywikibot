@@ -1,8 +1,11 @@
+import logging
 import mwparserfromhell
 import pywikibot
 from pywikibot import pagegenerators
 
 from match2conversion.bracket import Bracket
+from scripts.match2conversion import match2exceptions
+from scripts.match2conversion.bracket_helper import BracketHelpder
 from scripts.utils.parser_helper import get_value, remove_and_squash
 from utils import get_text, put_text
 
@@ -37,7 +40,6 @@ def process_text(text: str, templateToReplace: str):
 	return text
 
 def main(*args):
-
 	# Read commandline parameters.
 	local_args = pywikibot.handle_args(args)
 	genFactory = pagegenerators.GeneratorFactory()
@@ -56,16 +58,26 @@ def main(*args):
 	if not templateToReplace:
 		templateToReplace = pywikibot.input('Template to replace:')
 
-	if not Bracket.check_support(templateToReplace):
+	if not BracketHelpder.load(templateToReplace):
 		pywikibot.stdout("<<lightred>>Missing support for template: " + templateToReplace)
 		return
 
 	edit_summary = f'Convert Bracket {templateToReplace} to Match2'
+	logging.basicConfig(filename="log_"+templateToReplace+".txt", level=logging.INFO)
 	generator = genFactory.getCombinedGenerator()
+	logging.info("--------"+templateToReplace+"--------")
 	for page in generator:
-		text = get_text(page)
-		new_text = process_text(text, templateToReplace)
-		put_text(page, summary=edit_summary, new=new_text)
+		logging.info("Working on " + page.full_url())
+		try:
+			text = get_text(page)
+			new_text = process_text(text, templateToReplace)
+			put_text(page, summary=edit_summary, new=new_text)
+		except match2exceptions.VodX:
+			logging.error("VodX:"+str(page))
+		except match2exceptions.WikiStyle:
+			logging.error("WikiStyle:"+str(page))
+		except match2exceptions.MalformedScore:
+			logging.error("MalformedScore:"+str(page))
 
 if __name__ == '__main__':
 	main()
