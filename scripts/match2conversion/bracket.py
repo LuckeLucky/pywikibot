@@ -27,14 +27,17 @@ class Bracket(object):
 	def get_opponent(self, parameter, scoreKey:str = 'score') -> Opponent:
 		if self.bracketType == TEAM:
 			teamName = get_value(self.bracket, parameter + 'team')
+			teamcsName = get_value(self.bracket, parameter)
+			literal = get_value(self.bracket, parameter + 'literal')
 			teamScore = get_value(self.bracket, parameter + scoreKey)
-			if teamName is None:
-				teamName = get_value(self.bracket, parameter)
-				if teamScore is not None:
-					return Opponent(teamName, teamScore)
-			if (teamName is None) and (teamScore is None):
+			if (teamName is not None):
+				return TeamOpponent(teamName, teamScore)
+			elif(teamcsName is not None):
+				return Opponent(teamcsName, teamScore)
+			elif(literal is not None):
+				return Opponent(literal, teamScore)
+			else:
 				return None
-			return TeamOpponent(teamName, teamScore)
 		elif self.bracketType == SOLO:
 			playerName = get_value(self.bracket, parameter)
 			playerFlag = get_value(self.bracket, parameter + 'flag')

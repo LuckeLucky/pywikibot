@@ -67,7 +67,7 @@ def main(*args):
 	generator = genFactory.getCombinedGenerator()
 	logging.info("--------"+templateToReplace+"--------")
 	for page in generator:
-		print("Working on " + page.full_url())
+		logging.info("Working on " + page.full_url())
 		try:
 			text = get_text(page)
 			new_text = process_text(text, templateToReplace)
