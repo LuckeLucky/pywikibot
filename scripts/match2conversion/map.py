@@ -1,4 +1,6 @@
 from mwparserfromhell.nodes import Template
+
+from scripts.match2conversion.match2exceptions import MalformedScore
 from .external_links import MAP_LINKS
 from scripts.utils.parser_helper import get_value, dict_has_value_set
 
@@ -74,6 +76,8 @@ class Map(object):
 
 		self.score = get_value(self.summary, self.prefix + 'score')
 		if self.score:
+			if '-' not in self.score:
+				raise MalformedScore
 			self.score1, self.score2 = self.score.split('-', 1)
 
 		self.vod = get_value(self.summary, 'vodgame' + str(self.index))

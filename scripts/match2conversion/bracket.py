@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger(__name__)
+
 from mwparserfromhell.nodes import Template
 
 from .helpers import generate_id
@@ -25,6 +28,10 @@ class Bracket(object):
 		if self.bracketType == TEAM:
 			teamName = get_value(self.bracket, parameter + 'team')
 			teamScore = get_value(self.bracket, parameter + scoreKey)
+			if teamName is None:
+				teamName = get_value(self.bracket, parameter)
+				if teamScore is not None:
+					return Opponent(teamName, teamScore)
 			if (teamName is None) and (teamScore is None):
 				return None
 			return TeamOpponent(teamName, teamScore)
@@ -186,7 +193,10 @@ class Bracket(object):
 				header = ''
 				if param == 'RxMTP' or param == 'RxMBR':
 					if param == 'RxMTP':
+						log.info("Third Place Match saved")
 						header = '\n\n' + '<!-- Third Place Match -->'
+					else:
+						log.info("Reset Match saved")
 				elif 'header' in round:
 					header = BracketHelpder.get_header(round['header'])
 				matchOut = matchOut + header
