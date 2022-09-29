@@ -199,9 +199,12 @@ class Bracket(object):
 			match = self.roundData[param]
 			match.process()
 			if match.is_valid():
-				if param == 'RxMTP' or param == 'RxMBR':
-					#Check if scores are set to avoid ghost round
-					if (not match.opponent1.score) and (not match.opponent2.score):
+				if param == 'RxMBR':
+					#We dont check winner because for reset match final winner == reset winner (match1)
+					if (not match.opponent1.score) and (not match.opponent2.score) and (not match.summary):
+						continue
+				elif param == 'RxMTP':
+					if (not match.opponent1.score) and (not match.opponent2.score) and match.winner < 0:
 						continue
 				header = ''
 				if param == 'RxMTP' or param == 'RxMBR':
