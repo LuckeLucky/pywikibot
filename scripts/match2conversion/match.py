@@ -114,6 +114,11 @@ class Match(object):
 		if self.overturned == 'true' and self.winner >= 0:
 			out = out + '\n\t|winner=' + str(self.winner)
 
+		if ((self.opponent1 and self.opponent1.score == '')
+			and (self.opponent2 and self.opponent2.score == '')
+			and self.winner >= 0):
+			out = out + '\n\t|winner=' + str(self.winner)
+
 		if self.finished and (not self.date):
 			out = out + '\n\t|finished=' + self.finished
 		elif (not self.finished) and (not self.date):
