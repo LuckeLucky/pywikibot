@@ -114,8 +114,8 @@ class Match(object):
 		if self.overturned == 'true' and self.winner >= 0:
 			out = out + '\n\t|winner=' + str(self.winner)
 
-		if ((self.opponent1 and self.opponent1.score == '')
-			and (self.opponent2 and self.opponent2.score == '')
+		if ((self.opponent1 and not self.opponent1.score)
+			and (self.opponent2 and not self.opponent2.score)
 			and self.winner >= 0):
 			out = out + '\n\t|winner=' + str(self.winner)
 
