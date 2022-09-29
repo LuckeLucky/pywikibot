@@ -58,7 +58,7 @@ class Bracket(object):
 
 	def get_summary(self, parameter, index = 0):
 		if self.bracket.has(parameter + 'details'):
-			templates = self.bracket.get(parameter + 'details').value.filter_templates()
+			templates = self.bracket.get(parameter + 'details').value.filter_templates(recursive = False)
 			if len(templates) > index:
 				return sanitize_template(templates[index])
 		return None
@@ -137,7 +137,7 @@ class Bracket(object):
 		return roundData, lastRound, lowerHeaders
 
 	def handle_custom_mapping(self):
-		for roundParam, match1Param in BracketHelpder.mapping:
+		for roundParam, match1Param in BracketHelpder.mapping.items():
 			reset = False
 			if roundParam == 'RxMBR':
 				reset = True
