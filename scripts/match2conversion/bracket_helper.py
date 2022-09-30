@@ -8,6 +8,7 @@ from pathlib import Path
 bracketAlias = {
 	'2SETeamBracket': '2',
 	'2SEBracket': '2',
+	'4SETeamBracket': '4',
 	'4SEBracket': '4',
 	'8SETeamBracket': '8',
 	'8SEBracket': '8',
