@@ -13,11 +13,13 @@ bracketAlias = {
 	'8SETeamBracket': '8',
 	'8SEBracket': '8',
 	'16SETeamBracket': '16',
+	'16SEBracket': '16',
 	'32SETeamBracket': '32',
+	'32SEBracket': '32',
 	'64SETeamBracket': '64',
 
-	'8DETeamBracket': '8U4L2DSL1D',
 	'4DETeamBracket': '4U2L1D',
+	'8DETeamBracket': '8U4L2DSL1D',
 	'32DETeamBracket': '32U16L8DSL4DSL2DSL1D',
 }
 
