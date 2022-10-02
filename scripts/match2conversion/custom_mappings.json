@@ -107,5 +107,12 @@
 			"opp1": "R3W1",
 			"opp2": "R3W2"
 		}
+	},
+	"Bracket/8U4L2DSL1D": {
+		"RxMBR" : {
+			"details": "R5G1",
+			"opp1": "R5W1",
+			"opp2": "R5W2"
+		}
 	}
 }
