@@ -17,6 +17,9 @@ bracketAlias = {
 	'32SETeamBracket': '32',
 	'32SEBracket': '32',
 	'64SETeamBracket': '64',
+	'64SEBracket': '64',
+	'128SETeamBracket': '128',
+	'128SEBracket': '128',
 
 	'4DETeamBracket': '4U2L1D',
 	'8DETeamBracket': '8U4L2DSL1D',
