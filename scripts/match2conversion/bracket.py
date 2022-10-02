@@ -49,7 +49,7 @@ class Bracket(object):
 		elif self.bracketType == SOLO:
 			playerName = get_value(self.bracket, parameter)
 			playerFlag = get_value(self.bracket, parameter + 'flag')
-			playerScore = get_value(self.bracket, parameter + 'score')
+			playerScore = get_value(self.bracket, parameter + scoreKey)
 			if (playerName is None) and (playerScore is None) and (playerFlag is None):
 				return None
 			return SoloOpponent(playerName, playerScore, '', playerFlag)
