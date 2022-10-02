@@ -8,7 +8,7 @@ from mwparserfromhell.nodes import Template
 from .helpers import generate_id
 from .match import Match
 from .opponent import Opponent, SoloOpponent, TeamOpponent
-from scripts.match2conversion.bracket_helper import BracketHelpder
+from scripts.match2conversion.bracket_helper import BracketHelper
 from scripts.utils.parser_helper import get_value, sanitize_template
 
 TEAM = 'team'
@@ -20,15 +20,16 @@ class Bracket(object):
 
 	def __init__(self, oldTemplateName: str, bracket: Template) -> None:
 		self.bracket = sanitize_template(bracket, removeComments = True)	
-		self.newName = BracketHelpder.get_new_bracket_name(oldTemplateName)
+		self.newName = BracketHelper.get_new_bracket_name(oldTemplateName)
 		self.bracketType = TEAM if TEAM in oldTemplateName.lower() else SOLO
 		self.shortNames = ''
 		self.columnwidth = ''
 		self.roundData = {}
 
 	def check_name(self, name:str):
-		if ('[' in name) or (']' in name):
-			raise WikiStyle
+		pass
+		""" if ('[' in name) or (']' in name):
+			raise WikiStyle """
 
 	def get_opponent(self, parameter, scoreKey:str = 'score') -> Opponent:
 		if self.bracketType == TEAM:
@@ -71,7 +72,7 @@ class Bracket(object):
 		return -1
 
 	def populate_round_data(self, match, roundData, lastRound, lowerHeaders):
-		id = BracketHelpder.get_simplified_id(match['match2id'])
+		id = BracketHelper.get_simplified_id(match['match2id'])
 		roundNumber, _, _ = id[1:].partition('M')
 		if roundNumber.isnumeric():
 			roundNumber = int(roundNumber)
@@ -137,7 +138,7 @@ class Bracket(object):
 		return roundData, lastRound, lowerHeaders
 
 	def handle_custom_mapping(self):
-		for roundParam, match1Param in BracketHelpder.mapping.items():
+		for roundParam, match1Param in BracketHelper.mapping.items():
 			reset = False
 			if roundParam == 'RxMBR':
 				reset = True
@@ -163,7 +164,7 @@ class Bracket(object):
 		lowerHeaders = {}
 		lastRound = None
 		#Mapping via lpdb template data
-		for match in BracketHelpder.bracketData:
+		for match in BracketHelper.bracketData:
 			roundData, lastRound, lowerHeaders = self.populate_round_data(match, roundData, lastRound, lowerHeaders)
 
 		for n in range(1, lastRound['R'] + 1):
@@ -174,7 +175,7 @@ class Bracket(object):
 			if headerLow and (n in lowerHeaders):
 				self.roundData['R' + str(n) + 'M' + str(lowerHeaders[n]) + 'header'] = headerLow
 	
-		if BracketHelpder.mapping:
+		if BracketHelper.mapping:
 			self.handle_custom_mapping()
 
 	def __str__(self) -> str:
@@ -185,7 +186,7 @@ class Bracket(object):
 			out = out + '|matchWidth=' + self.columnwidth
 			
 		matchOut = ''
-		roundOutputOrder = BracketHelpder.get_round_output_order()
+		roundOutputOrder = BracketHelper.get_round_output_order()
 		for round in roundOutputOrder:
 			param = round['matchKey']
 			if param + 'header' in self.roundData:
@@ -214,7 +215,7 @@ class Bracket(object):
 					else:
 						log.info("Reset Match saved")
 				elif 'header' in round:
-					header = BracketHelpder.get_header(round['header'])
+					header = BracketHelper.get_header(round['header'])
 				matchOut = matchOut + header
 				matchOut = matchOut + '\n|' + param + '=' + str(match)
 

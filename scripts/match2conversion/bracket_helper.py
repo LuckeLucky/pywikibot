@@ -24,7 +24,7 @@ bracketAlias = {
 	'32DETeamBracket': '32U16L8DSL4DSL2DSL1D',
 }
 
-class BracketHelpder(object):
+class BracketHelper(object):
 	bracketData = None
 	headersData = None
 	mapping = None
@@ -49,7 +49,7 @@ class BracketHelpder(object):
 		p = Path(__file__).with_name('bracket_templates.json')
 		file = p.open()
 		data = json.load(file)
-		BracketHelpder.bracketData = data[templateName] if templateName in data else None
+		BracketHelper.bracketData = data[templateName] if templateName in data else None
 
 
 	@staticmethod
@@ -57,27 +57,27 @@ class BracketHelpder(object):
 		p = Path(__file__).with_name('custom_mappings.json')
 		file = p.open()
 		data = json.load(file)
-		BracketHelpder.mapping = data[templateName] if templateName in data else None
+		BracketHelper.mapping = data[templateName] if templateName in data else None
 
 	@staticmethod
 	def load_headers_data():
 		p = Path(__file__).with_name('headers_data.json')
 		file = p.open()
 		data = json.load(file)
-		BracketHelpder.headersData = data
+		BracketHelper.headersData = data
 
 	@staticmethod
 	def load(templateName: str) -> bool:
 		"""
 			Load bracket data and custom mappings into memory
 		"""
-		if not BracketHelpder.check_support(templateName):
+		if not BracketHelper.check_support(templateName):
 			return False
 		
-		newBracketName = BracketHelpder.get_new_bracket_name(templateName)
-		BracketHelpder.load_bracket_data(newBracketName)
-		BracketHelpder.load_headers_data()
-		BracketHelpder.load_custom_mapping(newBracketName)
+		newBracketName = BracketHelper.get_new_bracket_name(templateName)
+		BracketHelper.load_bracket_data(newBracketName)
+		BracketHelper.load_headers_data()
+		BracketHelper.load_custom_mapping(newBracketName)
 
 		return True
 
@@ -99,12 +99,12 @@ class BracketHelpder(object):
 
 	@staticmethod
 	def get_round_output_order():
-		if BracketHelpder.outputOrder:
-			return BracketHelpder.outputOrder
+		if BracketHelper.outputOrder:
+			return BracketHelper.outputOrder
 		bracketDataList = []
 
-		for match in BracketHelpder.bracketData:
-			id = BracketHelpder.get_simplified_id(match['match2id'])
+		for match in BracketHelper.bracketData:
+			id = BracketHelper.get_simplified_id(match['match2id'])
 			bracketData = match['match2bracketdata']
 			bracketData['matchKey'] = id
 			bracketDataList.append(bracketData)
@@ -136,7 +136,7 @@ class BracketHelpder(object):
 			return 1 if len(itemA) < len(itemB) else -1
 
 		bracketDataList = sorted(bracketDataList, key = cmp_to_key(compare))
-		BracketHelpder.outputOrder = copy.copy(bracketDataList)
+		BracketHelper.outputOrder = copy.copy(bracketDataList)
 
 		return bracketDataList
 
@@ -145,7 +145,7 @@ class BracketHelpder(object):
 		if not headerCode:
 			return ''
 
-		if headerCode in BracketHelpder.headersData:
-			return '\n\n' + '<!-- ' + BracketHelpder.headersData[headerCode] + ' -->'
+		if headerCode in BracketHelper.headersData:
+			return '\n\n' + '<!-- ' + BracketHelper.headersData[headerCode] + ' -->'
 		
 		return ''
