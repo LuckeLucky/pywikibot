@@ -27,9 +27,8 @@ class Bracket(object):
 		self.roundData = {}
 
 	def check_name(self, name:str):
-		pass
-		""" if ('[' in name) or (']' in name):
-			raise WikiStyle """
+		if ('[' in name) or (']' in name):
+			raise WikiStyle
 
 	def get_opponent(self, parameter, scoreKey:str = 'score') -> Opponent:
 		if self.bracketType == TEAM:
