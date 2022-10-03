@@ -26,6 +26,9 @@ bracketAlias = {
 	'8DEBracket': '8U4L2DSL1D',
 	'16DETeamBracket': '16U8L4DSL2DSL1D',
 	'32DETeamBracket': '32U16L8DSL4DSL2DSL1D',
+
+	'2DE1STeamBracket': '2U2',
+	'2DE1WTeamBracket': '2L1DU2'
 }
 
 class BracketHelper(object):
