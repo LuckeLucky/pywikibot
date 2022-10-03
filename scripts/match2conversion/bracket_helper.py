@@ -1,6 +1,5 @@
 import copy
 import json
-import re
 
 from functools import cmp_to_key
 from pathlib import Path
@@ -31,7 +30,8 @@ bracketAlias = {
 	'2DE1WTeamBracket': '2L1DU2',
 	'2DE4STeamBracket': '2U4L1D',
 	'3SETeamBracket': '2L1D',
-	'4DE1STeamBracket2': '4L2DSU2L2D'
+	'4DE1STeamBracket2': '4L2DSU2L2D',
+	'4SE6STeamBracket': '4L6DS'
 }
 
 class BracketHelper(object):
