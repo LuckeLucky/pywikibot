@@ -121,5 +121,17 @@
 			"opp1": "R7W1",
 			"opp2": "R7W2"
 		}
+	},
+	"Bracket/8L2DS" : {
+		"R3M1" : {
+			"details": "R3G1",
+			"opp1": "R3W1",
+			"opp2": "R3W2"
+		},
+		"R3M2" : {
+			"details": "R3G2",
+			"opp1": "R3W3",
+			"opp2": "R3W4"
+		}
 	}
 }
