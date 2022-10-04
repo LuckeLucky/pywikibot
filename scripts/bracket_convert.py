@@ -63,7 +63,7 @@ def main(*args):
 		return
 
 	edit_summary = f'Convert Bracket {templateToReplace} to Match2'
-	logging.basicConfig(filename="log_"+templateToReplace+".txt", level=logging.INFO)
+	logging.basicConfig(filename="log_"+templateToReplace.replace('/','_')+".txt", level=logging.INFO)
 	generator = genFactory.getCombinedGenerator()
 	logging.info("--------"+templateToReplace+"--------")
 	for page in generator:
