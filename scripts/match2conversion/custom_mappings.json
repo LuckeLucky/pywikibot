@@ -212,5 +212,27 @@
 			"opp1": "R7W1",
 			"opp2": "R7W2"
 		}		
+	},
+	"Bracket/4L2DSU4L4DSL1D" : {
+		"R3M1" : {
+			"details": "R3G1",
+			"opp1": "R3W1",
+			"opp2": "R3W2"
+		},
+		"R3M2" : {
+			"details": "R3G2",
+			"opp1": "R3W3",
+			"opp2": "R3W4"
+		},
+		"R3M3" : {
+			"details": "R3G3",
+			"opp1": "R3D1",
+			"opp2": "R3W5"
+		},
+		"R3M4" : {
+			"details": "R3G4",
+			"opp1": "R3D2",
+			"opp2": "R3W6"
+		}
 	}
 }

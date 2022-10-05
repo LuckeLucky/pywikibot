@@ -44,6 +44,7 @@ bracketAlias = {
 	'4STeamBracket': '2L2D',
 	'5KoTHTeamBracket': '2L3D',
 	'5SEKoTHTeamBracket': '2L3D',
+	'6DE4LTeamBracket': '4L2DSU4L4DSL1D',
 	'6SETeamBracket': '4L2DS',
 	'8DE8STeamBracket2': '16U4L2DSL1D',
 	'8SE2S2STeamBracket': '8L4DS',
