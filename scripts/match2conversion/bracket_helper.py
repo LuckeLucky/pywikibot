@@ -10,6 +10,7 @@ bracketAlias = {
 	'4SETeamBracket': '4',
 	'4SEBracket': '4',
 	'8SETeamBracket': '8',
+	'8SETeamBracket/reseeded': '8',
 	'8SEBracket': '8',
 	'16SETeamBracket': '16',
 	'16SETeamBracket/css': '16',
