@@ -59,7 +59,9 @@ bracketAlias = {
 	'16SE8STeamBracket': '16L8DSSS',
 	'32DE16STeamBracket': '32L16DSSSSU32L8DSL4DSL2DSL1D',
 	'32SE2STeamBracket': '32L2DS',
-	'32SE8STeamBracket': '32L8DSSS'
+	'32SE8STeamBracket': '32L8DSSS',
+
+	'12Qual-16DETeamBracket' : '2-2-2-2-2-2-2-2-U-2-2-2-2'
 }
 
 class BracketHelper(object):
@@ -148,6 +150,8 @@ class BracketHelper(object):
 			bracketDataList.append(bracketData)
 
 		def sortKey(bracketData):
+			if bracketData is None:
+				return [0]
 			coordinates = bracketData['coordinates'] if 'coordinates' in bracketData else None
 			if bracketData['matchKey'] == 'RxMTP' or bracketData['matchKey'] == 'RxMBR':
 				#RxMTP and RxMBR entries appear immediately after the match they're attached to
