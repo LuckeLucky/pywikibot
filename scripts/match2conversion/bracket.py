@@ -137,18 +137,23 @@ class Bracket(object):
 		return roundData, lastRound, lowerHeaders
 
 	def handle_custom_mapping(self):
-		for roundParam, match1Param in BracketHelper.mapping.items():
+		for roundParam, match1Params in BracketHelper.mapping.items():
 			reset = False
 			if roundParam == 'RxMBR':
 				reset = True
-			opp1param = match1Param["opp1"]
-			opp2param = match1Param["opp2"]
-			details = self.get_summary(match1Param["details"], index = 1 if reset else 0)
+			opp1param = match1Params["opp1"]
+			opp2param = match1Params["opp2"]
+			details = self.get_summary(match1Params["details"], index = 1 if reset else 0)
 			opponent1 = self.get_opponent(opp1param, scoreKey= 'score2' if reset else 'score')
 			opponent2 = self.get_opponent(opp2param, scoreKey= 'score2' if reset else 'score')
 			winner = self.get_winner(opp1param, opp2param)
 			match2 = Match(opponent1, opponent2, winner, details)
 			self.roundData[roundParam] = match2
+
+			if "header" in match1Params:
+				header = get_value(self.bracket, match1Params["header"])
+				if header:
+					self.roundData[roundParam + 'header'] = header
 
 	def process(self):
 		if (self.bracket is None):

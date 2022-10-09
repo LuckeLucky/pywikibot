@@ -145,7 +145,8 @@
 		"R1M5" : {
 			"details": "R2G5",
 			"opp1": "R2D5",
-			"opp2": "R2W5"
+			"opp2": "R2W5",
+			"header": "L2"
 		},
 		"R1M6" : {
 			"details": "R2G6",
@@ -165,7 +166,8 @@
 		"R2M5" : {
 			"details": "R3G1",
 			"opp1": "R3W1",
-			"opp2": "R3W2"
+			"opp2": "R3W2",
+			"header": "L3"
 		},
 		"R2M6" : {
 			"details": "R3G2",
@@ -175,7 +177,8 @@
 		"R3M1" : {
 			"details": "R4G1",
 			"opp1": "R4W1",
-			"opp2": "R4W2"
+			"opp2": "R4W2",
+			"header" : "R4"
 		},
 		"R3M2" : {
 			"details": "R4G2",
@@ -185,7 +188,8 @@
 		"R3M3" : {
 			"details": "R4G3",
 			"opp1": "R4D1",
-			"opp2": "R4W5"
+			"opp2": "R4W5",
+			"header": "L4"
 		},
 		"R3M4" : {
 			"details": "R4G4",
@@ -195,22 +199,26 @@
 		"R4M1" : {
 			"details": "R5G1",
 			"opp1": "R5W1",
-			"opp2": "R5W2"
+			"opp2": "R5W2",
+			"header": "L5"
 		},
 		"R5M1" : {
 			"details": "R6G1",
 			"opp1": "R6W1",
-			"opp2": "R6W2"
+			"opp2": "R6W2",
+			"header": "R6"
 		},
 		"R5M2" : {
 			"details": "R6G2",
 			"opp1": "R6D1",
-			"opp2": "R6W3"
+			"opp2": "R6W3",
+			"header": "L6"
 		},
 		"R6M1" : {
 			"details": "R7G1",
 			"opp1": "R7W1",
-			"opp2": "R7W2"
+			"opp2": "R7W2",
+			"header": "R7"
 		}		
 	},
 	"Bracket/4L2DSU4L4DSL1D" : {
@@ -239,7 +247,8 @@
 		"R4M1" : {
 			"details": "R3G1",
 			"opp1": "R3W1",
-			"opp2": "R3W2"
+			"opp2": "R3W2",
+			"header" : "R3"
 		},
 		"R4M2" : {
 			"details": "R3G2",
@@ -259,7 +268,8 @@
 		"R6M1" : {
 			"details": "R4G1",
 			"opp1": "R4W1",
-			"opp2": "R4W2"
+			"opp2": "R4W2",
+			"header": "R4"
 		},
 		"R6M2" : {
 			"details": "R4G2",
@@ -269,17 +279,20 @@
 		"R8M1" : {
 			"details": "R5G1",
 			"opp1": "R5W1",
-			"opp2": "R5W2"
+			"opp2": "R5W2",
+			"header": "R7"
 		},
 		"R9M1" : {
 			"details": "R8G1",
 			"opp1": "R8W1",
-			"opp2": "R8W2"
+			"opp2": "R8W2",
+			"header": "R8"
 		},
 		"R2M9" : {
 			"details": "R1G9",
 			"opp1": "R1D17",
-			"opp2": "R1D18"
+			"opp2": "R1D18",
+			"header": "L1"
 		},
 		"R2M10" : {
 			"details": "R1G10",
@@ -319,7 +332,8 @@
 		"R3M1" : {
 			"details": "R2G9",
 			"opp1": "R2W9",
-			"opp2": "R2W10"
+			"opp2": "R2W10",
+			"header": "L2"
 		},
 		"R3M2" : {
 			"details": "R2G10",
@@ -339,7 +353,8 @@
 		"R4M5" : {
 			"details": "R3G5",
 			"opp1": "R3D1",
-			"opp2": "R3W9"
+			"opp2": "R3W9",
+			"header": "L3"
 		},
 		"R4M6" : {
 			"details": "R3G6",
@@ -359,7 +374,8 @@
 		"R5M1" : {
 			"details": "R4G3",
 			"opp1": "R4W5",
-			"opp2": "R4W6"
+			"opp2": "R4W6",
+			"header": "L4"
 		},
 		"R5M2" : {
 			"details": "R4G4",
@@ -369,7 +385,8 @@
 		"R6M3" : {
 			"details": "R5G2",
 			"opp1": "R5D1",
-			"opp2": "R5W3"
+			"opp2": "R5W3",
+			"header": "L5"
 		},
 		"R6M4" : {
 			"details": "R5G3",
@@ -379,12 +396,14 @@
 		"R7M1" : {
 			"details": "R6G1",
 			"opp1": "R6W1",
-			"opp2": "R6W2"
+			"opp2": "R6W2",
+			"header": "L6"
 		},
 		"R8M2" : {
 			"details": "R7G1",
 			"opp1": "R7D1",
-			"opp2": "R7W1"
+			"opp2": "R7W1",
+			"header": "L7"
 		}
 	}
 }
