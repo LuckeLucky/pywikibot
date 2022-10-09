@@ -56,6 +56,7 @@ bracketAlias = {
 	'16SE2STeamBracket': '16L2DS',
 	'16SE4STeamBracket2': '8L4DSSH8L',
 	'16SE8STeamBracket': '16L8DSSS',
+	'32DE16STeamBracket': '32L16DSSSSU32L8DSL4DSL2DSL1D',
 	'32SE2STeamBracket': '32L2DS',
 	'32SE8STeamBracket': '32L8DSSS'
 }
