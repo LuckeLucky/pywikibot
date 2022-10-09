@@ -405,5 +405,47 @@
 			"opp2": "R7W1",
 			"header": "L7"
 		}
+	},
+	"Bracket/8L4DSSH8L" : {
+		"R2M1" : {
+			"details": "R2G1",
+			"opp1": "R2W1",
+			"opp2": "R2W2"
+		},
+		"R2M2" : {
+			"details": "R2G2",
+			"opp1": "R2W3",
+			"opp2": "R2W4"
+		},
+		"R2M3" : {
+			"details": "R2G3",
+			"opp1": "R2W5",
+			"opp2": "R2W6"
+		},
+		"R2M4" : {
+			"details": "R2G4",
+			"opp1": "R2W7",
+			"opp2": "R2W8"
+		},
+		"R2M5" : {
+			"details": "R2G5",
+			"opp1": "R2W9",
+			"opp2": "R2W10"
+		},
+		"R2M6" : {
+			"details": "R2G6",
+			"opp1": "R2W11",
+			"opp2": "R2W12"
+		},
+		"R2M7" : {
+			"details": "R2G7",
+			"opp1": "R2W13",
+			"opp2": "R2W14"
+		},
+		"R2M8" : {
+			"details": "R2G8",
+			"opp1": "R2W15",
+			"opp2": "R2W16"
+		}
 	}
 }
