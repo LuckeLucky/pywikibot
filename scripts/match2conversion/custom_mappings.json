@@ -526,5 +526,54 @@
 			"opp1": "R8W1",
 			"opp2": "R8W2"
 		}
+	},
+	"Bracket/4U4L1D": {
+		"RxMBR" : {
+			"details": "R4G1",
+			"opp1": "R4W1",
+			"opp2": "R4W2"
+		}
+	},
+	"Bracket/4L2DSU4L1D": {
+		"R2M3" : {
+			"details": "R1G3",
+			"opp1": "R1D5",
+			"opp2": "R1D6",
+			"header": "L1"
+		},
+		"R2M4" : {
+			"details": "R1G4",
+			"opp1": "R1D7",
+			"opp2": "R1D8"
+		},
+		"R3M1" : {
+			"details": "R2G3",
+			"opp1": "R2W3",
+			"opp2": "R2W4",
+			"header": "L2"
+		},
+		"R4M1" : {
+			"details": "R3G1",
+			"opp1": "R3W1",
+			"opp2": "R3W2",
+			"header": "R3"
+		},
+		"R4M2" : {
+			"details": "R3G2",
+			"opp1": "R3D1",
+			"opp2": "R3W3",
+			"header": "L3"
+		},
+		"R5M1" : {
+			"details": "R4G1",
+			"opp1": "R4W1",
+			"opp2": "R4W2",
+			"header": "R4"
+		},
+		"RxMBR" : {
+			"details": "R4G1",
+			"opp1": "R4W1",
+			"opp2": "R4W2"
+		}
 	}
 }
