@@ -589,5 +589,32 @@
 			"opp1": "R6W1",
 			"opp2": "R6W2"
 		}
+	},
+	"Bracket/8U8L2DSL1D" : {
+		"R1M5" : {
+			"details": "R1G5",
+			"opp1": "R1D9",
+			"opp2": "R1W1"
+		},
+		"R1M6" : {
+			"details": "R1G6",
+			"opp1": "R1D10",
+			"opp2": "R1W2"
+		},
+		"R1M7" : {
+			"details": "R1G7",
+			"opp1": "R1D11",
+			"opp2": "R1W3"
+		},
+		"R1M8" : {
+			"details": "R1G8",
+			"opp1": "R1D12",
+			"opp2": "R1W4"
+		},
+		"RxMBR" : {
+			"details": "R6G1",
+			"opp1": "R6W1",
+			"opp2": "R6W2"
+		}
 	}
 }
