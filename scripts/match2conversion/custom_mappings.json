@@ -660,5 +660,47 @@
 			"opp1": "R2D5",
 			"opp2": "R2D6"
 		}
+	},
+	"Bracket/8L8DSL2DS" : {
+		"R2M1": {
+			"details": "R2G1",
+			"opp1": "R2W1",
+			"opp2": "R2D1"
+		},
+		"R2M2": {
+			"details": "R2G2",
+			"opp1": "R2W2",
+			"opp2": "R2D2"
+		},
+		"R2M3": {
+			"details": "R2G3",
+			"opp1": "R2W3",
+			"opp2": "R2D3"
+		},
+		"R2M4": {
+			"details": "R2G4",
+			"opp1": "R2W4",
+			"opp2": "R2D4"
+		},
+		"R3M1": {
+			"details": "R3G1",
+			"opp1": "R3W1",
+			"opp2": "R3D1"
+		},
+		"R3M2": {
+			"details": "R3G2",
+			"opp1": "R3W2",
+			"opp2": "R3D2"
+		},
+		"R3M3": {
+			"details": "R3G3",
+			"opp1": "R3W3",
+			"opp2": "R3D3"
+		},
+		"R3M4": {
+			"details": "R3G4",
+			"opp1": "R3W4",
+			"opp2": "R3D4"
+		}
 	}
 }
