@@ -643,5 +643,22 @@
 			"opp1": "R3W1",
 			"opp2": "R3W2"
 		}
+	},
+	"Bracket/8U2L1D" : {
+		"R2M1": {
+			"details": "R2G1",
+			"opp1": "R2D1",
+			"opp2": "R2D2"
+		},
+		"R2M2": {
+			"details": "R2G2",
+			"opp1": "R2D3",
+			"opp2": "R2D4"
+		},
+		"R2M3": {
+			"details": "R1G5",
+			"opp1": "R2D5",
+			"opp2": "R2D6"
+		}
 	}
 }
