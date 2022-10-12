@@ -404,6 +404,11 @@
 			"opp1": "R7D1",
 			"opp2": "R7W1",
 			"header": "L7"
+		},
+		"RxMBR" : {
+			"details": "R8G1",
+			"opp1": "R8W1",
+			"opp2": "R8W2"
 		}
 	},
 	"Bracket/8L4DSSH8L" : {
