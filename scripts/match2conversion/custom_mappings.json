@@ -702,5 +702,27 @@
 			"opp1": "R3W4",
 			"opp2": "R3D4"
 		}
+	},
+	"Bracket/8L4DSS" : {
+		"R2M1": {
+			"details": "R2G1",
+			"opp1": "R2W1",
+			"opp2": "R2W2"
+		},
+		"R2M2": {
+			"details": "R2G2",
+			"opp1": "R2W3",
+			"opp2": "R2W4"
+		},
+		"R2M3": {
+			"details": "R2G3",
+			"opp1": "R2W5",
+			"opp2": "R2W6"
+		},
+		"R2M4": {
+			"details": "R2G4",
+			"opp1": "R2W7",
+			"opp2": "R2W8"
+		}
 	}
 }
