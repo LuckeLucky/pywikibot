@@ -729,5 +729,147 @@
 			"opp1": "R2W7",
 			"opp2": "R2W8"
 		}
+	},
+	"Bracket/8L4DSL2DSL1D-8L4DSL2DSL1D" : {
+		"R1M1" : {
+			"details": "R1G17",
+			"opp1": "R1D33",
+			"opp2": "R1D34"
+		},
+		"R1M2" : {
+			"details": "R1G18",
+			"opp1": "R1D35",
+			"opp2": "R1D36"
+		},
+		"R1M3" : {
+			"details": "R1G19",
+			"opp1": "R1D37",
+			"opp2": "R1D38"
+		},
+		"R1M4" : {
+			"details": "R1G20",
+			"opp1": "R1D39",
+			"opp2": "R1D40"
+		},
+		"R1M5" : {
+			"details": "R1G21",
+			"opp1": "R1D41",
+			"opp2": "R1D42"
+		},
+		"R1M6" : {
+			"details": "R1G22",
+			"opp1": "R1D43",
+			"opp2": "R1D44"
+		},
+		"R1M7" : {
+			"details": "R1G23",
+			"opp1": "R1D45",
+			"opp2": "R1D46"
+		},
+		"R1M8" : {
+			"details": "R1G24",
+			"opp1": "R1D47",
+			"opp2": "R1D48"
+		},
+		"R2M1" : {
+			"details": "R2G9",
+			"opp1": "R2D1",
+			"opp2": "R2W17"
+		},
+		"R2M2" : {
+			"details": "R2G10",
+			"opp1": "R2D2",
+			"opp2": "R2W18"
+		},
+		"R2M3" : {
+			"details": "R2G11",
+			"opp1": "R2D3",
+			"opp2": "R2W19"
+		},
+		"R2M4" : {
+			"details": "R2G12",
+			"opp1": "R2D4",
+			"opp2": "R2W20"
+		},
+		"R2M5" : {
+			"details": "R2G13",
+			"opp1": "R2D5",
+			"opp2": "R2W21"
+		},
+		"R2M6" : {
+			"details": "R2G14",
+			"opp1": "R2D6",
+			"opp2": "R2W22"
+		},
+		"R2M7" : {
+			"details": "R2G15",
+			"opp1": "R2D7",
+			"opp2": "R2W23"
+		},
+		"R2M8" : {
+			"details": "R2G16",
+			"opp1": "R2D8",
+			"opp2": "R2W24"
+		},
+		"R3M1" : {
+			"details": "R3G5",
+			"opp1": "R3W9",
+			"opp2": "R3W10"
+		},
+		"R3M2" : {
+			"details": "R3G6",
+			"opp1": "R3W11",
+			"opp2": "R3W12"
+		},
+		"R3M3" : {
+			"details": "R3G7",
+			"opp1": "R3W13",
+			"opp2": "R3W14"
+		},
+		"R3M4" : {
+			"details": "R3G8",
+			"opp1": "R3W15",
+			"opp2": "R3W16"
+		},
+		"R4M1" : {
+			"details": "R4G3",
+			"opp1": "R4D1",
+			"opp2": "R4W5"
+		},
+		"R4M2" : {
+			"details": "R4G4",
+			"opp1": "R4D2",
+			"opp2": "R4W6"
+		},
+		"R4M3" : {
+			"details": "R4G5",
+			"opp1": "R4D3",
+			"opp2": "R4W7"
+		},
+		"R4M4" : {
+			"details": "R4G6",
+			"opp1": "R4D4",
+			"opp2": "R4W8"
+		},
+		"R5M1" : {
+			"details": "R5G2",
+			"opp1": "R5W3",
+			"opp2": "R5W4"
+		},
+		"R5M2" : {
+			"details": "R5G3",
+			"opp1": "R5W5",
+			"opp2": "R5W6"
+		},
+		"R6M1" : {
+			"details": "R6G1",
+			"opp1": "R6D1",
+			"opp2": "R6W1"
+		},
+		"R6M2" : {
+			"details": "R6G2",
+			"opp1": "R6D2",
+			"opp2": "R6W2"
+		}
 	}
 }
