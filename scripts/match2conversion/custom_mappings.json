@@ -973,5 +973,12 @@
 			"opp1": "R8D1",
 			"opp2": "R8W1"
 		}		
+	},
+	"Bracket/4L2DS-1Q-U-2L2D-1Q" : {
+		"R2M3" : {
+			"details": "R2G3",
+			"opp1": "R2W3",
+			"opp2": "R2W4"
+		}
 	}
 }
