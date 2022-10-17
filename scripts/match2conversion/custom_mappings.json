@@ -992,5 +992,12 @@
 			"opp1": "R3W3",
 			"opp2": "R3W4"
 		}
+	},
+	"Bracket/2-2-U-2" : {
+		"R1M3" : {
+			"details": "R2G1",
+			"opp1": "R2D1",
+			"opp2": "R2D2"
+		}
 	}
 }
