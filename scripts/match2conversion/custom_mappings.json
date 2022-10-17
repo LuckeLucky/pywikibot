@@ -1191,5 +1191,42 @@
 			"opp1": "R5D1",
 			"opp2": "R5D2"
 		}
+	},
+	"Bracket/8L4D-4Q-U-8-1Q" : {
+		"R2M5" : {
+			"details": "R1G5",
+			"opp1": "R1D9",
+			"opp2": "R1D10"
+		},
+		"R2M6" : {
+			"details": "R1G6",
+			"opp1": "R1D11",
+			"opp2": "R1D12"
+		},
+		"R2M7" : {
+			"details": "R1G7",
+			"opp1": "R1D13",
+			"opp2": "R1D14"
+		},
+		"R2M8" : {
+			"details": "R1G8",
+			"opp1": "R1D15",
+			"opp2": "R1D16"
+		},
+		"R3M1" : {
+			"details": "R2G5",
+			"opp1": "R2W5",
+			"opp2": "R2W6"
+		},
+		"R3M2" : {
+			"details": "R2G6",
+			"opp1": "R2W7",
+			"opp2": "R2W8"
+		},
+		"R4M1" : {
+			"details": "R3G5",
+			"opp1": "R3W1",
+			"opp2": "R3W2"
+		}
 	}
 }
