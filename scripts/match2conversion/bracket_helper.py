@@ -113,6 +113,9 @@ bracketAlias = {
 	'3Qual-16DETeamBracket': '16-2Q-U-8L4DSL2DS-1Q',
 	'3Qual-16SETeamBracket': '16-2Q-2-1Q',
 	'3Qual-32SETeamBracket': '32-2Q-2-1Q',
+	'3Qual-4DE2WTeamBracket': '4L2D-2Q-U-4-1Q',
+	'3Qual-4DETeamBracket': '4-2Q-U-2-1Q',
+	'3Qual-4SETeamBracket': '4-2Q-U-2-1Q', #3rd place match need mapping
 	'12Qual-16DETeamBracket': '2-2-2-2-2-2-2-2-U-2-2-2-2',
 	'16Qual-32DETeamBracket' : '32-8Q-U-16L8D-8Q',
 	'16Qual-32SETeamBracket' : '32-16Q',
