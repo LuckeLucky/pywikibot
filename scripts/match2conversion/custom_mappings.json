@@ -1174,5 +1174,22 @@
 			"opp1": "R4D4",
 			"opp2": "R4W8"
 		}
+	},
+	"Bracket/16-2QL-U-8L4DSL2DS-2QL-U-2-1Q" : {
+		"R5M1" : {
+			"details": "R6G1",
+			"opp1": "R6W1",
+			"opp2": "R6W2"
+		},
+		"R5M2" : {
+			"details": "R5G1",
+			"opp1": "R5W1",
+			"opp2": "R5W2"
+		},
+		"R4M5" : {
+			"details": "R5G2",
+			"opp1": "R5D1",
+			"opp2": "R5D2"
+		}
 	}
 }
