@@ -130,6 +130,7 @@ bracketAlias = {
 	'4Qual-32DETeamBracket': '32-2Q-U-16L8DSL4DSL2D-2Q',
 	'4Qual-32SETeamBracket': '32-4Q',
 	'4Qual-8DETeamBracket': '8-2Q-U-4L2D-2Q',
+	'4Qual-8DETeamBracket2': '8-1Q-U-4L2DSL1D-2QL',
 	'4Qual-8SETeamBracket': '8-4Q',
 	'4Qual-4DE2STeamBracket': '4-2Q-U-4-2Q',
 	'4Qual-4DE4STeamBracket': '4-2Q-U-4L2D-2Q',
