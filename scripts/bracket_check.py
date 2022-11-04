@@ -26,9 +26,9 @@ def process_old(text: str):
 			name = str(parameter.name)
 			if name in ALL_LINKS:
 				add_to_list(links, name, get_value(template, name))
-			name = name[:-1]
-			if name in ALL_LINKS:
-				add_to_list(links, name, get_value(template, name))
+			splitName = name[:-1]
+			if splitName in ALL_LINKS:
+				add_to_list(links, splitName, get_value(template, name))
 			if name == 'comment':
 				val = get_value(template, name)
 				if val:
