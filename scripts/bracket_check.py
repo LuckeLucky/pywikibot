@@ -17,10 +17,9 @@ def add_to_list(_list, name, value):
 def process_old(text: str):
 	links = []
 	comments = []
-	matchCounter = 0
+	hltvs = 0
 	wikicode = mwparserfromhell.parse(text)
-	for template in wikicode.filter_templates(matches=lambda n: str(n.name).strip() == "BracketMatchSummary"):
-		matchCounter = matchCounter + 1
+	for template in wikicode.filter_templates(matches=lambda n: "bracketmatchsummary" in str(n.name).strip().lower()):
 		template = sanitize_template(template)
 		for parameter in template.params:
 			name = str(parameter.name)
@@ -32,17 +31,20 @@ def process_old(text: str):
 			if name == 'comment':
 				val = get_value(template, name)
 				if val:
-					comments.append(str(matchCounter) + val)
+					comments.append(val)
+			if 'hltv' in name:
+				val = get_value(template, name)
+				if val:
+					hltvs = hltvs + 1
 
-	return links, comments
+	return links, comments, hltvs
 
 def process_new(text: str):
 	links = []
 	comments = []
-	matchCounter = 0
+	hltvs = 0
 	wikicode = mwparserfromhell.parse(text)
 	for template in wikicode.filter_templates(matches=lambda n: str(n.name).strip() == "Match"):
-		matchCounter = matchCounter + 1
 		template = sanitize_template(template)
 		for parameter in template.params:
 			name = str(parameter.name)
@@ -51,7 +53,11 @@ def process_new(text: str):
 			if name == 'comment':
 				val = get_value(template, name)
 				if val:
-					comments.append(str(matchCounter) + val)
+					comments.append(val)
+			if 'hltv' in name:
+				val = get_value(template, name)
+				if val:
+					hltvs = hltvs + 1
 
 	for template in wikicode.filter_templates(matches=lambda n: str(n.name).strip() == "Map"):
 		template = sanitize_template(template)
@@ -60,7 +66,7 @@ def process_new(text: str):
 			if name in MAP_LINKS:
 				add_to_list(links, name, get_value(template, name))
 
-	return links, comments
+	return links, comments, hltvs
 
 def main(*args):
 	# Read commandline parameters.
@@ -69,6 +75,7 @@ def main(*args):
 
 	#skip 2000
 	skip_number = 0
+	diff = False
 	for arg in local_args:
 		if genFactory.handle_arg(arg):
 			continue
@@ -76,6 +83,10 @@ def main(*args):
 		if option == '-skip':
 			skip_number = int(value or pywikibot.input(
 				'How many files do you want to skip?'))
+		if option == '-diff':
+			diff = True
+		if option == '-hltv':
+			ALL_LINKS.extend(['hltv', 'hltv2'])
 
 
 	generator = genFactory.getCombinedGenerator()
@@ -100,19 +111,27 @@ def main(*args):
 				revId = revision.revid
 				next = False
 		if revId != '':
-			oldLinks, oldComments = process_old(page.getOldVersion(oldid = revId))
-			if len(oldLinks) > 0 or len(oldComments) > 0:
-				code = ''
-				newLinks, newComments = process_new(get_text(page))
-				if sorted(oldLinks) != sorted(newLinks):
-					code = 'link'
-				if sorted(oldComments) != sorted(newComments):
-					code = code + 'comment'
-				if code:
-					with open("recheck_page.txt", "a", encoding = 'utf-8') as f:
-						f.write("*" + code + ".." + str(page) + "\n")
+			oldLinks, oldComments, oldHLTVCount = process_old(page.getOldVersion(oldid = revId))
+			if len(oldLinks) > 0 or len(oldComments) > 0 or oldHLTVCount > 0:
+				newLinks, newComments, newHLTVCount = process_new(get_text(page))
+				if not diff:
+					code = ''
+					if sorted(oldLinks) != sorted(newLinks):
+						code = 'link'
+					if sorted(oldComments) != sorted(newComments):
+						code = code + 'comment'
+					if oldHLTVCount != newHLTVCount:
+						code = code + 'hltv'
+					if code:
+						with open("recheck_page.txt", "a", encoding = 'utf-8') as f:
+							f.write("*" + code + ".." + str(page) + "\n")
+				else:
+					print(list(set(oldLinks) - set(newLinks)))
+					print(list(set(oldComments) - set(newComments)))
 
 		if index % 250 == 0:
-			print("index -------" + str(index) + "\n")
+			return
+			with open("recheck_page.txt", "a", encoding = 'utf-8') as f:
+				f.write("***" + str(index) + "***\n")
 if __name__ == '__main__':
 	main()
