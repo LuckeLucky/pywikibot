@@ -500,29 +500,24 @@
 *link..[[counterstrike:StarLadder/StarSeries/XII]]
 *hltv..[[counterstrike:StarSeries i-League/Season 7/Europe]]
 ***10000***
-*link..[[counterstrike:Superliga/2018/Qualifier/1]]
-*link..[[counterstrike:Superliga/2018/Qualifier/2]]
-*link..[[counterstrike:TDJ/La Liga/Main Division/Season 3/Clausura/Sur]]
-*link..[[counterstrike:TDJ/La Liga/Pro Division/Season 2/Apertura/Online]]
-*comment..[[counterstrike:TDJ/La Liga/Pro Division/Season 4/Clausura/Sur]]
+*link..[[counterstrike:Superliga/2018/Qualifier/1]]*----
+*link..[[counterstrike:Superliga/2018/Qualifier/2]]*----
 ***10250***
-*hltv..[[counterstrike:United Masters League/Season 2]]
-*linkcomment..[[counterstrike:UPEA/Ukrainian Championship/2020]]
-*link..[[counterstrike:V4 Future Sports Festival/2019/Budapest/Hungary]]
-*link..[[counterstrike:V4 Future Sports Festival/2021/Budapest/International Cup/Europe]]
+*hltv..[[counterstrike:United Masters League/Season 2]]*----
+*link..[[counterstrike:V4 Future Sports Festival/2019/Budapest/Hungary]]*----
+*link..[[counterstrike:V4 Future Sports Festival/2021/Budapest/International Cup/Europe]]*----
 ***10500***
-*hltv..[[counterstrike:Virtus.pro Staff Cup/2]]
-*link..[[counterstrike:White Rabbit Cup/2019/1]]
-*link..[[counterstrike:WINNERS League/Season 1/Europe/Starter]]
-*link..[[counterstrike:World Cyber Arena/2017/Asia-Pacific/Open Qualifier]]
-*link..[[counterstrike:World Cyber Arena/2017/Europe/Open/1]]
-*link..[[counterstrike:World Cyber Arena/2017/North America/Qualifier 1]]
+*hltv..[[counterstrike:Virtus.pro Staff Cup/2]]*----
+*link..[[counterstrike:White Rabbit Cup/2019/1]]*----
+*link..[[counterstrike:WINNERS League/Season 1/Europe/Starter]]*----
+*link..[[counterstrike:World Cyber Arena/2017/Asia-Pacific/Open Qualifier]]*----
+*link..[[counterstrike:World Cyber Arena/2017/Europe/Open/1]]*----
+*link..[[counterstrike:World Cyber Arena/2017/North America/Qualifier 1]]*----
 ***10750***
-*link..[[counterstrike:World Electronic Sports Games/2016/Americas]]
-*hltv..[[counterstrike:World Electronic Sports Games/2017/Asia Pacific]]
-*hltv..[[counterstrike:World Electronic Sports Games/2017/Female/Asia Pacific]]
+*hltv..[[counterstrike:World Electronic Sports Games/2017/Asia Pacific]]*----
+*hltv..[[counterstrike:World Electronic Sports Games/2017/Female/Asia Pacific]]*----
 ***11000***
-*link..[[counterstrike:World Electronic Sports Games/2018/South & West Asia/Open/1]]
+*link..[[counterstrike:World Electronic Sports Games/2018/South & West Asia/Open/1]]*----
 *link..[[counterstrike:World Electronic Sports Games/2021/Latin America/LatAM North/Qualifier]]*----
 *hltv..[[counterstrike:X-Bet.co Invitational/3]]*----
 *comment..[[counterstrike:Xfunction/Challenge/2015]]*----
