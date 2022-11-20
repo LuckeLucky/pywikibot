@@ -58,12 +58,12 @@ class Match(object):
 			key = str(parameter.name)
 			if key in MATCH_LINKS:
 				self.links[key] = str(parameter.value)
-			if self.bestof > 1:
+			if self.bestof > 1 or self.bestof == 0:
 				if key in MAP_LINKS:
 					self.links[key] = str(parameter.value)
 
 		if 'hltv' in self.links:
-			result = re.sub(r'(\d*)/.*', '\\1', self.links['hltv'], 0, re.MULTILINE)
+			result = re.sub(r'^(\d*)/.*', '\\1', self.links['hltv'], 0, re.MULTILINE)
 			self.links['hltv'] = result
 
 	def process(self):

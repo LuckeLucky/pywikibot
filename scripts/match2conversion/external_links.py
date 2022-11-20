@@ -54,5 +54,5 @@ MATCH_LINKS = [
 	'draft5',
 	'hltvlegacy',
 	'hltv',
-	'hltv2',
+	'hltv2'
 ]

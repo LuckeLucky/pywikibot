@@ -99,9 +99,8 @@ class Map(object):
 			return out + '}}'
 
 		#Sometimes only the winner is set
-		if (not self.score) and (not dict_has_value_set(self.halfs)) and (self.winner > -1) and (not self.vod):
+		if (not self.score) and (not dict_has_value_set(self.halfs)) and (self.winner > -1):
 			out = out + '|winner=' + str(self.winner)
-			return out + '}}'
 
 		if self.halfs:
 			halfsOut = '\n\t\t'
