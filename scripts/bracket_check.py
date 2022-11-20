@@ -12,7 +12,7 @@ def write_map(key, value):
 
 def add_to_list(_list, name, value):
 	if value:
-		_list.append(name + value)
+		_list.append(name + '=' +value)
 
 def process_old(text: str):
 	links = []
@@ -27,7 +27,9 @@ def process_old(text: str):
 				add_to_list(links, name, get_value(template, name))
 			splitName = name[:-1]
 			if splitName in ALL_LINKS:
-				add_to_list(links, splitName, get_value(template, name))
+				mapNum = name[-1]
+				if get_value(template, 'map' + mapNum + 'win') != 'skip':
+					add_to_list(links, splitName, get_value(template, name))
 			if name == 'comment':
 				val = get_value(template, name)
 				if val:
@@ -84,6 +86,8 @@ def main(*args):
 			skip_number = int(value or pywikibot.input(
 				'How many files do you want to skip?'))
 		if option == '-diff':
+			ALL_LINKS.remove('hltv')
+			ALL_LINKS.remove('hltv2')
 			diff = True
 		if option == '-hltv':
 			ALL_LINKS.extend(['hltv', 'hltv2'])
@@ -127,11 +131,7 @@ def main(*args):
 							f.write("*" + code + ".." + str(page) + "\n")
 				else:
 					print(list(set(oldLinks) - set(newLinks)))
+					print(list(set(newLinks) - set(oldLinks)))
 					print(list(set(oldComments) - set(newComments)))
-
-		if index % 250 == 0:
-			return
-			with open("recheck_page.txt", "a", encoding = 'utf-8') as f:
-				f.write("***" + str(index) + "***\n")
 if __name__ == '__main__':
 	main()
