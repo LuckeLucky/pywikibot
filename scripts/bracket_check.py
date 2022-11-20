@@ -76,6 +76,8 @@ def main(*args):
 	genFactory = pagegenerators.GeneratorFactory()
 
 	#skip 2000
+	ALL_LINKS.remove('hltv')
+	ALL_LINKS.remove('hltv2')
 	skip_number = 0
 	diff = False
 	for arg in local_args:
@@ -86,8 +88,6 @@ def main(*args):
 			skip_number = int(value or pywikibot.input(
 				'How many files do you want to skip?'))
 		if option == '-diff':
-			ALL_LINKS.remove('hltv')
-			ALL_LINKS.remove('hltv2')
 			diff = True
 		if option == '-hltv':
 			ALL_LINKS.extend(['hltv', 'hltv2'])
