@@ -1,8 +1,10 @@
+import logging
 import mwparserfromhell
 import pywikibot
 from pywikibot import pagegenerators
 
 from match2conversion.showmatch import Showmatch
+from scripts.match2conversion import match2exceptions
 from utils import get_text, put_text
 
 def process_text(text: str):
@@ -38,11 +40,19 @@ def main(*args):
 			continue
 
 	generator = genFactory.getCombinedGenerator()
-
+	logging.basicConfig(filename="log_Showmath.txt", level=logging.INFO)
 	for page in generator:
-		text = get_text(page)
-		new_text = process_text(text)
-		put_text(page, summary=edit_summary, new=new_text)
+		logging.info("Working on " + page.full_url())
+		try:
+			text = get_text(page)
+			new_text = process_text(text)
+			put_text(page, summary=edit_summary, new=new_text)
+		except match2exceptions.VodX:
+			logging.error("VodX:"+str(page))
+		except match2exceptions.WikiStyle:
+			logging.error("WikiStyle:"+str(page))
+		except match2exceptions.MalformedScore:
+			logging.error("MalformedScore:"+str(page))
 
 if __name__ == '__main__':
 	main()
