@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Delink removed files from wiki.
 
 This script keeps track of image deletions and delinks removed files
@@ -30,7 +30,7 @@ The following parameters are supported:
    This script is completely rewriten from compat branch.
 """
 #
-# (C) Pywikibot team, 2006-2022
+# (C) Pywikibot team, 2006-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -41,12 +41,12 @@ import re
 import pywikibot
 from pywikibot.backports import removeprefix
 from pywikibot.bot import (
-    ConfigParserBot,
     AutomaticTWSummaryBot,
+    ConfigParserBot,
     SingleSiteBot,
     calledModuleName,
 )
-from pywikibot.textlib import case_escape, ignore_case, replaceExcept
+from pywikibot.textlib import case_escape, ignore_case
 
 
 class CommonsDelinker(SingleSiteBot, ConfigParserBot, AutomaticTWSummaryBot):
@@ -91,7 +91,7 @@ class CommonsDelinker(SingleSiteBot, ConfigParserBot, AutomaticTWSummaryBot):
 
     def skip_page(self, page) -> bool:
         """Skip pages which neither exists locally nor on shared repository."""
-        pywikibot.output('.', newline=False)
+        pywikibot.info('.', newline=False)
         if page.file_is_shared() or page.exists():
             return True
         return super().skip_page(page)
@@ -100,9 +100,9 @@ class CommonsDelinker(SingleSiteBot, ConfigParserBot, AutomaticTWSummaryBot):
         """Set page to current page and delink that page."""
         # use image_regex from image.py
         namespace = file_page.site.namespaces[6]
-        escaped = case_escape(namespace.case, file_page.title(with_ns=False))
-        # Be careful, spaces and _ have been converted to '\ ' and '\_'
-        escaped = re.sub('\\\\[_ ]', '[_ ]', escaped)
+        escaped = case_escape(namespace.case,
+                              file_page.title(with_ns=False),
+                              underscore=True)
         self.image_regex = re.compile(
             r'\[\[ *(?:{})\s*:\s*{} *(?P<parameters>\|'
             r'(?:[^\[\]]|\[\[[^\]]+\]\]|\[[^\]]+\])*|) *\]\]'
@@ -111,7 +111,7 @@ class CommonsDelinker(SingleSiteBot, ConfigParserBot, AutomaticTWSummaryBot):
         shown = False
         for page in file_page.using_pages(content=True, namespaces=0):
             if not shown:
-                pywikibot.output(
+                pywikibot.info(
                     '\n>>> <<lightgreen>>Delinking {}<<default>> <<<'
                     .format(file_page.title()))
                 shown = True
@@ -119,7 +119,7 @@ class CommonsDelinker(SingleSiteBot, ConfigParserBot, AutomaticTWSummaryBot):
 
     def treat_page(self):
         """Delink a single page."""
-        new = replaceExcept(self.current_page.text, self.image_regex, '', [])
+        new = re.sub(self.image_regex, '', self.current_page.text)
         self.put_current(new)
 
     def teardown(self):
@@ -127,7 +127,7 @@ class CommonsDelinker(SingleSiteBot, ConfigParserBot, AutomaticTWSummaryBot):
         if not hasattr(self, 'last_ts'):
             return
 
-        pywikibot.output("\nUpdate 'since' to {} file".format(self.INI))
+        pywikibot.info(f"\nUpdate 'since' to {self.INI} file")
         conf = configparser.ConfigParser(inline_comment_prefixes=[';'])
         conf.read(self.INI)
         section = calledModuleName()

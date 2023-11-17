@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 r"""
 A generic bot to do data ingestion (batch uploading) of photos or other files.
 
@@ -191,8 +191,7 @@ class Photo(pywikibot.FilePage):
         for key in sorted(params.keys()):
             value = params[key]
             if not key.startswith('_'):
-                description += '|{}={}\n'.format(
-                    key, self._safe_template_value(value))
+                description += f'|{key}={self._safe_template_value(value)}\n'
         description += '}}'
 
         return description
@@ -234,7 +233,7 @@ class DataIngestionBot(pywikibot.Bot):
         """
         duplicates = page.find_duplicate_images()
         if duplicates:
-            pywikibot.output('Skipping duplicate of {!r}'.format(duplicates))
+            pywikibot.info(f'Skipping duplicate of {duplicates!r}')
             return
 
         title = page.get_title(self.titlefmt)
@@ -319,7 +318,7 @@ def main(*args: str) -> None:
         try:
             config_page.get()
         except NoPageError:
-            pywikibot.error('{} does not exist'.format(config_page))
+            pywikibot.error(f'{config_page} does not exist')
             continue
 
         configuration = DataIngestionBot.parse_configuration_page(config_page)
@@ -328,7 +327,7 @@ def main(*args: str) -> None:
         try:
             f = codecs.open(filename, 'r', configuration['csvEncoding'])
         except OSError as e:
-            pywikibot.error('{} could not be opened: {}'.format(filename, e))
+            pywikibot.error(f'{filename} could not be opened: {e}')
         else:
             with f:
                 files = CSVReader(f, urlcolumn='url',

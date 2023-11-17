@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Script that preloads site and user info for all sites of given family.
 
 The following parameters are supported:
@@ -18,18 +18,22 @@ To force preloading, change the global expiry value to 0::
    script was moved to the framework scripts folder.
 """
 #
-# (C) Pywikibot team, 2021-2022
+# (C) Pywikibot team, 2021-2023
 #
 # Distributed under the terms of the MIT license.
 #
-import os
 from concurrent.futures import ThreadPoolExecutor, wait
 from datetime import datetime
 from typing import Optional, Union
 
 import pywikibot
-from pywikibot.backports import List, Set
+from pywikibot.backports import Dict, List, Set, removeprefix
 from pywikibot.family import Family
+
+try:  # Python 3.13
+    from os import process_cpu_count  # type: ignore[attr-defined]
+except ImportError:
+    from os import cpu_count as process_cpu_count
 
 
 #: supported families by this script
@@ -44,14 +48,16 @@ families_list = [
     'wiktionary',
 ]
 
-exceptions = {
+# Ignore sites from preloading
+# example: {'wikiversity': ['beta'], }
+exceptions: Dict[str, List[str]] = {
 }
 
 
 def preload_family(family: str, executor: ThreadPoolExecutor) -> None:
     """Preload all sites of a single family file."""
     msg = 'Preloading sites of {} family{}'
-    pywikibot.output(msg.format(family, '...'))
+    pywikibot.info(msg.format(family, '...'))
 
     codes = Family.load(family).languages_by_size
     for code in exceptions.get(family, []):
@@ -66,7 +72,7 @@ def preload_family(family: str, executor: ThreadPoolExecutor) -> None:
             # page title does not care
             futures.add(executor.submit(pywikibot.Page, site, 'Main page'))
     wait(futures)
-    pywikibot.output(msg.format(family, ' completed.'))
+    pywikibot.info(msg.format(family, ' completed.'))
 
 
 def preload_families(families: Union[List[str], Set[str]],
@@ -80,18 +86,18 @@ def preload_families(families: Union[List[str], Set[str]],
     """
     start = datetime.now()
     if worker is None:
-        # Python 3.8 default
-        worker = min(32, (os.cpu_count() or 1) + 4)
+        # Python 3.13 default
+        worker = min(32, (process_cpu_count() or 1) + 4)
     # to allow adding futures in preload_family the workers must be one
     # more than families are handled
     worker = max(len(families) * 2, worker)
-    pywikibot.output('Using {} workers to process {} families'
-                     .format(worker, len(families)))
+    pywikibot.info(
+        f'Using {worker} workers to process {len(families)} families')
     with ThreadPoolExecutor(worker) as executor:
         futures = {executor.submit(preload_family, family, executor)
                    for family in families}
         wait(futures)
-    pywikibot.output('Loading time used: {}'.format(datetime.now() - start))
+    pywikibot.info(f'Loading time used: {datetime.now() - start}')
 
 
 if __name__ == '__main__':
@@ -100,6 +106,6 @@ if __name__ == '__main__':
     for arg in pywikibot.handle_args():
         if arg in families_list:
             fam.add(arg)
-        elif arg.startswith('-worker'):
-            worker = int(arg.partition(':')[2])
+        elif arg.startswith('-worker:'):
+            worker = int(removeprefix(arg, '-worker:'))
     preload_families(fam or families_list, worker)

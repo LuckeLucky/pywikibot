@@ -6,17 +6,21 @@ This module includes objects:
 * FileInfo: a structure holding imageinfo of latest revision of FilePage
 """
 #
-# (C) Pywikibot team, 2008-2022
+# (C) Pywikibot team, 2008-2023
 #
 # Distributed under the terms of the MIT license.
 #
-import os.path
 from http import HTTPStatus
+from os import PathLike
+from pathlib import Path
+from typing import Optional, Union
+from urllib.parse import urlparse
 
 import pywikibot
+from pywikibot.backports import Iterable
 from pywikibot.comms import http
 from pywikibot.exceptions import NoPageError
-from pywikibot.page._pages import Page
+from pywikibot.page._page import Page
 from pywikibot.tools import compute_file_hash, deprecated
 
 
@@ -28,27 +32,45 @@ __all__ = (
 
 class FilePage(Page):
 
-    """
-    A subclass of Page representing a file description page.
+    """A subclass of Page representing a file description page.
 
-    Supports the same interface as Page, with some added methods.
+    Supports the same interface as Page except *ns*; some added methods.
     """
 
     def __init__(self, source, title: str = '') -> None:
-        """Initializer."""
+        """Initializer.
+
+        .. versionchanged:: 8.4
+           check for valid extensions.
+
+        :param source: the source of the page
+        :type source: pywikibot.page.BaseLink (or subclass),
+            pywikibot.page.Page (or subclass), or pywikibot.page.Site
+        :param title: normalized title of the page; required if source is a
+            Site, ignored otherwise
+        :raises ValueError: Either the title is not in the file
+            namespace or does not have a valid extension.
+        """
         self._file_revisions = {}  # dictionary to cache File history.
         super().__init__(source, title, 6)
         if self.namespace() != 6:
-            raise ValueError("'{}' is not in the file namespace!"
-                             .format(self.title()))
+            raise ValueError(f"'{self.title()}' is not in the file namespace!")
+
+        title = self.title(with_ns=False, with_section=False)
+        _, sep, extension = title.rpartition('.')
+        if not sep or extension.lower() not in self.site.file_extensions:
+            raise ValueError(
+                f'{title!r} does not have a valid extension '
+                f'({", ".join(self.site.file_extensions)}).'
+            )
 
     def _load_file_revisions(self, imageinfo) -> None:
         for file_rev in imageinfo:
             # filemissing in API response indicates most fields are missing
             # see https://gerrit.wikimedia.org/r/c/mediawiki/core/+/533482/
             if 'filemissing' in file_rev:
-                pywikibot.warning("File '{}' contains missing revisions"
-                                  .format(self.title()))
+                pywikibot.warning(
+                    f"File '{self.title()}' contains missing revisions")
                 continue
             file_revision = FileInfo(file_rev)
             self._file_revisions[file_revision.timestamp] = file_revision
@@ -107,25 +129,31 @@ class FilePage(Page):
             self._imagePageHtml = http.request(self.site, path).text
         return self._imagePageHtml
 
-    def get_file_url(self, url_width=None, url_height=None,
-                     url_param=None) -> str:
-        """
-        Return the url or the thumburl of the file described on this page.
+    def get_file_url(self,
+                     url_width: Optional[int] = None,
+                     url_height: Optional[int] = None,
+                     url_param: Optional[int] = None) -> str:
+        """Return the url or the thumburl of the file described on this page.
 
         Fetch the information if not available.
 
-        Once retrieved, thumburl information will also be accessible as
-        latest_file_info attributes, named as in [1]:
-        - url, thumburl, thumbwidth and thumbheight
+        Once retrieved, file information will also be accessible as
+        :attr:`latest_file_info` attributes, named as in :api:`Imageinfo`.
+        If *url_width*, *url_height* or *url_param* is given, additional
+        properties ``thumbwidth``, ``thumbheight``, ``thumburl`` and
+        ``responsiveUrls`` are provided.
 
-        Parameters correspond to iiprops in:
-        [1] :api:`Imageinfo`
+        .. note:: Parameters validation and error handling left to the
+           API call.
+        .. seealso::
 
-        Parameters validation and error handling left to the API call.
+           * :meth:`APISite.loadimageinfo()
+             <pywikibot.site._apisite.APISite.loadimageinfo>`
+           * :api:`Imageinfo`
 
-        :param url_width: see iiurlwidth in [1]
-        :param url_height: see iiurlheigth in [1]
-        :param url_param: see iiurlparam in [1]
+        :param url_width: get info for a thumbnail with given width
+        :param url_height: get info for a thumbnail with given height
+        :param url_param:  get info for a thumbnail with given param
         :return: latest file url or thumburl
         """
         # Plain url is requested.
@@ -189,7 +217,7 @@ class FilePage(Page):
         >>> file = pywikibot.FilePage(site, 'Pywikibot MW gear icon.svg')
         >>> used = list(file.using_pages(total=10))
         >>> len(used)
-        1
+        2
         >>> used[0].title()
         'Pywikibot'
 
@@ -267,47 +295,97 @@ class FilePage(Page):
         return self.site.upload(self, source_filename=filename, source_url=url,
                                 **kwargs)
 
-    def download(self, filename=None, chunk_size=100 * 1024, revision=None):
-        """
-        Download to filename file of FilePage.
+    def download(self,
+                 filename: Union[None, str, PathLike, Iterable[str]] = None,
+                 chunk_size: int = 100 * 1024,
+                 revision: Optional['FileInfo'] = None, *,
+                 url_width: Optional[int] = None,
+                 url_height: Optional[int] = None,
+                 url_param: Optional[int] = None) -> bool:
+        """Download to filename file of FilePage.
 
-        :param filename: filename where to save file:
-            None: self.title(as_filename=True, with_ns=False)
-            will be used
-            str: provided filename will be used.
-        :type filename: None or str
+        **Usage examples:**
+
+        Download an image:
+
+        >>> site = pywikibot.Site('wikipedia:test')
+        >>> file = pywikibot.FilePage(site, 'Pywikibot MW gear icon.svg')
+        >>> file.download()
+        True
+
+        Pywikibot_MW_gear_icon.svg was downloaded.
+
+        Download a thumnail:
+
+        >>> file.download(url_param='120px')
+        True
+
+        The suffix has changed and Pywikibot_MW_gear_icon.png was
+        downloaded.
+
+        .. versionadded:: 8.2
+           *url_width*, *url_height* and *url_param* parameters.
+        .. versionchanged:: 8.2
+           *filename* argument may be also a path-like object or an
+           iterable of path segments.
+        .. note:: filename suffix is adjusted if target url's suffix is
+           different which may be the case if a thumbnail is loaded.
+        .. warning:: If a file already exists, it will be overridden
+           without further notes.
+        .. seealso:: :api:`Imageinfo` for new parameters
+
+        :param filename: filename where to save file. If ``None``,
+            ``self.title(as_filename=True, with_ns=False)`` will be used.
+            If an Iterable is specified the items will be used as path
+            segments. To specify the user directory path you have to use
+            either ``~`` or ``~user`` as first path segment e.g. ``~/foo``
+            or ``('~', 'foo')`` as filename. If only the user directory
+            specifier is given, the title is used as filename like for
+            None. If the suffix is missing or different from url (which
+            can happen if a *url_width*, *url_height* or *url_param*
+            argument is given), the file suffix is adjusted.
         :param chunk_size: the size of each chunk to be received and
             written to file.
-        :type chunk_size: int
-        :param revision: file revision to download:
-            None: self.latest_file_info will be used
-            FileInfo: provided revision will be used.
-        :type revision: None or FileInfo
+        :param revision: file revision to download. If None
+            :attr:`latest_file_info` will be used; otherwise provided
+            revision will be used.
+        :param url_width: download thumbnail with given width
+        :param url_height: download thumbnail with given height
+        :param url_param:  download thumbnail with given param
         :return: True if download is successful, False otherwise.
         :raise IOError: if filename cannot be written for any reason.
         """
-        if filename is None:
-            filename = self.title(as_filename=True, with_ns=False)
+        if not filename:
+            path = Path()
+        elif isinstance(filename, (str, PathLike)):
+            path = Path(filename)
+        else:
+            path = Path(*filename)
 
-        filename = os.path.expanduser(filename)
+        if path.stem in ('', '~', '~user'):
+            path = path / self.title(as_filename=True, with_ns=False)
 
-        if revision is None:
+        thumb = bool(url_width or url_height or url_param)
+        if thumb or revision is None:
+            url = self.get_file_url(url_width, url_height, url_param)
             revision = self.latest_file_info
+        else:
+            url = revision.url
 
-        req = http.fetch(revision.url, stream=True)
+        # adjust suffix
+        path = path.with_suffix(Path(urlparse(url).path).suffix)
+        # adjust user path
+        path = path.expanduser()
+        req = http.fetch(url, stream=True)
         if req.status_code == HTTPStatus.OK:
-            try:
-                with open(filename, 'wb') as f:
-                    for chunk in req.iter_content(chunk_size):
-                        f.write(chunk)
-            except OSError as e:
-                raise e
+            with open(path, 'wb') as f:
+                for chunk in req.iter_content(chunk_size):
+                    f.write(chunk)
 
-            sha1 = compute_file_hash(filename)
-            return sha1 == revision.sha1
+            return thumb or compute_file_hash(path) == revision.sha1
+
         pywikibot.warning(
-            'Unsuccessful request ({}): {}'
-            .format(req.status_code, req.url))
+            f'Unsuccessful request ({req.status_code}): {req.url}')
         return False
 
     def globalusage(self, total=None):
@@ -360,21 +438,29 @@ class FileInfo:
     <pywikibot.site._apisite.APISite.loadimageinfo>` for details.
 
     .. note:: timestamp will be casted to :func:`pywikibot.Timestamp`.
+
+    .. versionchanged:: 7.7
+       raises KeyError instead of AttributeError if FileInfo is used as
+       Mapping.
     """
 
     def __init__(self, file_revision) -> None:
-        """Initiate the class using the dict from `APISite.loadimageinfo`."""
+        """Initiate the class using the dict from ``APISite.loadimageinfo``."""
         self.__dict__.update(file_revision)
         self.timestamp = pywikibot.Timestamp.fromISOformat(self.timestamp)
 
     def __getitem__(self, key):
         """Give access to class values by key."""
-        return getattr(self, key)
+        try:
+            result = getattr(self, key)
+        except AttributeError as e:
+            raise KeyError(str(e).replace('attribute', 'key')) from None
+        return result
 
     def __repr__(self) -> str:
         """Return a more complete string representation."""
         return repr(self.__dict__)
 
     def __eq__(self, other) -> bool:
-        """Test if two File_info objects are equal."""
+        """Test if two FileInfo objects are equal."""
         return self.__dict__ == other.__dict__

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Tests for threading tools."""
 #
 # (C) Pywikibot team, 2014-2022
@@ -8,7 +8,7 @@
 import unittest
 from contextlib import suppress
 
-from pywikibot.tools import ThreadedGenerator
+from pywikibot.tools.threading import ThreadedGenerator
 from tests.aspects import TestCase
 
 

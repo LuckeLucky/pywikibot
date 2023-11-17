@@ -1,29 +1,37 @@
-"""Iterator functions."""
+"""Iterator functions.
+
+.. note:: ``pairwise()`` function introduced in Python 3.10 is backported
+   in :mod:`backports`
+"""
 #
-# (C) Pywikibot team, 2008-2022
+# (C) Pywikibot team, 2008-2023
 #
 # Distributed under the terms of the MIT license.
 #
 import collections
 import itertools
-
 from contextlib import suppress
 from itertools import chain, zip_longest
+from typing import Any
 
+from pywikibot.backports import batched, Generator, List
 from pywikibot.logging import debug
-from pywikibot.tools import issue_deprecation_warning
+from pywikibot.tools import deprecated, issue_deprecation_warning
 
 
 __all__ = (
-    'itergroup',
-    'islice_with_ellipsis',
-    'intersect_generators',
-    'roundrobin_generators',
     'filter_unique',
+    'intersect_generators',
+    'islice_with_ellipsis',
+    'itergroup',
+    'roundrobin_generators',
 )
 
 
-def itergroup(iterable, size: int):
+@deprecated('backports.batched()', since='8.2.0')
+def itergroup(iterable,
+              size: int,
+              strict: bool = False) -> Generator[List[Any], None, None]:
     """Make an iterator that returns lists of (up to) size items from iterable.
 
     Example:
@@ -39,15 +47,21 @@ def itergroup(iterable, size: int):
     Traceback (most recent call last):
      ...
     StopIteration
+
+    .. versionadded:: 7.6
+       The *strict* parameter.
+    .. deprecated:: 8.2
+       Use :func:`backports.batched` instead.
+
+    :param size: How many items of the iterable to get in one chunk
+    :param strict: If True, raise a ValueError if length of iterable is
+        not divisible by `size`.
+    :raises ValueError: iterable is not divisible by size
     """
-    group = []
-    for item in iterable:
-        group.append(item)
-        if len(group) == size:
-            yield group
-            group = []
-    if group:
-        yield group
+    for group in batched(iterable, size):
+        if strict and len(group) < size:
+            raise ValueError('iterable is not divisible by size.')
+        yield list(group)
 
 
 def islice_with_ellipsis(iterable, *args, marker: str = '…'):
@@ -192,7 +206,7 @@ def intersect_generators(*iterables, allow_duplicates: bool = False):
                 return
 
 
-def roundrobin_generators(*iterables):
+def roundrobin_generators(*iterables) -> Generator[Any, None, None]:
     """Yield simultaneous from each iterable.
 
     Sample:
@@ -244,7 +258,7 @@ def filter_unique(iterable, container=None, key=None, add=None):
 
     .. warning:: This is not thread safe.
 
-    .. versionadded: 3.0
+    .. versionadded:: 3.0
 
     :param iterable: the source iterable
     :type iterable: collections.abc.Iterable

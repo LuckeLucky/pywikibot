@@ -13,7 +13,7 @@ These parameters are supported to specify which pages titles to print:
 &params;
 """
 #
-# (C) Pywikibot team, 2008-2022
+# (C) Pywikibot team, 2008-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -56,7 +56,6 @@ from pywikibot.pagegenerators._generators import (
     MySQLPageGenerator,
     NewimagesPageGenerator,
     NewpagesPageGenerator,
-    page_with_property_generator,
     PagesFromPageidGenerator,
     PagesFromTitlesGenerator,
     PetScanPageGenerator,
@@ -85,12 +84,15 @@ from pywikibot.pagegenerators._generators import (
     XMLDumpOldPageGenerator,
     XMLDumpPageGenerator,
     YearPageGenerator,
+    page_with_property_generator,
 )
 from pywikibot.tools.collections import DequeGenerator
 
-__all__ = (
-    'GeneratorFactory',
 
+__all__ = (
+    # factory
+    'GeneratorFactory',
+    # filter
     'CategoryFilterPageGenerator',
     'EdittimeFilterPageGenerator',
     'ItemClaimFilterPageGenerator',
@@ -103,7 +105,7 @@ __all__ = (
     'SubpageFilterGenerator',
     'UserEditFilterGenerator',
     'WikibaseItemFilterPageGenerator',
-
+    # page generators
     'AllpagesPageGenerator',
     'AncientPagesPageGenerator',
     'CategorizedPageGenerator',
@@ -152,6 +154,13 @@ __all__ = (
     'XMLDumpOldPageGenerator',
     'XMLDumpPageGenerator',
     'YearPageGenerator',
+    # other generators
+    'DequePreloadingGenerator',
+    'PageClassGenerator',
+    'PageWithTalkPageGenerator',
+    'PreloadingEntityGenerator',
+    'PreloadingGenerator',
+    'RepeatingGenerator',
 )
 
 
@@ -430,8 +439,10 @@ FILTER OPTIONS
 
 -intersect          Work on the intersection of all the provided generators.
 
--limit              When used with any other argument -limit:n specifies a set
-                    of pages, work on no more than n pages in total.
+-limit              When used with any other argument ``-limit:n``
+                    specifies a set of pages, work on no more than n
+                    pages in total. If used with multiple generators,
+                    pages are yielded in a roundrobin way.
 
 -namespaces         Filter the page generator to only yield pages in the
 -namespace          specified namespaces. Separate multiple namespace
@@ -488,6 +499,9 @@ FILTER OPTIONS
                     'proofread-page', otherwise has no effects.
                     Valid values are in range 0-4.
                     Multiple values can be comma-separated.
+
+-redirect           Filter pages based on whether they are redirects. To return
+                    only pages that are not redirects, use -redirect:false
 
 -subpage            -subpage:n filters pages to only those that have depth n
                     i.e. a depth of 0 filters out all pages that are subpages,
@@ -591,7 +605,7 @@ def RepeatingGenerator(generator: Callable,  # type: ignore[type-arg]
     kwargs.pop('start', None)  # don't set start time
     kwargs.pop('end', None)  # don't set stop time
 
-    seen = set()  # type: Set[Any]
+    seen: Set[Any] = set()
     while total is None or len(seen) < total:
         def filtered_generator() -> Iterable['pywikibot.page.Page']:
             for item in generator(total=None if seen else 1, **kwargs):
@@ -609,17 +623,19 @@ def RepeatingGenerator(generator: Callable,  # type: ignore[type-arg]
 
 
 def PreloadingGenerator(generator: Iterable['pywikibot.page.Page'],
-                        groupsize: int = 50
+                        groupsize: int = 50,
+                        quiet: bool = False
                         ) -> Iterator['pywikibot.page.Page']:
-    """
-    Yield preloaded pages taken from another generator.
+    """Yield preloaded pages taken from another generator.
 
     :param generator: pages to iterate over
     :param groupsize: how many pages to preload at once
+    :param quiet: If False (default), show the "Retrieving pages"
+        message
     """
     # pages may be on more than one site, for example if an interwiki
     # generator is used, so use a separate preloader for each site
-    sites = {}  # type: PRELOAD_SITE_TYPE
+    sites: PRELOAD_SITE_TYPE = {}
     # build a list of pages for each site found in the iterator
     for page in generator:
         site = page.site
@@ -629,17 +645,25 @@ def PreloadingGenerator(generator: Iterable['pywikibot.page.Page'],
         if len(sites[site]) >= groupsize:
             # if this site is at the groupsize, process it
             group = sites.pop(site)
-            yield from site.preloadpages(group, groupsize=groupsize)
+            yield from site.preloadpages(group, groupsize=groupsize,
+                                         quiet=quiet)
 
     for site, pages in sites.items():
         # process any leftover sites that never reached the groupsize
-        yield from site.preloadpages(pages, groupsize=groupsize)
+        yield from site.preloadpages(pages, groupsize=groupsize, quiet=quiet)
 
 
 def DequePreloadingGenerator(generator: Iterable['pywikibot.page.Page'],
-                             groupsize: int = 50
+                             groupsize: int = 50,
+                             quiet: bool = False
                              ) -> Iterator['pywikibot.page.Page']:
-    """Preload generator of type DequeGenerator."""
+    """Preload generator of type DequeGenerator.
+
+    :param generator: pages to iterate over
+    :param groupsize: how many pages to preload at once
+    :param quiet: If False (default), show the "Retrieving pages"
+        message
+    """
     assert isinstance(generator, DequeGenerator), \
         'generator must be a DequeGenerator object'
 
@@ -648,7 +672,7 @@ def DequePreloadingGenerator(generator: Iterable['pywikibot.page.Page'],
         if not page_count:
             return
 
-        yield from PreloadingGenerator(generator, page_count)
+        yield from PreloadingGenerator(generator, page_count, quiet)
 
 
 def PreloadingEntityGenerator(generator: Iterable['pywikibot.page.Page'],
@@ -662,7 +686,7 @@ def PreloadingEntityGenerator(generator: Iterable['pywikibot.page.Page'],
     :param generator: pages to iterate over
     :param groupsize: how many pages to preload at once
     """
-    sites = {}  # type: PRELOAD_SITE_TYPE
+    sites: PRELOAD_SITE_TYPE = {}
     for page in generator:
         site = page.site
         sites.setdefault(site, []).append(page)

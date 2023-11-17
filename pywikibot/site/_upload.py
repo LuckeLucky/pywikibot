@@ -1,6 +1,6 @@
 """Objects representing API upload to MediaWiki site."""
 #
-# (C) Pywikibot team, 2009-2022
+# (C) Pywikibot team, 2009-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -11,11 +11,7 @@ from typing import Optional
 from warnings import warn
 
 import pywikibot
-from pywikibot.exceptions import (
-    APIError,
-    Error,
-    UploadError,
-)
+from pywikibot.exceptions import APIError, Error, UploadError
 from pywikibot.tools import compute_file_hash
 
 
@@ -175,9 +171,12 @@ class Uploader:
 
         ignore_all_warnings = not callable(ignore_warnings) and ignore_warnings
 
-        token = self.site.tokens['edit']
+        token = self.site.tokens['csrf']
         result = None
-        file_page_title = self.filepage.title(with_ns=False)
+        file_page_title = self.filepage.title(
+            with_ns=False,
+            with_section=False,
+        )
         file_size = None
 
         # make sure file actually exists
@@ -185,8 +184,7 @@ class Uploader:
             if os.path.isfile(self.filename):
                 file_size = os.path.getsize(self.filename)
             elif offset is not False:
-                raise ValueError("File '{}' does not exist."
-                                 .format(self.filename))
+                raise ValueError(f"File '{self.filename}' does not exist.")
 
         # Verify the stash when a file key and offset is given:
         # requests the SHA1 and file size uploaded and compares it to
@@ -213,7 +211,7 @@ class Uploader:
                                  'using a file name.')
             props = ['size']
             if verify_stash:
-                props += ['sha1']
+                props.append('sha1')
             stash_info = self.site.stash_info(file_key, props)
             if offset is True:
                 offset = stash_info['size']
@@ -232,7 +230,7 @@ class Uploader:
             if verify_stash:
                 # The SHA1 was also requested so calculate and compare it
                 assert 'sha1' in stash_info, \
-                    'sha1 not in stash info: {}'.format(stash_info)
+                    f'sha1 not in stash info: {stash_info}'
                 sha1 = compute_file_hash(self.filename, bytes_to_read=offset)
                 if sha1 != stash_info['sha1']:
                     raise ValueError(
@@ -246,8 +244,8 @@ class Uploader:
 
         data = {}
         if file_key and offset is False or offset == file_size:
-            pywikibot.log('Reused already upload file using filekey "{}"'
-                          .format(file_key))
+            pywikibot.log(
+                f'Reused already upload file using filekey "{file_key}"')
             # TODO: Use sessionkey instead of filekey if necessary
             final_request = self.site._request(
                 parameters={
@@ -274,8 +272,7 @@ class Uploader:
                         'filename': file_page_title, 'comment': self.comment})
                 if chunked_upload:
                     if offset > 0:
-                        pywikibot.log('Continuing upload from byte {}'
-                                      .format(offset))
+                        pywikibot.log(f'Continuing upload from byte {offset}')
                     poll = False
                     while True:
 
@@ -322,12 +319,9 @@ class Uploader:
 
                         try:
                             data = req.submit()['upload']
-                            self.site._uploaddisabled = False
                         except APIError as error:
                             # TODO: catch and process foreseeable errors
-                            if error.code == 'uploaddisabled':
-                                self.site._uploaddisabled = True
-                            elif error.code == 'stashfailed' \
+                            if error.code == 'stashfailed' \
                                     and 'offset' in error.other:
                                 # TODO: Ask MediaWiki to change this
                                 # ambiguous error code.
@@ -459,19 +453,11 @@ class Uploader:
             if not result:
                 request['watch'] = self.watch
                 request['ignorewarnings'] = ignore_all_warnings
-                try:
-                    result = request.submit()
-                    self.site._uploaddisabled = False
-                except APIError as error:
-                    # TODO: catch and process foreseeable errors
-                    if error.code == 'uploaddisabled':
-                        self.site._uploaddisabled = True
-                    raise error
-                result = result['upload']
+                result = request.submit()['upload']
                 pywikibot.debug(result)
 
             if 'result' not in result:
-                raise Error('Upload: unrecognized response: {}'.format(result))
+                raise Error(f'Upload: unrecognized response: {result}')
 
             if result['result'] == 'Warning':
                 assert 'warnings' in result and not ignore_all_warnings
@@ -530,12 +516,12 @@ class Uploader:
 
             if result['result'] == 'Success':
                 if report_success:
-                    pywikibot.output('Upload successful.')
+                    pywikibot.info('Upload successful.')
                 # If we receive a nochange, that would mean we're in simulation
                 # mode, don't attempt to access imageinfo
                 if 'nochange' not in result:
                     self.filepage._load_file_revisions([result['imageinfo']])
                 return True
 
-            raise Error('Unrecognized result: {}'
-                        .format(data_result or result['result']))
+            raise Error(
+                f"Unrecognized result: {data_result or result['result']}")

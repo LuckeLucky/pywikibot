@@ -1,4 +1,4 @@
-﻿**Pywikibot is an open-source project** that cannot exist without your
+**Pywikibot is an open-source project** that cannot exist without your
 contributions. We would therefore like to thank everyone who has
 contributed:
 
@@ -30,6 +30,7 @@ A
     Anshoe
     Antoine Musso
     Anton
+    Aram
     Avicennasis
 
 B
@@ -79,6 +80,7 @@ D
     Diwanshu Mittal
     Dmytro Dziuma
     Dr03ramos
+    Draco flavus
     DrTrigon
     Dvorapa
 
@@ -209,6 +211,7 @@ M
     mayankmadan
     Maze
     mehtab98
+    melroy
     Meno25
     Merlijn van Deen
     mhutti1

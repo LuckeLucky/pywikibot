@@ -1,6 +1,6 @@
 """Family module for Wikiquote."""
 #
-# (C) Pywikibot team, 2005-2022
+# (C) Pywikibot team, 2005-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -17,7 +17,7 @@ class Family(family.SubdomainFamily, family.WikimediaFamily):
     closed_wikis = [
         # https://noc.wikimedia.org/conf/highlight.php?file=dblists/closed.dblist
         'am', 'ang', 'ast', 'bm', 'co', 'cr', 'ga', 'kk', 'kr', 'ks', 'kw',
-        'lb', 'na', 'nds', 'qu', 'simple', 'tk', 'tt', 'ug', 'vo', 'za',
+        'lb', 'na', 'nds', 'qu', 'simple', 'tk', 'tt', 'ug', 'vo', 'wo', 'za',
         'zh-min-nan',
     ]
 
@@ -27,12 +27,13 @@ class Family(family.SubdomainFamily, family.WikimediaFamily):
     ]
 
     languages_by_size = [
-        'it', 'en', 'pl', 'ru', 'cs', 'et', 'fa', 'pt', 'uk', 'de', 'fr', 'he',
-        'es', 'tr', 'sk', 'eo', 'bs', 'ca', 'az', 'fi', 'sl', 'lt', 'zh', 'ar',
-        'bg', 'hy', 'hr', 'el', 'su', 'nn', 'id', 'sv', 'li', 'hu', 'sr', 'ko',
-        'nl', 'ja', 'sah', 'la', 'ta', 'gu', 'gl', 'ur', 'be', 'te', 'cy',
-        'vi', 'no', 'ml', 'sq', 'kn', 'hi', 'eu', 'ro', 'ku', 'uz', 'ka', 'da',
-        'sa', 'is', 'br', 'mr', 'af', 'th', 'wo', 'ky',
+        'it', 'en', 'pl', 'ru', 'cs', 'et', 'pt', 'fa', 'uk', 'he', 'fr', 'de',
+        'es', 'tr', 'eo', 'sk', 'az', 'bs', 'ca', 'zh', 'sr', 'fi', 'lt', 'sl',
+        'ar', 'id', 'su', 'bg', 'hy', 'hr', 'el', 'nn', 'sv', 'li', 'hu', 'ko',
+        'sah', 'nl', 'ja', 'la', 'ta', 'ig', 'hi', 'as', 'gl', 'gu', 'ur',
+        'bjn', 'tl', 'guw', 'be', 'te', 'vi', 'bn', 'cy', 'no', 'sq', 'ml',
+        'kn', 'eu', 'ro', 'ku', 'uz', 'ka', 'da', 'sa', 'is', 'th', 'bcl',
+        'br', 'mr', 'af', 'ky',
     ]
 
     category_redirect_templates = {

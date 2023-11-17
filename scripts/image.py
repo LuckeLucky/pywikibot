@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """
 This script can be used to change one image to another or remove an image.
 
@@ -85,10 +85,8 @@ class ImageRobot(ReplaceBot):
             param)
 
         namespace = self.site.namespaces[6]
-        escaped = case_escape(namespace.case, self.old_image)
+        escaped = case_escape(namespace.case, self.old_image, underscore=True)
 
-        # Be careful, spaces and _ have been converted to '\ ' and '\_'
-        escaped = re.sub('\\\\[_ ]', '[_ ]', escaped)
         if not self.opt.loose or not self.new_image:
             image_regex = re.compile(
                 r'\[\[ *(?:{})\s*:\s*{} *(?P<parameters>\|'

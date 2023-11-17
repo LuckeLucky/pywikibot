@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """
 Tests for edit failures.
 
@@ -8,7 +8,7 @@ unless something has broken badly.
 These tests use special code 'write = -1' for edit failures.
 """
 #
-# (C) Pywikibot team, 2014-2022
+# (C) Pywikibot team, 2014-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -30,6 +30,7 @@ from pywikibot.exceptions import (
     TitleblacklistError,
 )
 from tests.aspects import TestCase, WikibaseTestCase
+from tests.utils import skipping
 
 
 class TestSaveFailure(TestCase):
@@ -55,13 +56,9 @@ class TestSaveFailure(TestCase):
         """Test that spam in content raise the appropriate exception."""
         page = pywikibot.Page(self.site, 'Wikipedia:Sandbox')
         page.text = 'http://badsite.com'
-        try:
-            with self.assertRaisesRegex(
-                    SpamblacklistError,
-                    'badsite.com'):
-                page.save()
-        except OtherPageSaveError as e:
-            self.skipTest(e)
+        with skipping(OtherPageSaveError), self.assertRaisesRegex(
+                SpamblacklistError, 'badsite.com'):
+            page.save()
 
     def test_titleblacklist(self):
         """Test that title blacklist raise the appropriate exception."""
@@ -151,7 +148,8 @@ class TestWikibaseSaveTest(WikibaseTestCase):
         with self.assertRaises(PageSaveRelatedError):
             item.save()
 
-    def _make_WbMonolingualText_claim(self, repo, text, language):
+    @staticmethod
+    def _make_WbMonolingualText_claim(repo, text, language):
         """Make a WbMonolingualText and set its value."""
         claim = pywikibot.page.Claim(repo, 'P271', datatype='monolingualtext')
         target = pywikibot.WbMonolingualText(text=text, language=language)

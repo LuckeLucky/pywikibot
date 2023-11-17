@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """
 This bot appends some text to all unused images and notifies uploaders.
 
@@ -41,6 +41,7 @@ template_to_the_image = {
     'test': '{{Orphan file}}',
     'ar': '{{صورة يتيمة}}',
     'arz': '{{صوره يتيمه}}',
+    'ckb': '{{سخ-پ٥|ڕێکەوت={{subst:ڕێکەوت}}}}',
     'en': '{{Orphan image}}',
     'fa': '{{تصاویر بدون استفاده}}',
     'id': '{{Berkas yatim}}',
@@ -57,6 +58,7 @@ template_to_the_user = {
     'test': '{{User:Happy5214/Unused file notice (user)|%(title)s}}',
     'ar': '{{subst:تنبيه صورة يتيمة|%(title)s}}',
     'arz': '{{subst:تنبيه صوره يتيمه|%(title)s}}',
+    'ckb': '{{subst:سخ-پ٥-ئاگاداری|1=%(title)s}}',
     'fa': '{{subst:اخطار به کاربر برای تصاویر بدون استفاده|%(title)s}}',
     'ur': '{{subst:اطلاع برائے غیر مستعمل تصاویر|%(title)s}}',
 }
@@ -111,13 +113,13 @@ class UnusedFilesBot(SingleSiteBot,
         if (image.get_file_url() and not image.file_is_shared()
                 and 'http://' not in image.text):
             if self.opt.filetemplate in image.text:
-                pywikibot.output('{} done already'
-                                 .format(image.title(as_link=True)))
+                pywikibot.info(f'{image} done already')
                 return
 
             self.append_text(image, '\n\n' + self.opt.filetemplate)
             if self.opt.nouserwarning:
                 return
+
             uploader = image.oldest_file_info.user
             user = pywikibot.User(image.site, uploader)
             usertalkpage = user.getUserTalkPage()
@@ -145,7 +147,8 @@ class UnusedFilesBot(SingleSiteBot,
         self.current_page = page
         self.put_current(text)
 
-    def post_to_flow_board(self, page, post) -> None:
+    @staticmethod
+    def post_to_flow_board(page, post) -> None:
         """Post message as a Flow topic."""
         board = Board(page)
         header, rest = post.split('\n', 1)

@@ -10,7 +10,7 @@ This module requires sseclient to be installed::
 .. versionadded:: 3.0
 """
 #
-# (C) Pywikibot team, 2017-2022
+# (C) Pywikibot team, 2017-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -112,6 +112,8 @@ class EventStreams(GeneratorWrapper):
     def __init__(self, **kwargs) -> None:
         """Initializer.
 
+        :keyword bool canary: if True, include canary events, see
+            https://w.wiki/7$2z for more info
         :keyword APISite site: a project site object. Used if no url is
             given
         :keyword pywikibot.Timestamp or str since: a timestamp for older
@@ -143,7 +145,12 @@ class EventStreams(GeneratorWrapper):
                               'install it with "pip install sseclient"\n')
         self.filter = {'all': [], 'any': [], 'none': []}
         self._total = None
-        self._site = kwargs.pop('site', Site())
+        self._canary = kwargs.pop('canary', False)
+
+        try:
+            self._site = kwargs.pop('site')
+        except KeyError:  # T335720
+            self._site = Site()
 
         self._streams = kwargs.pop('streams', None)
         if self._streams and not isinstance(self._streams, str):
@@ -175,7 +182,7 @@ class EventStreams(GeneratorWrapper):
         if kwargs['timeout'] == config.socket_timeout:
             kwargs.pop('timeout')
         return '{}({})'.format(self.__class__.__name__, ', '.join(
-            '{}={!r}'.format(k, v) for k, v in kwargs.items()))
+            f'{k}={v!r}' for k, v in kwargs.items()))
 
     @property
     @cached
@@ -191,7 +198,7 @@ class EventStreams(GeneratorWrapper):
             host=self._site.eventstreams_host(),
             path=self._site.eventstreams_path(),
             streams=self._streams,
-            since='?since={}'.format(self._since) if self._since else '')
+            since=f'?since={self._since}' if self._since else '')
 
     def set_maximum_items(self, value: int) -> None:
         """
@@ -282,7 +289,7 @@ class EventStreams(GeneratorWrapper):
             if callable(func):
                 self.filter[ftype].append(func)
             else:
-                raise TypeError('{} is not a callable'.format(func))
+                raise TypeError(f'{func} is not a callable')
 
         # register pairs of keys and items as a filter function
         for key, value in kwargs.items():
@@ -303,6 +310,9 @@ class EventStreams(GeneratorWrapper):
 
         :param data: event data dict used by filter functions
         """
+        if not self._canary and data.get('meta', {}).get('domain') == 'canary':
+            return False  # T266798
+
         if any(function(data) for function in self.filter['none']):
             return False
         if not all(function(data) for function in self.filter['all']):
@@ -335,8 +345,8 @@ class EventStreams(GeneratorWrapper):
             try:
                 event = next(self.source)
             except (ProtocolError, OSError, httplib.IncompleteRead) as e:
-                warning('Connection error: {}.\n'
-                        'Try to re-establish connection.'.format(e))
+                warning(
+                    f'Connection error: {e}.\nTry to re-establish connection.')
                 del self.source
                 if event is not None:
                     self.sse_kwargs['last_id'] = event.id
@@ -346,8 +356,7 @@ class EventStreams(GeneratorWrapper):
                     try:
                         element = json.loads(event.data)
                     except ValueError as e:
-                        warning('Could not load json data from\n{}\n{}'
-                                .format(event, e))
+                        warning(f'Could not load json data from\n{event}\n{e}')
                     else:
                         if self.streamfilter(element):
                             n += 1
@@ -357,9 +366,9 @@ class EventStreams(GeneratorWrapper):
                 else:
                     ignore_first_empty_warning = False
             elif event.event == 'error':
-                warning('Encountered error: {}'.format(event.data))
+                warning(f'Encountered error: {event.data}')
             else:
-                warning('Unknown event {} occurred.'.format(event.event))
+                warning(f'Unknown event {event.event} occurred.')
 
         debug('{}: Stopped iterating due to exceeding item limit.'
               .format(self.__class__.__name__))

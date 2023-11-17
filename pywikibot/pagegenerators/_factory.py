@@ -1,6 +1,6 @@
 """GeneratorFactory module wich handles pagegenerators options."""
 #
-# (C) Pywikibot team, 2008-2022
+# (C) Pywikibot team, 2008-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -23,6 +23,7 @@ from pywikibot.backports import (
     List,
     Sequence,
     Tuple,
+    removeprefix,
 )
 from pywikibot.bot import ShowingListOption
 from pywikibot.data import api
@@ -32,6 +33,7 @@ from pywikibot.pagegenerators._filters import (
     ItemClaimFilterPageGenerator,
     NamespaceFilterPageGenerator,
     QualityFilterPageGenerator,
+    RedirectFilterPageGenerator,
     RegexBodyFilterPageGenerator,
     RegexFilterPageGenerator,
     SubpageFilterGenerator,
@@ -53,8 +55,13 @@ from pywikibot.pagegenerators._generators import (
     WikibaseSearchItemPageGenerator,
     WikidataSPARQLPageGenerator,
 )
-from pywikibot.tools.itertools import filter_unique, intersect_generators
+from pywikibot.tools import strtobool
 from pywikibot.tools.collections import DequeGenerator
+from pywikibot.tools.itertools import (
+    filter_unique,
+    intersect_generators,
+    roundrobin_generators,
+)
 
 
 HANDLER_RETURN_TYPE = Union[None, bool, Iterable['pywikibot.page.BasePage']]
@@ -96,25 +103,26 @@ class GeneratorFactory:
         :param disabled_options: disable these given options and let them
             be handled by scripts options handler
         """
-        self.gens = []  # type: List[Iterable['pywikibot.page.Page']]
-        self._namespaces = []  # type: GEN_FACTORY_NAMESPACE_TYPE
-        self.limit = None  # type: Optional[int]
-        self.qualityfilter_list = []  # type: List[int]
-        self.articlefilter_list = []  # type: List[str]
-        self.articlenotfilter_list = []  # type: List[str]
-        self.titlefilter_list = []  # type: List[str]
-        self.titlenotfilter_list = []  # type: List[str]
-        self.claimfilter_list = []  # type: GEN_FACTORY_CLAIM_TYPE
-        self.catfilter_list = []  # type: List['pywikibot.Category']
+        self.gens: List[Iterable['pywikibot.page.Page']] = []
+        self._namespaces: GEN_FACTORY_NAMESPACE_TYPE = []
+        self.limit: Optional[int] = None
+        self.qualityfilter_list: List[int] = []
+        self.articlefilter_list: List[str] = []
+        self.articlenotfilter_list: List[str] = []
+        self.titlefilter_list: List[str] = []
+        self.titlenotfilter_list: List[str] = []
+        self.claimfilter_list: GEN_FACTORY_CLAIM_TYPE = []
+        self.catfilter_list: List['pywikibot.Category'] = []
         self.intersect = False
-        self.subpage_max_depth = None  # type: Optional[int]
+        self.subpage_max_depth: Optional[int] = None
+        self.redirectfilter: Optional[bool] = None
         self._site = site
         self._positional_arg_name = positional_arg_name
-        self._sparql = None  # type: Optional[str]
+        self._sparql: Optional[str] = None
         self.nopreload = False
         self._validate_options(enabled_options, disabled_options)
 
-        self.is_preloading = None  # type: Optional[bool]
+        self.is_preloading: Optional[bool] = None
         """Return whether Page objects are preloaded. You may use this
         instance variable after :meth:`getCombinedGenerator` is called
         e.g.::
@@ -200,6 +208,10 @@ class GeneratorFactory:
 
         .. versionchanged:: 7.3
            set the instance variable :attr:`is_preloading` to True or False.
+        .. versionchanged:: 8.0
+           if ``limit`` option is set and multiple generators are given,
+           pages are yieded in a :func:`roundrobin
+           <tools.itertools.roundrobin_generators>` way.
 
         :param gen: Another generator to be combined with
         :param preload: preload pages using PreloadingGenerator
@@ -232,7 +244,8 @@ class GeneratorFactory:
                     self.claimfilter_list,
                     self.catfilter_list,
                     self.qualityfilter_list,
-                    self.subpage_max_depth is not None)):
+                    self.subpage_max_depth is not None,
+                    self.redirectfilter is not None)):
                 pywikibot.warning('filter(s) specified but no generators.')
             return None
 
@@ -247,12 +260,19 @@ class GeneratorFactory:
             # By definition no duplicates are possible.
             dupfiltergen = intersect_generators(*self.gens)
         else:
-            dupfiltergen = _filter_unique_pages(itertools.chain(*self.gens))
+            combine = roundrobin_generators if self.limit else itertools.chain
+            dupfiltergen = _filter_unique_pages(combine(*self.gens))
 
         # Add on subpage filter generator
         if self.subpage_max_depth is not None:
             dupfiltergen = SubpageFilterGenerator(
                 dupfiltergen, self.subpage_max_depth)
+
+        if self.redirectfilter is not None:
+            # Generator expects second parameter true to exclude redirects, but
+            # our logic is true to assert it is a redirect, false when it isn't
+            dupfiltergen = RedirectFilterPageGenerator(
+                dupfiltergen, not self.redirectfilter)
 
         if self.claimfilter_list:
             for claim in self.claimfilter_list:
@@ -307,7 +327,7 @@ class GeneratorFactory:
             category = i18n.input('pywikibot-enter-category-name')
         category = category.replace('#', '|')
 
-        startfrom = None  # type: Optional[str]
+        startfrom: Optional[str] = None
         category, _, startfrom = category.partition('|')
 
         if not startfrom:
@@ -318,8 +338,7 @@ class GeneratorFactory:
         # Part before ":" might be interpreted as an interwiki prefix
         prefix = category.split(':', 1)[0]  # whole word if ":" not present
         if prefix not in self.site.namespaces[14]:
-            category = '{}:{}'.format(
-                self.site.namespace(14), category)
+            category = f'{self.site.namespace(14)}:{category}'
         cat = pywikibot.Category(pywikibot.Link(category,
                                                 source=self.site,
                                                 default_namespace=14))
@@ -388,7 +407,7 @@ class GeneratorFactory:
             assert total is None or total > 0
         except ValueError as err:
             pywikibot.error(
-                '{}. Start parameter has wrong format!'.format(err))
+                f'{err}. Start parameter has wrong format!')
             return None
         except AssertionError:
             pywikibot.error('Total number of log ({}) events must be a '
@@ -399,15 +418,14 @@ class GeneratorFactory:
             end = pywikibot.Timestamp.fromtimestampformat(end)
         except ValueError as err:
             pywikibot.error(
-                '{}. End parameter has wrong format!'.format(err))
+                f'{err}. End parameter has wrong format!')
             return None
         except TypeError:  # end is None
             pass
 
         if start or end:
-            pywikibot.output('Fetching log events in range: {} - {}.'
-                             .format(end or 'beginning of time',
-                                     start or 'now'))
+            pywikibot.info('Fetching log events in range: {} - {}.'
+                           .format(end or 'beginning of time', start or 'now'))
 
         # 'user or None', because user might be an empty string when
         # 'foo,,bar' was used.
@@ -432,7 +450,7 @@ class GeneratorFactory:
         valid_cats = [c for _list in cats.values() for c in _list]
 
         value = value or ''
-        lint_from = None  # type: Optional[str]
+        lint_from: Optional[str] = None
         cat, _, lint_from = value.partition('/')
         lint_from = lint_from or None
 
@@ -443,10 +461,10 @@ class GeneratorFactory:
             _2i = 2 * _i
             txt = 'Available categories of lint errors:\n'
             for prio, _list in cats.items():
-                txt += '{indent}{prio}\n'.format(indent=_i, prio=prio)
+                txt += f'{_i}{prio}\n'
                 txt += ''.join(
-                    '{indent}{cat}\n'.format(indent=_2i, cat=c) for c in _list)
-            pywikibot.output(txt)
+                    f'{_2i}{c}\n' for c in _list)
+            pywikibot.info(txt)
 
         if cat == 'show':  # Display categories of lint errors.
             show_available_categories(cats)
@@ -459,7 +477,7 @@ class GeneratorFactory:
         else:
             lint_cats = cat.split(',')
             assert set(lint_cats) <= set(valid_cats), \
-                'Invalid category of lint errors: {}'.format(cat)
+                f'Invalid category of lint errors: {cat}'
 
         return self.site.linter_pages(
             lint_categories='|'.join(lint_cats), namespaces=self.namespaces,
@@ -480,7 +498,7 @@ class GeneratorFactory:
                 txt += '    {a:<{max_w}}{b}\n'.format(a=a, b=b, max_w=max_w)
             txt += ('\nMaximum number of pages to return is {max} '
                     '({highmax} for bots).\n'.format_map(limit))
-            pywikibot.output(txt)
+            pywikibot.info(txt)
             sys.exit(0)
 
         return self.site.querypage(value)
@@ -614,7 +632,7 @@ class GeneratorFactory:
             value = pywikibot.input('What namespace are you filtering on?')
         not_key = 'not:'
         if value.startswith(not_key):
-            value = value[len(not_key):]
+            value = removeprefix(value, not_key)
             resolve = self.site.namespaces.resolve
             not_ns = set(resolve(value.split(',')))
             if not self._namespaces:
@@ -826,8 +844,8 @@ class GeneratorFactory:
                 '{}: {}'.format(*i)
                 for i in self.site.proofread_levels.items()]
             valid_ql = ', '.join(valid_ql_list)
-            pywikibot.warning('Acceptable values for -ql are:\n    {}'
-                              .format(valid_ql))
+            pywikibot.warning(
+                f'Acceptable values for -ql are:\n    {valid_ql}')
         self.qualityfilter_list = int_values
         return True
 
@@ -891,8 +909,19 @@ class GeneratorFactory:
         params = value.split(',')
         if params[0] not in self.site.logtypes:
             raise NotImplementedError(
-                'Invalid -logevents parameter "{}"'.format(params[0]))
+                f'Invalid -logevents parameter "{params[0]}"')
         return self._parse_log_events(*params)
+
+    def _handle_redirect(self, value: str) -> HANDLER_RETURN_TYPE:
+        """Handle `-redirect` argument.
+
+        .. versionadded:: 8.5
+        """
+        if not value:
+            # True by default
+            value = 'true'
+        self.redirectfilter = strtobool(value)
+        return True
 
     def handle_args(self, args: Iterable[str]) -> List[str]:
         """Handle command line arguments and return the rest as a list.
@@ -923,7 +952,7 @@ class GeneratorFactory:
         :param arg: Pywikibot argument consisting of -name:value
         :return: True if the argument supplied was recognised by the factory
         """
-        value = None  # type: Optional[str]
+        value: Optional[str] = None
 
         if not arg.startswith('-') and self._positional_arg_name:
             value = arg

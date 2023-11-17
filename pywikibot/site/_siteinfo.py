@@ -1,6 +1,6 @@
 """Objects representing site info data contents."""
 #
-# (C) Pywikibot team, 2008-2022
+# (C) Pywikibot team, 2008-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -12,6 +12,7 @@ from contextlib import suppress
 from typing import Any, Optional, Union
 
 import pywikibot
+from pywikibot.backports import Dict, List
 from pywikibot.exceptions import APIError
 from pywikibot.tools.collections import EMPTY_DEFAULT
 
@@ -29,7 +30,7 @@ class Siteinfo(Container):
     """
 
     WARNING_REGEX = re.compile(r'Unrecognized values? for parameter '
-                               r'["\']siprop["\']: (.+?)\.?$')
+                               r'["\']siprop["\']: (.+?)\.?')
 
     # Until we get formatversion=2, we have to convert empty-string properties
     # into booleans so they are easier to use.
@@ -58,45 +59,14 @@ class Siteinfo(Container):
     def __init__(self, site) -> None:
         """Initialise it with an empty cache."""
         self._site = site
-        self._cache = {}
+        self._cache: Dict[str, Any] = {}
 
     def clear(self) -> None:
         """Remove all items from Siteinfo.
 
-        .. versionadded: 7.1
+        .. versionadded:: 7.1
         """
         self._cache.clear()
-
-    @staticmethod
-    def _get_default(key: str):
-        """
-        Return the default value for different properties.
-
-        If the property is 'restrictions' it returns a dictionary with:
-         - 'cascadinglevels': 'sysop'
-         - 'semiprotectedlevels': 'autoconfirmed'
-         - 'levels': '' (everybody), 'autoconfirmed', 'sysop'
-         - 'types': 'create', 'edit', 'move', 'upload'
-        Otherwise it returns :py:obj:`tools.EMPTY_DEFAULT`.
-
-        :param key: The property name
-        :return: The default value
-        :rtype: dict or :py:obj:`tools.EmptyDefault`
-        """
-        if key == 'restrictions':
-            # implemented in b73b5883d486db0e9278ef16733551f28d9e096d
-            return {
-                'cascadinglevels': ['sysop'],
-                'semiprotectedlevels': ['autoconfirmed'],
-                'levels': ['', 'autoconfirmed', 'sysop'],
-                'types': ['create', 'edit', 'move', 'upload']
-            }
-
-        if key == 'fileextensions':
-            # the default file extensions in MediaWiki
-            return [{'ext': ext} for ext in ['png', 'gif', 'jpg', 'jpeg']]
-
-        return EMPTY_DEFAULT
 
     @staticmethod
     def _post_process(prop, data) -> None:
@@ -139,10 +109,10 @@ class Siteinfo(Container):
         """
         def warn_handler(mod, message) -> bool:
             """Return True if the warning is handled."""
-            matched = Siteinfo.WARNING_REGEX.match(message)
+            matched = Siteinfo.WARNING_REGEX.fullmatch(message)
             if mod == 'siteinfo' and matched:
                 invalid_properties.extend(
-                    prop.strip() for prop in matched.group(1).split(','))
+                    prop.strip() for prop in matched[1].split(','))
                 return True
             return False
 
@@ -150,7 +120,7 @@ class Siteinfo(Container):
         if not props:
             raise ValueError('At least one property name must be provided.')
 
-        invalid_properties = []
+        invalid_properties: List[str] = []
         request = self._site._request(
             expiry=pywikibot.config.API_config_expiry
             if expiry is False else expiry,
@@ -158,9 +128,7 @@ class Siteinfo(Container):
                 'action': 'query', 'meta': 'siteinfo', 'siprop': props,
             }
         )
-        # With 1.25wmf5 it'll require continue or rawcontinue. As we don't
-        # continue anyway we just always use continue.
-        request['continue'] = True
+
         # warnings are handled later
         request._warning_handler = warn_handler
         try:
@@ -169,8 +137,8 @@ class Siteinfo(Container):
             if e.code == 'siunknown_siprop':
                 if len(props) == 1:
                     pywikibot.log(
-                        "Unable to get siprop '{}'".format(props[0]))
-                    return {props[0]: (Siteinfo._get_default(props[0]), False)}
+                        f"Unable to get siprop '{props[0]}'")
+                    return {props[0]: (EMPTY_DEFAULT, False)}
                 pywikibot.log('Unable to get siteinfo, because at least '
                               "one property is unknown: '{}'".format(
                                   "', '".join(props)))
@@ -183,7 +151,7 @@ class Siteinfo(Container):
             result = {}
             if invalid_properties:
                 for prop in invalid_properties:
-                    result[prop] = (Siteinfo._get_default(prop), False)
+                    result[prop] = (EMPTY_DEFAULT, False)
                 pywikibot.log("Unable to get siprop(s) '{}'".format(
                     "', '".join(invalid_properties)))
             if 'query' in data:
@@ -238,7 +206,7 @@ class Siteinfo(Container):
                 pywikibot.debug(
                     "Load siteinfo properties '{}' along with 'general'"
                     .format("', '".join(props)))
-            props += ['general']
+            props.append('general')
             default_info = self._get_siteinfo(props, expiry)
             for prop in props:
                 self._cache[prop] = default_info[prop]

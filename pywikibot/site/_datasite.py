@@ -1,6 +1,6 @@
 """Objects representing API interface to Wikibase site."""
 #
-# (C) Pywikibot team, 2012-2022
+# (C) Pywikibot team, 2012-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 from warnings import warn
 
 import pywikibot
+from pywikibot.backports import batched
 from pywikibot.data import api
 from pywikibot.exceptions import (
     APIError,
@@ -23,7 +24,6 @@ from pywikibot.exceptions import (
 from pywikibot.site._apisite import APISite
 from pywikibot.site._decorators import need_extension, need_right, need_version
 from pywikibot.tools import merge_unique_dicts, remove_last_args
-from pywikibot.tools.itertools import itergroup
 
 
 __all__ = ('DataSite', )
@@ -46,6 +46,29 @@ class DataSite(APISite):
             'form': pywikibot.LexemeForm,
             'sense': pywikibot.LexemeSense,
         }
+
+    def get_repo_for_entity_type(self, entity_type: str) -> 'DataSite':
+        """
+        Get the data repository for the entity type.
+
+        When no foreign repository is defined for the entity type,
+        the method returns this repository itself even if it does not
+        support that entity type either.
+
+        .. seealso:: https://www.mediawiki.org/wiki/Wikibase/Federation
+        .. versionadded:: 8.0
+
+        :raises ValueError: when invalid entity type was provided
+        """
+        if entity_type not in self._type_to_class:
+            raise ValueError(f'Invalid entity type "{entity_type}"')
+        entity_sources = self.entity_sources()
+        if entity_type in entity_sources:
+            return pywikibot.Site(
+                *entity_sources[entity_type],
+                interface='DataSite',
+                user=self.username())
+        return self
 
     def _cache_entity_namespaces(self) -> None:
         """Find namespaces for each known wikibase entity type."""
@@ -181,21 +204,20 @@ class DataSite(APISite):
         return data['entities']
 
     def preload_entities(self, pagelist, groupsize: int = 50):
-        """
-        Yield subclasses of WikibaseEntity's with content prefilled.
+        """Yield subclasses of WikibaseEntity's with content prefilled.
 
-        Note that pages will be iterated in a different order
-        than in the underlying pagelist.
+        .. note:: Pages will be iterated in a different order than in
+           the underlying pagelist.
 
-        :param pagelist: an iterable that yields either WikibaseEntity objects,
-                         or Page objects linked to an ItemPage.
+        :param pagelist: an iterable that yields either WikibaseEntity
+            objects, or Page objects linked to an ItemPage.
         :param groupsize: how many pages to query at a time
         """
         if not hasattr(self, '_entity_namespaces'):
             self._cache_entity_namespaces()
-        for sublist in itergroup(pagelist, groupsize):
+        for batch in batched(pagelist, groupsize):
             req = {'ids': [], 'titles': [], 'sites': []}
-            for p in sublist:
+            for p in batch:
                 if isinstance(p, pywikibot.page.WikibaseEntity):
                     ident = p._defined_by()
                     for key in ident:
@@ -285,13 +307,13 @@ class DataSite(APISite):
             params['bot'] = 1
         if 'baserevid' in kwargs and kwargs['baserevid']:
             params['baserevid'] = kwargs['baserevid']
-        params['token'] = self.tokens['edit']
+        params['token'] = self.tokens['csrf']
 
         for arg in kwargs:
             if arg in ['clear', 'summary']:
                 params[arg] = kwargs[arg]
             elif arg != 'baserevid':
-                warn('Unknown wbeditentity parameter {} ignored'.format(arg),
+                warn(f'Unknown wbeditentity parameter {arg} ignored',
                      UserWarning, 2)
 
         params['data'] = json.dumps(data)
@@ -299,24 +321,25 @@ class DataSite(APISite):
         return req.submit()
 
     @need_right('edit')
-    def addClaim(self, entity, claim, bot: bool = True, summary=None) -> None:
+    def addClaim(self,
+                 entity: 'pywikibot.page.WikibaseEntity',
+                 claim: 'pywikibot.page.Claim',
+                 bot: bool = True,
+                 summary: Optional[str] = None) -> None:
         """
         Add a claim.
 
         :param entity: Entity to modify
-        :type entity: WikibaseEntity
         :param claim: Claim to be added
-        :type claim: pywikibot.Claim
         :param bot: Whether to mark the edit as a bot edit
         :param summary: Edit summary
-        :type summary: str
         """
         claim.snak = entity.getID() + '$' + str(uuid.uuid4())
         params = {'action': 'wbsetclaim',
                   'claim': json.dumps(claim.toJSON()),
                   'baserevid': entity.latest_revision_id,
                   'summary': summary,
-                  'token': self.tokens['edit'],
+                  'token': self.tokens['csrf'],
                   'bot': bot,
                   }
         req = self.simple_request(**params)
@@ -349,7 +372,7 @@ class DataSite(APISite):
             raise NoPageError(claim)
         params = {'action': 'wbsetclaimvalue', 'claim': claim.snak,
                   'snaktype': snaktype, 'summary': summary, 'bot': bot,
-                  'token': self.tokens['edit']}
+                  'token': self.tokens['csrf']}
 
         if snaktype == 'value':
             params['value'] = json.dumps(claim._formatValue())
@@ -359,15 +382,15 @@ class DataSite(APISite):
         return req.submit()
 
     @need_right('edit')
-    def save_claim(self, claim, summary=None, bot: bool = True):
+    def save_claim(self, claim: 'pywikibot.page.Claim',
+                   summary: Optional[str] = None,
+                   bot: bool = True):
         """
         Save the whole claim to the wikibase site.
 
         :param claim: The claim to save
-        :type claim: pywikibot.Claim
         :param bot: Whether to mark the edit as a bot edit
         :param summary: Edit summary
-        :type summary: str
         """
         if claim.isReference or claim.isQualifier:
             raise NotImplementedError
@@ -376,7 +399,7 @@ class DataSite(APISite):
             raise NoPageError(claim)
         params = {'action': 'wbsetclaim',
                   'claim': json.dumps(claim.toJSON()),
-                  'token': self.tokens['edit'],
+                  'token': self.tokens['csrf'],
                   'baserevid': claim.on_item.latest_revision_id,
                   'summary': summary,
                   'bot': bot,
@@ -410,7 +433,7 @@ class DataSite(APISite):
             raise ValueError('The claim cannot have a source.')
         params = {'action': 'wbsetreference', 'statement': claim.snak,
                   'baserevid': claim.on_item.latest_revision_id,
-                  'summary': summary, 'bot': bot, 'token': self.tokens['edit']}
+                  'summary': summary, 'bot': bot, 'token': self.tokens['csrf']}
 
         # build up the snak
         if isinstance(source, list):
@@ -467,7 +490,7 @@ class DataSite(APISite):
         if (not new and hasattr(qualifier, 'hash')
                 and qualifier.hash is not None):
             params['snakhash'] = qualifier.hash
-        params['token'] = self.tokens['edit']
+        params['token'] = self.tokens['csrf']
         # build up the snak
         if qualifier.getSnakType() == 'value':
             params['value'] = json.dumps(qualifier._formatValue())
@@ -504,7 +527,7 @@ class DataSite(APISite):
             'summary': summary,
             'bot': bot,
             'claim': '|'.join(claim.snak for claim in claims),
-            'token': self.tokens['edit'],
+            'token': self.tokens['csrf'],
         }
 
         req = self.simple_request(**params)
@@ -533,7 +556,7 @@ class DataSite(APISite):
             'summary': summary, 'bot': bot,
             'statement': claim.snak,
             'references': '|'.join(source.hash for source in sources),
-            'token': self.tokens['edit'],
+            'token': self.tokens['csrf'],
         }
 
         req = self.simple_request(**params)
@@ -563,7 +586,7 @@ class DataSite(APISite):
             'summary': summary,
             'bot': bot,
             'qualifiers': [qualifier.hash for qualifier in qualifiers],
-            'token': self.tokens['edit']
+            'token': self.tokens['csrf']
         }
 
         req = self.simple_request(**params)
@@ -588,7 +611,7 @@ class DataSite(APISite):
             'totitle': page1.title(),
             'fromsite': page2.site.dbName(),
             'fromtitle': page2.title(),
-            'token': self.tokens['edit']
+            'token': self.tokens['csrf']
         }
         if bot:
             params['bot'] = 1
@@ -620,7 +643,7 @@ class DataSite(APISite):
             'fromid': from_item.getID(),
             'toid': to_item.getID(),
             'ignoreconflicts': ignore_conflicts,
-            'token': self.tokens['edit'],
+            'token': self.tokens['csrf'],
             'summary': summary,
         }
         if bot:
@@ -648,14 +671,13 @@ class DataSite(APISite):
             'action': 'wblmergelexemes',
             'source': from_lexeme.getID(),
             'target': to_lexeme.getID(),
-            'token': self.tokens['edit'],
+            'token': self.tokens['csrf'],
             'summary': summary,
         }
         if bot:
             params['bot'] = 1
         req = self.simple_request(**params)
-        data = req.submit()
-        return data
+        return req.submit()
 
     @need_right('item-redirect')
     def set_redirect_target(self, from_item, to_item, bot: bool = True):
@@ -672,7 +694,7 @@ class DataSite(APISite):
             'action': 'wbcreateredirect',
             'from': from_item.getID(),
             'to': to_item.getID(),
-            'token': self.tokens['edit'],
+            'token': self.tokens['csrf'],
             'bot': bot,
         }
         req = self.simple_request(**params)
@@ -755,8 +777,8 @@ class DataSite(APISite):
             raise
 
         if 'results' not in data:
-            raise RuntimeError("Unexpected missing 'results' in query data\n{}"
-                               .format(data))
+            raise RuntimeError(
+                f"Unexpected missing 'results' in query data\n{data}")
 
         results = []
         for result_hash in data['results']:
@@ -776,31 +798,39 @@ class DataSite(APISite):
         Supported actions are:
             wbsetaliases, wbsetdescription, wbsetlabel and wbsetsitelink
 
+        wbsetaliases:
+            dict shall have the following structure:
+
+            .. code-block::
+
+               {
+                   'language': value (str),
+                   'add': list of language codes (str),
+                   'remove': list of language codes (str),
+                   'set' list of language codes (str)
+                }
+
+            'add' and 'remove' are alternative to 'set'
+
+        wbsetdescription and wbsetlabel:
+            dict shall have keys 'language', 'value'
+
+        wbsetsitelink:
+            dict shall have keys 'linksite', 'linktitle' and
+            optionally 'badges'
+
         :param itemdef: Entity to modify or create
         :type itemdef: str, WikibaseEntity or Page connected to such item
         :param action: wbset{action} to perform:
             'wbsetaliases', 'wbsetdescription', 'wbsetlabel', 'wbsetsitelink'
         :param action_data: data to be used in API request, see API help
         :type action_data: SiteLink or dict
-            wbsetaliases:
-                dict shall have the following structure:
-                {'language': value (str),
-                 'add': list of language codes (str),
-                 'remove': list of language codes (str),
-                 'set' list of language codes (str)
-                  }
-                'add' and 'remove' are alternative to 'set'
-            wbsetdescription and wbsetlabel:
-                dict shall have keys 'language', 'value'
-            wbsetsitelink:
-                dict shall have keys 'linksite', 'linktitle' and
-                optionally 'badges'
         :keyword bot: Whether to mark the edit as a bot edit, default is True
         :type bot: bool
         :keyword tags: Change tags to apply with the edit
         :type tags: list of str
         :return: query result
-        :raises AssertionError, TypeError
+        :raises: AssertionError, TypeError
         """
         def format_sitelink(sitelink):
             """Convert SiteLink to a dict accepted by wbsetsitelink API."""
@@ -842,7 +872,7 @@ class DataSite(APISite):
         # Supported actions
         assert action in ('wbsetaliases', 'wbsetdescription',
                           'wbsetlabel', 'wbsetsitelink'), \
-            'action {} not supported.'.format(action)
+            f'action {action} not supported.'
 
         # prefer ID over (site, title)
         if isinstance(itemdef, str):
@@ -861,7 +891,7 @@ class DataSite(APISite):
         params.update(
             {'baserevid': baserevid,
              'action': action,
-             'token': self.tokens['edit'],
+             'token': self.tokens['csrf'],
              'bot': kwargs.pop('bot', True),
              })
         params.update(prepare_data(action, action_data))
@@ -874,8 +904,7 @@ class DataSite(APISite):
                      .format(arg, action), UserWarning, 2)
 
         req = self.simple_request(**params)
-        data = req.submit()
-        return data
+        return req.submit()
 
     def wbsetaliases(self, itemdef, aliases, **kwargs):
         """
@@ -931,13 +960,12 @@ class DataSite(APISite):
             'lexemeId': lexeme.getID(),
             'data': json.dumps(form.toJSON()),
             'bot': bot,
-            'token': self.tokens['edit'],
+            'token': self.tokens['csrf'],
         }
         if baserevid:
             params['baserevid'] = baserevid
         req = self.simple_request(**params)
-        data = req.submit()
-        return data
+        return req.submit()
 
     @need_right('edit')
     @need_extension('WikibaseLexeme')
@@ -956,13 +984,12 @@ class DataSite(APISite):
             'action': 'wblremoveform',
             'id': form.getID(),
             'bot': bot,
-            'token': self.tokens['edit'],
+            'token': self.tokens['csrf'],
         }
         if baserevid:
             params['baserevid'] = baserevid
         req = self.simple_request(**params)
-        data = req.submit()
-        return data
+        return req.submit()
 
     @need_right('edit')
     @need_extension('WikibaseLexeme')
@@ -986,10 +1013,9 @@ class DataSite(APISite):
             'formId': form.getID(),
             'data': json.dumps(data),
             'bot': bot,
-            'token': self.tokens['edit'],
+            'token': self.tokens['csrf'],
         }
         if baserevid:
             params['baserevid'] = baserevid
         req = self.simple_request(**params)
-        data = req.submit()
-        return data
+        return req.submit()

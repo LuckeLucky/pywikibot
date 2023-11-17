@@ -1,4 +1,4 @@
-"""User interfaces Module.
+"""User interfaces module.
 
 The user interface object must define its own `init_handlers()` method
 which takes the root logger as its only argument, and which adds to that
@@ -14,3 +14,8 @@ UserInterface objects must also define methods `input()`,
 all of which are documented in the abstract class
 :class:`userinterfaces._interface_base.ABUIC`.
 """
+#
+# (C) Pywikibot team, 2008-2022
+#
+# Distributed under the terms of the MIT license.
+#

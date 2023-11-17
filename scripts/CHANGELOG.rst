@@ -1,14 +1,204 @@
 Scripts Changelog
 =================
 
-7.6.0
+8.5.0
 -----
 
-*current release*
+category_graph
+~~~~~~~~~~~~~~
+
+* Change category output string to format string (:phab:`T348709`)
+
+commonscat
+~~~~~~~~~~
+
+* Fix skip page template parameter check (:phab:`T106952`)
+
+8.4.0
+-----
+
+* L10N for several scripts
+
+category_graph
+~~~~~~~~~~~~~~
+
+* Wrap DOT-string in curly braces (:phab:`T346007`)
+
+checkimages
+~~~~~~~~~~~
+
+* Use welcome messages from :class:`scripts.welcome.WelcomeBot`
+* add more messages to :mod:`i18n` system
+
+newitem
+~~~~~~~
+
+* Enable ``-touch`` in newitem script for confirmed user (:phab:`T343877`)
+
+maintenance
+~~~~~~~~~~~
+
+* new script unidata to update ``_first_upper_exception_dict`` of
+  :mod:`pywikibot.tools._unidata`.
+
+
+8.3.0
+-----
+
+patrol
+~~~~~~
+
+* Only handle namespaces with :func:`pagegenerators.GeneratorFactory` (:phab:`T341768`)
+
+
+8.2.0
+-----
 
 archivebot
 ~~~~~~~~~~
 
+* KeyboardInterrupt was enabled for -async option
+
+listpages
+~~~~~~~~~
+
+* ``-tofile`` option was added to save list to a file
+
+noreferences
+~~~~~~~~~~~~
+
+* NoReferencesBot derives from :class:`bot.AutomaticTWSummaryBot`
+
+replicate_wiki
+~~~~~~~~~~~~~~
+
+* i18n support was added (:phab:`T333759`)
+
+transwikiimport
+~~~~~~~~~~~~~~~
+
+* Script was added (:phab:`T335246`)
+
+
+8.1.0
+-----
+
+archivebot
+~~~~~~~~~~
+
+* Processing speed was improved and is up to 20 times faster, 2-3 times on average
+
+redirect
+~~~~~~~~
+
+* Use ``Bot:`` prefixed summary (:phab:`T161459`)
+* Fix ``-namespace`` usage if RedirectGenerator is used (:phab:`T331243`)
+
+
+8.0.2
+-----
+
+clean_sandbox
+~~~~~~~~~~~~~
+
+* L10N for es-wikis
+
+8.0.1
+-----
+
+clean_sandbox
+~~~~~~~~~~~~~
+
+* L10N for several wikis
+
+touch
+~~~~~
+
+* Login first when starting the script (:phab:`T328204`)
+
+
+8.0.0
+-----
+
+blockpageschecker
+~~~~~~~~~~~~~~~~~
+
+* Fix neutral additive element
+
+category
+~~~~~~~~
+
+* Enable pagegenerators options with ``move`` and ``remove`` actions (:phab:`T318239`)
+
+category_graph
+~~~~~~~~~~~~~~
+
+* :mod:`category_graph` script was added which creates category graph in formats dot, svg and html5
+
+clean_sandbox
+~~~~~~~~~~~~~
+
+* L10N updates
+* A `-textfile` option was addet to fetch the text from a file
+
+create_isbn_edition
+~~~~~~~~~~~~~~~~~~~
+
+* Fix argument parsing
+
+fixing_redirects
+~~~~~~~~~~~~~~~~
+
+* Skip invalid link titles (:phab:`T324434`)
+
+interwiki
+~~~~~~~~~
+
+Fix string concatenation (:phab:`T322180`)
+
+touch
+~~~~~
+
+Provide bulk purge to run upto 1000 times faster
+
+
+7.7.0
+-----
+
+archivebot
+~~~~~~~~~~
+
+* Process pages in parallel tasks with ``-async`` option (:phab:`T57899`)
+* Add -sort option to sort archives by (latest) timestamp
+* Archive unsigned threads using timestamp of the next thread (:phab:`T69663`, :phab:`T182685`)
+
+category_redirect
+~~~~~~~~~~~~~~~~~
+
+* Use localized template prefix (:phab:`T318049`)
+
+create_isbn_edition
+~~~~~~~~~~~~~~~~~~~
+
+* New script to load ISBN related data into Wikidata (:phab:`T314942`)
+
+watchlist
+~~~~~~~~~
+
+* Watchlist is retrieved faster in parallel tasks (:phab:`T57899`)
+* Enable watchlist.refresh_all for API generator access (:phab:`T316359`)
+
+7.6.0
+-----
+
+*21 August 2022*
+
+archivebot
+~~~~~~~~~~
+
+* Use ``User:MiszaBot/config`` as default template
+* Raise MalformedConfigError if 'maxarchivesize' is 0 (:phab:`T313886`)
+* Preserve thread order in archive even if threads are archived later (:phab:`T312773`, :phab:`T314560`)
 * Skip the page if it does not exist
 * Fix for DiscussionPage.size() (:phab:`T313886`)
 * Decrease memory usage and improve processing speed

@@ -1,6 +1,6 @@
 """Objects with site methods independent of the communication interface."""
 #
-# (C) Pywikibot team, 2008-2022
+# (C) Pywikibot team, 2008-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -11,7 +11,7 @@ from typing import Optional
 from warnings import warn
 
 import pywikibot
-from pywikibot.backports import Pattern
+from pywikibot.backports import List, Pattern, Set
 from pywikibot.exceptions import (
     Error,
     FamilyMaintenanceWarning,
@@ -22,9 +22,10 @@ from pywikibot.exceptions import (
 from pywikibot.site._namespace import Namespace, NamespacesDict
 from pywikibot.throttle import Throttle
 from pywikibot.tools import (
-    cached,
     ComparableMixin,
     SelfCallString,
+    cached,
+    deprecated,
     first_upper,
     normalize_username,
 )
@@ -48,12 +49,11 @@ class BaseSite(ComparableMixin):
         if code.lower() != code:
             # Note the Site function in __init__ also emits a UserWarning
             # for this condition, showing the callers file and line no.
-            pywikibot.log('BaseSite: code "{}" converted to lowercase'
-                          .format(code))
+            pywikibot.log(f'BaseSite: code "{code}" converted to lowercase')
             code = code.lower()
         if not all(x in pywikibot.family.CODE_CHARACTERS for x in code):
-            pywikibot.log('BaseSite: code "{}" contains invalid characters'
-                          .format(code))
+            pywikibot.log(
+                f'BaseSite: code "{code}" contains invalid characters')
         self.__code = code
         if isinstance(fam, str) or fam is None:
             self.__family = pywikibot.family.Family.load(fam)
@@ -67,8 +67,8 @@ class BaseSite(ComparableMixin):
                 self.__code = self.__family.obsolete[self.__code]
                 # Note the Site function in __init__ emits a UserWarning
                 # for this condition, showing the callers file and line no.
-                pywikibot.log('Site {} instantiated using aliases code of {}'
-                              .format(self, code))
+                pywikibot.log(
+                    f'Site {self} instantiated using aliases code of {code}')
             else:
                 # no such language anymore
                 self.obsolete = True
@@ -91,12 +91,22 @@ class BaseSite(ComparableMixin):
 
         self._username = normalize_username(user)
 
-        self.use_hard_category_redirects = (
-            self.code in self.family.use_hard_category_redirects)
-
         # following are for use with lock_page and unlock_page methods
         self._pagemutex = threading.Condition()
-        self._locked_pages = set()
+        self._locked_pages: Set[str] = set()
+
+    @property
+    @deprecated(since='8.5.0')
+    def use_hard_category_redirects(self):
+        """Hard redirects are used for this site.
+
+        Originally create as property for future use for a proposal to
+        replace category redirect templates with hard redirects. This
+        was never implemented and is not used inside the framework.
+
+        .. deprecated:: 8.5
+        """
+        return False
 
     @property
     @cached
@@ -186,8 +196,6 @@ class BaseSite(ComparableMixin):
 
     def __getattr__(self, attr):
         """Delegate undefined methods calls to the Family object."""
-        if hasattr(self.__class__, attr):
-            return getattr(self.__class__, attr)
         try:
             method = getattr(self.family, attr)
             if not callable(method):
@@ -197,8 +205,8 @@ class BaseSite(ComparableMixin):
                 f.__doc__ = method.__doc__
             return f
         except AttributeError:
-            raise AttributeError("{} instance has no attribute '{}'"
-                                 .format(self.__class__.__name__, attr))
+            raise AttributeError(f'{type(self).__name__} instance has no '
+                                 f'attribute {attr!r}') from None
 
     def __str__(self) -> str:
         """Return string representing this Site's name and code."""
@@ -211,8 +219,7 @@ class BaseSite(ComparableMixin):
 
     def __repr__(self) -> str:
         """Return internal representation."""
-        return '{}("{}", "{}")'.format(
-            self.__class__.__name__, self.code, self.family)
+        return f'{self.__class__.__name__}("{self.code}", "{self.family}")'
 
     def __hash__(self):
         """Return hash value of instance."""
@@ -235,7 +242,8 @@ class BaseSite(ComparableMixin):
         yield base_path + '?title={}'
         yield self.articlepath
 
-    def _build_namespaces(self):
+    @staticmethod
+    def _build_namespaces():
         """Create default namespaces."""
         return Namespace.builtin_namespaces()
 
@@ -245,26 +253,36 @@ class BaseSite(ComparableMixin):
         """Return dict of valid namespaces on this wiki."""
         return NamespacesDict(self._build_namespaces())
 
-    def ns_normalize(self, value):
-        """
-        Return canonical local form of namespace name.
+    def ns_normalize(self, value: str):
+        """Return canonical local form of namespace name.
 
         :param value: A namespace name
-        :type value: str
-
         """
         index = self.namespaces.lookup_name(value)
         return self.namespace(index)
 
-    def redirect(self):
-        """Return list of localized redirect tags for the site."""
+    def redirect(self) -> str:
+        """Return a default redirect tag for the site.
+
+        .. versionchanged:: 8.4
+           return a single generic redirect tag instead of a list of
+           tags. For the list use :meth:`redirects` instead.
+        """
+        return self.redirects()[0]
+
+    def redirects(self) -> List[str]:
+        """Return list of generic redirect tags for the site.
+
+        .. seealso:: :meth:`redirect` for the default redirect tag.
+        .. versionadded:: 8.4
+        """
         return ['REDIRECT']
 
-    def pagenamecodes(self):
+    def pagenamecodes(self) -> List[str]:
         """Return list of localized PAGENAME tags for the site."""
         return ['PAGENAME']
 
-    def pagename2codes(self):
+    def pagename2codes(self) -> List[str]:
         """Return list of localized PAGENAMEE tags for the site."""
         return ['PAGENAMEE']
 
@@ -318,47 +336,44 @@ class BaseSite(ComparableMixin):
             try:
                 name = dp.getSitelink(self)
             except NoPageError:
-                raise Error(
-                    'No disambiguation category name found in {repo} '
-                    'for {site}'.format(repo=repo_name, site=self))
+                raise Error(f'No disambiguation category name found in {repo} '
+                            f'for {self}')
 
         else:  # fallback for non WM sites
             try:
-                name = '{}:{}'.format(Namespace.CATEGORY,
-                                      self.family.disambcatname[self.code])
+                name = (f'{Namespace.CATEGORY}:'
+                        f'{self.family.disambcatname[self.code]}')
             except KeyError:
-                raise Error(
-                    'No disambiguation category name found in '
-                    '{site.family.name}_family for {site}'.format(site=self))
+                raise Error(f'No disambiguation category name found in '
+                            f'{self.family.name}_family for {self}')
 
         return pywikibot.Category(pywikibot.Link(name, self))
 
     def isInterwikiLink(self, text):  # noqa: N802
         """Return True if text is in the form of an interwiki link.
 
-        If a link object constructed using "text" as the link text parses as
-        belonging to a different site, this method returns True.
-
+        If a link object constructed using "text" as the link text parses
+        as belonging to a different site, this method returns True.
         """
         linkfam, linkcode = pywikibot.Link(text, self).parse_site()
         return linkfam != self.family.name or linkcode != self.code
 
-    def redirectRegex(  # noqa: N802
-        self,
-        pattern: Optional[str] = None
-    ) -> Pattern[str]:
+    @property
+    def redirect_regex(self) -> Pattern[str]:
         """Return a compiled regular expression matching on redirect pages.
 
         Group 1 in the regex match object will be the target title.
 
+        A redirect starts with hash (#), followed by a keyword, then
+        arbitrary stuff, then a wikilink. The wikilink may contain a
+        label, although this is not useful.
+
+        .. versionadded:: 8.4
+           moved from class:`APISite<pywikibot.site._apisite.APISite>`
         """
-        if pattern is None:
-            pattern = 'REDIRECT'
-        # A redirect starts with hash (#), followed by a keyword, then
-        # arbitrary stuff, then a wikilink. The wikilink may contain
-        # a label, although this is not useful.
-        return re.compile(r'\s*#{pattern}\s*:?\s*\[\[(.+?)(?:\|.*?)?\]\]'
-                          .format(pattern=pattern), re.IGNORECASE | re.DOTALL)
+        tags = '|'.join(self.redirects())
+        return re.compile(fr'\s*#(?:{tags})\s*:?\s*\[\[(.+?)(?:\|.*?)?\]\]',
+                          re.IGNORECASE | re.DOTALL)
 
     def sametitle(self, title1: str, title2: str) -> bool:
         """
@@ -380,8 +395,7 @@ class BaseSite(ComparableMixin):
         # delimiters like spaces and multiple combinations of them with
         # only one delimiter
         sep = self.family.title_delimiter_and_aliases[0]
-        pattern = re.compile('[{}]+'
-                             .format(self.family.title_delimiter_and_aliases))
+        pattern = re.compile(f'[{self.family.title_delimiter_and_aliases}]+')
         title1 = pattern.sub(sep, title1)
         title2 = pattern.sub(sep, title2)
         if title1 == title2:
@@ -413,7 +427,7 @@ class BaseSite(ComparableMixin):
 
     def interwiki_putfirst(self):
         """Return list of language codes for ordering of interwiki links."""
-        return self.family.interwiki_putfirst.get(self.code, None)
+        return self.family.interwiki_putfirst.get(self.code)
 
     def getSite(self, code):  # noqa: N802
         """Return Site object for language 'code' in this Family."""

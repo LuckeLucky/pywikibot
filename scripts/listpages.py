@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 r"""
 Print a list of pages, as defined by page generator parameters.
 
@@ -46,6 +46,9 @@ These parameters are supported to specify which pages titles to print:
 -notitle    Page title is not printed.
 
 -get        Page content is printed.
+
+-tofile     Save Page titles to a single file. File name can be set
+            with -tofile:filename or -tofile:dir_name/filename.
 
 -save       Save Page content to a file named as page.title(as_filename=True).
             Directory can be set with -save:dir_name
@@ -151,7 +154,7 @@ class Formatter:
                 self.trs_title = page._link.ns_title(onsite=self.onsite)
             # Fallback if no corresponding namespace is found in onsite.
             except Error:
-                self.trs_title = '{}:{}'.format(default, page._link.title)
+                self.trs_title = f'{default}:{page._link.title}'
 
     def output(self, num=None, fmt: str = '1') -> str:
         """Output formatted string."""
@@ -176,6 +179,7 @@ class ListPagesBot(AutomaticTWSummaryBot, SingleSiteBot):
     available_options = {
         'always': True,
         'save': None,
+        'tofile': None,
         'encode': config.textfile_encoding,
         'format': '1',
         'notitle': False,
@@ -190,10 +194,10 @@ class ListPagesBot(AutomaticTWSummaryBot, SingleSiteBot):
     def treat(self, page) -> None:
         """Process one page and add it to the `output_list`."""
         self.num += 1
-        if not self.opt.notitle:
+        if self.opt.tofile or not self.opt.notitle:
             page_fmt = Formatter(page, self.opt.outputlang)
-            self.output_list += [page_fmt.output(num=self.num,
-                                                 fmt=self.opt.format)]
+            self.output_list.append(
+                page_fmt.output(num=self.num, fmt=self.opt.format))
         if self.opt['get']:
             try:
                 pywikibot.stdout(page.text)
@@ -203,7 +207,7 @@ class ListPagesBot(AutomaticTWSummaryBot, SingleSiteBot):
         if self.opt.save:
             filename = os.path.join(self.opt.save,
                                     page.title(as_filename=True))
-            pywikibot.info('Saving {} to {}'.format(page.title(), filename))
+            pywikibot.info(f'Saving {page.title()} to {filename}')
             with open(filename, mode='wb') as f:
                 f.write(page.text.encode(self.opt.encode))
             self.counter['save'] += 1
@@ -224,12 +228,12 @@ class ListPagesBot(AutomaticTWSummaryBot, SingleSiteBot):
                                                          base_dir))
 
             if not os.path.exists(base_dir):
-                pywikibot.info('Directory "{}" does not exist.'
-                               .format(base_dir))
+                pywikibot.info(f'Directory "{base_dir}" does not exist.')
                 choice = pywikibot.input_yn('Do you want to create it ("No" '
                                             'to continue without saving)?')
                 if choice:
-                    os.makedirs(base_dir, mode=0o744)
+                    os.makedirs(base_dir,
+                                mode=config.private_folder_permission)
                 else:
                     base_dir = None
             elif not os.path.isdir(base_dir):
@@ -240,11 +244,16 @@ class ListPagesBot(AutomaticTWSummaryBot, SingleSiteBot):
             self.opt.save = base_dir
 
     def teardown(self) -> None:
-        """Print the list and put it to the target page if specified."""
+        """Print list, if selected put it to wiki page or save it to a file."""
         text = '\n'.join(self.output_list)
         if self.opt.put:
             self.current_page = self.opt.put
             self.put_current(text, summary=self.opt.summary, show_diff=False)
+
+        if self.opt.tofile:
+            pywikibot.info(f'Writing page titles to {self.opt.tofile}')
+            with open(self.opt.tofile, 'w', encoding='utf-8') as f:
+                f.write(text)
 
         if self.opt.preloading is True:
             pywikibot.stdout(text)

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """
 Help sysops to quickly check and/or delete pages listed for speedy deletion.
 
@@ -22,7 +22,7 @@ it just to the first so many bytes.
 .. note:: This script currently only works for the Wikipedia project.
 """
 #
-# (C) Pywikibot team, 2007-2022
+# (C) Pywikibot team, 2007-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -331,8 +331,7 @@ class SpeedyBot(SingleSiteBot, ExistingPageBot):
             self.csd_cat = self.site.page_from_repository(self.csd_cat_item)
             if self.csd_cat is None:
                 raise Error(
-                    'No category for speedy deletion found for {}'
-                    .format(self.site))
+                    f'No category for speedy deletion found for {self.site}')
         else:
             self.csd_cat = pywikibot.Category(self.site, csd_cat)
         self.saved_progress = None
@@ -373,8 +372,8 @@ class SpeedyBot(SingleSiteBot, ExistingPageBot):
     def get_reason_for_deletion(self, page):
         """Get a reason for speedy deletion from operator."""
         suggested_reason = self.guess_reason_for_deletion(page)
-        pywikibot.info('The suggested reason is: <<lightred>>{}'
-                       .format(suggested_reason))
+        pywikibot.info(
+            f'The suggested reason is: <<lightred>>{suggested_reason}')
 
         # We don't use i18n.translate() here because for some languages the
         # entry is intentionally left out.
@@ -384,7 +383,7 @@ class SpeedyBot(SingleSiteBot, ExistingPageBot):
                                            self.delete_reasons)
             pywikibot.info()
             for key in sorted(local_reasons.keys()):
-                pywikibot.output((key + ':').ljust(8) + local_reasons[key])
+                pywikibot.info((key + ':').ljust(8) + local_reasons[key])
             pywikibot.info()
             reason = pywikibot.input(fill(
                 'Please enter the reason for deletion, choose a default '
@@ -413,7 +412,7 @@ class SpeedyBot(SingleSiteBot, ExistingPageBot):
                 break
 
             if not self.saved_progress:
-                pywikibot.output(
+                pywikibot.info(
                     '\nThere are no (further) pages to delete.\n'
                     'Waiting for 30 seconds or press Ctrl+C to quit...')
                 try:
@@ -428,10 +427,10 @@ class SpeedyBot(SingleSiteBot, ExistingPageBot):
         """Process one page."""
         page = self.current_page
 
-        color_line = '<<blue>>{}<<default>>'.format('_' * 80)
-        pywikibot.output(color_line)
-        pywikibot.output(page.extract('wiki', lines=self.LINES))
-        pywikibot.output(color_line)
+        color_line = f"<<blue>>{'_' * 80}<<default>>"
+        pywikibot.info(color_line)
+        pywikibot.info(page.extract('wiki', lines=self.LINES))
+        pywikibot.info(color_line)
 
         choice = pywikibot.input_choice(
             'Input action?',
@@ -444,20 +443,19 @@ class SpeedyBot(SingleSiteBot, ExistingPageBot):
 
         # stop the generator and restart from current title
         elif choice == 'u':
-            pywikibot.output('Updating from CSD category.')
+            pywikibot.info('Updating from CSD category.')
             self.saved_progress = page.title()
             self.stop()
 
         # delete the current page
         elif choice == 'd':
             reason = self.get_reason_for_deletion(page)
-            pywikibot.output('The chosen reason is: <<lightred>>{}<<default>>'
-                             .format(reason))
+            pywikibot.info(f'The chosen reason is: <<lightred>>{reason}')
             page.delete(reason, prompt=False)
 
         # skip this page
         else:
-            pywikibot.output('Skipping page {}'.format(page))
+            pywikibot.info(f'Skipping page {page}')
 
     def setup(self) -> None:
         """Refresh generator."""
@@ -479,10 +477,10 @@ def main(*args: str) -> None:
         bot = SpeedyBot(site=site)
         bot.run()
     elif site.logged_in():
-        pywikibot.output("{} does not have 'delete' right for site {}"
-                         .format(site.username(), site))
+        pywikibot.info("{} does not have 'delete' right for site {}"
+                       .format(site.username(), site))
     else:
-        pywikibot.output('Login first.')
+        pywikibot.info('Login first.')
 
 
 if __name__ == '__main__':

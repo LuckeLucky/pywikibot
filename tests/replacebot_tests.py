@@ -1,7 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Tests for the replace script and ReplaceRobot class."""
 #
-# (C) Pywikibot team, 2015-2022
+# (C) Pywikibot team, 2015-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -86,7 +86,8 @@ class TestReplacementsMain(TWNBotTestCase):
         self.inputs.append(message)
         return 'TESTRUN'
 
-    def _run(self, *args):
+    @staticmethod
+    def _run(*args):
         """Run the :py:obj:`replace.main` with the given args.
 
         It also adds -site and -page parameters:
@@ -128,7 +129,7 @@ class TestReplacementsMain(TWNBotTestCase):
                                offset)
         if msg:
             self.assertEqual(replacement.edit_summary,
-                             'M{}'.format(offset + 1))
+                             f'M{offset + 1}')
         else:
             self.assertIs(replacement.edit_summary,
                           replacement.fix_set.edit_summary)

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Test for login and logout methods.
 
 These tests are separated from others because they should not be runned
@@ -6,7 +6,7 @@ in paralled CI test tasks. Any logout could lead other parallel tests
 to fail.
 """
 #
-# (C) Pywikibot team, 2022
+# (C) Pywikibot team, 2022-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -74,7 +74,7 @@ class TestClearCookies(TestCase):
         raised = False
         try:
             site.login()
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             raised = e
         self.assertFalse(raised)
 

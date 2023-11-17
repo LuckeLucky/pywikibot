@@ -1,70 +1,80 @@
-:mod:`site` package
-===================
+*******************************
+:mod:`site` --- MediaWiki sites
+*******************************
 
 .. py:module:: site
+   :synopsis: Library module representing MediaWiki sites (wikis)
+
 .. automodule:: pywikibot.site
    :no-members:
    :noindex:
 
-:mod:`BaseSite<pywikibot.site._basesite>` package
--------------------------------------------------
+:mod:`BaseSite<pywikibot.site._basesite>` --- Base Class for Sites
+==================================================================
 
 .. py:module:: site._basesite
+   :synopsis: Objects with site methods independent of the communication interface
+
 .. automodule:: pywikibot.site._basesite
-   :noindex:
 
 .. py:module:: site._apisite
+   :synopsis: Objects representing API interface to MediaWiki site
 
-:mod:`APISite<pywikibot.site.\_apisite>` Package
-------------------------------------------------
+:mod:`APISite<pywikibot.site.\_apisite>` --- API Interface for Sites
+====================================================================
 
 .. automodule:: pywikibot.site._apisite
-   :noindex:
 
 .. automodule:: pywikibot.site._extensions
-   :noindex:
+   :synopsis: Objects representing API interface to MediaWiki site extenstions
 
 .. automodule:: pywikibot.site._generators
-   :noindex:
+   :synopsis: Objects representing API generators to MediaWiki site
 
-:mod:`DataSite<pywikibot.site.\_datasite>` Package
---------------------------------------------------
+:mod:`DataSite<pywikibot.site.\_datasite>` --- API Interface for Wikibase
+=========================================================================
 
 .. py:module:: site._datasite
-.. automodule:: pywikibot.site._datasite
-   :noindex:
+   :synopsis: Objects representing API interface to Wikibase site
 
-:mod:`Obsolete Sites<pywikibot.site._obsoletesites>` Package
-------------------------------------------------------------
+.. automodule:: pywikibot.site._datasite
+
+:mod:`Obsolete Sites<pywikibot.site._obsoletesites>` --- Outdated Sites
+=======================================================================
 
 .. py:module:: site._obsoletesites
-.. automodule:: pywikibot.site._obsoletesites
-   :noindex:
+   :synopsis: Objects representing obsolete MediaWiki sites
 
-:mod:`Siteinfo<pywikibot.site._siteinfo>` Package
--------------------------------------------------
+.. automodule:: pywikibot.site._obsoletesites
+
+:mod:`Siteinfo<pywikibot.site._siteinfo>` --- Site Info Container
+=================================================================
 
 .. py:module:: site._siteinfo
-.. automodule:: pywikibot.site._siteinfo
-   :noindex:
+   :synopsis: Objects representing site info data contents
 
-:mod:`Namespace<pywikibot.site._namespace>` Package
----------------------------------------------------
+.. automodule:: pywikibot.site._siteinfo
+
+:mod:`Namespace<pywikibot.site._namespace>` --- Namespace Object
+================================================================
 
 .. py:module:: site._namespace
-.. automodule:: pywikibot.site._namespace
-   :noindex:
+   :synopsis: Objects representing Namespaces of MediaWiki site
 
-:mod:`TokenWallet<pywikibot.site._tokenwallet>` Package
--------------------------------------------------------
+.. automodule:: pywikibot.site._namespace
+
+:mod:`TokenWallet<pywikibot.site._tokenwallet>` --- Token Wallet
+================================================================
 
 .. py:module:: site._tokenwallet
-.. automodule:: pywikibot.site._tokenwallet
-   :noindex:
+   :synopsis: Objects representing api tokens
 
-:mod:`Uploader<pywikibot.site._upload>` Package
------------------------------------------------
+.. automodule:: pywikibot.site._tokenwallet
+
+:mod:`Uploader<pywikibot.site._upload>` --- Uploader Interface
+==============================================================
 
 .. py:module:: site._upload
+   :synopsis: Objects representing API upload to MediaWiki site
+
 .. automodule:: pywikibot.site._upload
-   :noindex:

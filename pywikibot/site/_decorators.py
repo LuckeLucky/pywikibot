@@ -1,20 +1,21 @@
 """Decorators used by site models."""
 #
-# (C) Pywikibot team, 2008-2021
+# (C) Pywikibot team, 2008-2023
 #
 # Distributed under the terms of the MIT license.
 #
+from typing import Optional
+
 from pywikibot.exceptions import UnknownExtensionError, UserRightsError
 from pywikibot.tools import MediaWikiVersion, manage_wrapping
 
 
-def must_be(group=None):
+def must_be(group: Optional[str] = None):
     """Decorator to require a certain user status when method is called.
 
     :param group: The group the logged in user should belong to.
                   This parameter can be overridden by
                   keyword argument 'as_group'.
-    :type group: str or None
     :return: method decorator
     :raises UserRightsError: user is not part of the required user group.
     """
@@ -34,9 +35,6 @@ def must_be(group=None):
                                       .format(self.user(), grp))
 
             return fn(self, *args, **kwargs)
-
-        if not __debug__:
-            return fn
 
         manage_wrapping(callee, fn)
         return callee
@@ -59,20 +57,16 @@ def need_extension(extension: str):
                     .format(fn.__name__, extension))
             return fn(self, *args, **kwargs)
 
-        if not __debug__:
-            return fn
-
         manage_wrapping(callee, fn)
         return callee
 
     return decorator
 
 
-def need_right(right=None):
+def need_right(right: Optional[str] = None):
     """Decorator to require a certain user right when method is called.
 
     :param right: The right the logged in user should have.
-    :type right: str or None
     :return: method decorator
     :raises UserRightsError: user has insufficient rights.
     """
@@ -90,9 +84,6 @@ def need_right(right=None):
                                       'user right "{}"'
                                       .format(self.user(), right))
             return fn(self, *args, **kwargs)
-
-        if not __debug__:
-            return fn
 
         manage_wrapping(callee, fn)
         return callee
@@ -115,9 +106,6 @@ def need_version(version: str):
                     "isn't implemented in MediaWiki version < {}"
                     .format(fn.__name__, version))
             return fn(self, *args, **kwargs)
-
-        if not __debug__:
-            return fn
 
         manage_wrapping(callee, fn)
 

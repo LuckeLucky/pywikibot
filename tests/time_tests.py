@@ -1,7 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Tests for the Timestamp class."""
 #
-# (C) Pywikibot team, 2014-2022
+# (C) Pywikibot team, 2014-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -11,7 +11,7 @@ import unittest
 from contextlib import suppress
 from datetime import datetime, timedelta
 
-from pywikibot.time import parse_duration, str2timedelta, Timestamp
+from pywikibot.time import Timestamp, parse_duration, str2timedelta
 from tests.aspects import TestCase
 
 
@@ -82,7 +82,7 @@ class TestTimestamp(TestCase):
         sec, usec = map(int, timestr.split('.'))
 
         if sec < 0 < usec:
-            sec = sec - 1
+            sec -= 1
             usec = 1000000 - usec
 
         return datetime(1970, 1, 1) + timedelta(seconds=sec, microseconds=usec)
@@ -115,13 +115,6 @@ class TestTimestamp(TestCase):
                  self.assertRaisesRegex(ValueError, regex):
                 Timestamp.set_timestamp(timestr)
 
-    def test_clone(self):
-        """Test cloning a Timestamp instance."""
-        t1 = Timestamp.utcnow()
-        t2 = t1.clone()
-        self.assertEqual(t1, t2)
-        self.assertIsInstance(t2, Timestamp)
-
     def test_instantiate_from_instance(self):
         """Test passing instance to factory methods works."""
         t1 = Timestamp.utcnow()
@@ -137,7 +130,7 @@ class TestTimestamp(TestCase):
         sep = 'T'
         t1 = Timestamp.utcnow()
         if not t1.microsecond:  # T199179: ensure microsecond is not 0
-            t1 = t1.replace(microsecond=1)
+            t1 = t1.replace(microsecond=1)  # pragma: no cover
         ts1 = t1.isoformat()
         t2 = Timestamp.fromISOformat(ts1)
         ts2 = t2.isoformat()
@@ -177,7 +170,7 @@ class TestTimestamp(TestCase):
         """Test conversion from and to Timestamp format."""
         t1 = Timestamp.utcnow()
         if not t1.microsecond:  # T191827: ensure microsecond is not 0
-            t1 = t1.replace(microsecond=1000)
+            t1 = t1.replace(microsecond=1000)  # pragma: no cover
         ts1 = t1.totimestampformat()
         t2 = Timestamp.fromtimestampformat(ts1)
         ts2 = t2.totimestampformat()
@@ -195,6 +188,33 @@ class TestTimestamp(TestCase):
         ts2 = t2.totimestampformat()
         self.assertEqual(t1, t2)
         self.assertEqual(ts1, ts2)
+
+        tests = [
+            ('202211', None),
+            ('2022112', None),
+            ('20221127', (2022, 11, 27)),
+            ('202211271', None),
+            ('2022112712', None),
+            ('20221127123', None),
+            ('202211271234', None),
+            ('2022112712345', None),
+            ('20221127123456', (2022, 11, 27, 12, 34, 56)),
+        ]
+        for mw_ts, ts in tests:
+            with self.subTest(timestamp=mw_ts):
+                if ts is None:
+                    with self.assertRaisesRegex(
+                        ValueError,
+                            f'time data {mw_ts!r} does not match MW format'):
+                        Timestamp.fromtimestampformat(mw_ts)
+                else:
+                    self.assertEqual(Timestamp.fromtimestampformat(mw_ts),
+                                     Timestamp(*ts))
+
+        for mw_ts, ts in tests[1:-1]:
+            with self.subTest(timestamp=mw_ts), self.assertRaisesRegex(
+                    ValueError, f'time data {mw_ts!r} does not match MW'):
+                Timestamp.fromtimestampformat(mw_ts, strict=True)
 
     def test_add_timedelta(self):
         """Test addin a timedelta to a Timestamp."""

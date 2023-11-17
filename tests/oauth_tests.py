@@ -1,7 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Test OAuth functionality."""
 #
-# (C) Pywikibot team, 2015-2022
+# (C) Pywikibot team, 2015-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -24,11 +24,10 @@ class OAuthSiteTestCase(TestCase):
 
     oauth = True
 
-    def _get_oauth_tokens(self):
+    @staticmethod
+    def _get_oauth_tokens():
         """Get valid OAuth tokens from environment variables."""
-        tokens_env = 'OAUTH_TOKENS_' + self.family.upper()
-        tokens = os.environ.get(tokens_env + '_' + self.code.upper())
-        tokens = tokens or os.environ.get(tokens_env)
+        tokens = os.environ.get('PYWIKIBOT_TEST_OAUTH')
         return tuple(tokens.split(':')) if tokens is not None else None
 
     def setUp(self):
@@ -45,12 +44,7 @@ class OAuthSiteTestCase(TestCase):
         self.access_token = tokens[2:]
 
 
-class DefaultOAuthSiteTestCase(DefaultSiteTestCase, OAuthSiteTestCase):
-
-    """Default OAuth site test."""
-
-
-class TestOauthLoginManger(DefaultOAuthSiteTestCase):
+class TestOauthLoginManger(DefaultSiteTestCase, OAuthSiteTestCase):
 
     """Test OAuth login manager."""
 

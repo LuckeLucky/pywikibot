@@ -9,20 +9,20 @@
 # Parts of MementoClient class codes are
 # licensed under the BSD open source software license.
 #
-# (C) Pywikibot team, 2015-2022
+# (C) Pywikibot team, 2015-2023
 #
 # Distributed under the terms of the MIT license.
 #
 from datetime import datetime
 from typing import Optional
 
+import requests
 from memento_client.memento_client import MementoClient as OldMementoClient
 from memento_client.memento_client import MementoClientException
-
-import requests
 from requests.exceptions import InvalidSchema, MissingSchema
 
 from pywikibot import config, debug, sleep, warning
+
 
 __all__ = (
     'MementoClient',
@@ -53,7 +53,7 @@ class MementoClient(OldMementoClient):
     >>> sorted(mi['mementos'])
     ['closest', 'first', 'last', 'next', 'prev']
     >>> from pprint import pprint
-    >>> pprint(mi['mementos'])  # doctest: +SKIP
+    >>> pprint(mi['mementos'])
     {'closest': {'datetime': datetime.datetime(2010, 5, 23, 10, 19, 6),
                  'http_status_code': 200,
                  'uri': ['https://web.archive.org/web/20100523101906/http://www.bbc.co.uk/']},
@@ -287,8 +287,8 @@ class MementoClient(OldMementoClient):
                                     allow_redirects=follow_redirects,
                                     timeout=timeout or 9)
         except (InvalidSchema, MissingSchema):
-            raise ValueError('Only HTTP URIs are supported, '
-                             'URI {} unrecognized.'.format(uri))
+            raise ValueError(
+                f'Only HTTP URIs are supported, URI {uri} unrecognized.')
         if session_set:
             session.close()
 
@@ -311,7 +311,7 @@ def get_closest_memento_url(url: str,
                             timegate_uri: Optional[str] = None):
     """Get most recent memento for url."""
     if not when:
-        when = datetime.datetime.now()
+        when = datetime.now()
 
     mc = MementoClient()
     if timegate_uri:

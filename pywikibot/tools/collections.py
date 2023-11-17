@@ -1,24 +1,17 @@
 """Collections datatypes."""
 #
-# (C) Pywikibot team, 2014-2022
+# (C) Pywikibot team, 2014-2023
 #
 # Distributed under the terms of the MIT license.
 #
 import collections
-
-from abc import abstractmethod, ABC
-from collections.abc import (
-    Container,
-    Generator,
-    Iterable,
-    Iterator,
-    Mapping,
-    Sized,
-)
+from abc import ABC, abstractmethod
+from collections.abc import Collection, Generator, Iterator, Mapping
 from contextlib import suppress
 from itertools import chain
 from typing import Any
 
+from pywikibot.backports import Dict, List
 from pywikibot.backports import Generator as GeneratorType
 
 
@@ -32,8 +25,7 @@ __all__ = (
 )
 
 
-# Collection is not provided with Python 3.5; use Container, Iterable, Sized
-class SizedKeyCollection(Container, Iterable, Sized):
+class SizedKeyCollection(Collection):
 
     """Structure to hold values where the key is given by the value itself.
 
@@ -77,7 +69,8 @@ class SizedKeyCollection(Container, Iterable, Sized):
             with this collection which will be used as key.
         """
         self.keyattr = keyattr
-        self.clear()
+        self.data: Dict[Any, List[Any]] = {}
+        self.size = 0
 
     def __contains__(self, key) -> bool:
         return key in self.data
@@ -129,7 +122,7 @@ class SizedKeyCollection(Container, Iterable, Sized):
 
     def clear(self) -> None:
         """Remove all elements from SizedKeyCollection."""
-        self.data = {}  # defaultdict fails (T282865)
+        self.data.clear()  # defaultdict fails (T282865)
         self.size = 0
 
     def filter(self, key):
@@ -203,7 +196,7 @@ class DequeGenerator(Iterator, collections.deque):
     def __repr__(self) -> str:
         """Provide an object representation without clearing the content."""
         items = list(self)
-        result = '{}({})'.format(self.__class__.__name__, items)
+        result = f'{self.__class__.__name__}({items})'
         self.extend(items)
         return result
 
@@ -259,7 +252,7 @@ class GeneratorWrapper(ABC, Generator):
     @abstractmethod
     def generator(self) -> GeneratorType[Any, Any, Any]:
         """Abstract generator property."""
-        return iter(())
+        yield from ()
 
     def send(self, value: Any) -> Any:
         """Return next yielded value from generator or raise StopIteration.
@@ -267,7 +260,7 @@ class GeneratorWrapper(ABC, Generator):
         The `value` parameter is ignored yet; usually it should be ``None``.
         If the wrapped generator property exits without yielding another
         value this method raises `StopIteration`. The send method works
-        like the `next`function with a GeneratorWrapper instance as
+        like the `next` function with a GeneratorWrapper instance as
         parameter.
 
         Refer :python:`generator.send()

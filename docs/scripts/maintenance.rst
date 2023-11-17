@@ -1,27 +1,38 @@
+***************
 Utility scripts
-===============
+***************
 
-cache script description
-------------------------
+cache script
+============
 
 .. automodule:: scripts.maintenance.cache
    :no-members:
+   :noindex:
 
-colors script description
--------------------------
+colors script
+=============
 
 .. automodule:: scripts.maintenance.colors
    :no-members:
+   :noindex:
 
-sorting\_order script description
----------------------------------
+make\_i18n\_dict script
+=======================
 
-.. automodule:: scripts.maintenance.sorting_order
+.. automodule:: scripts.maintenance.make_i18n_dict
    :no-members:
+   :noindex:
 
-wikimedia\_sites script description
------------------------------------
+unidata script
+==============
+
+.. automodule:: scripts.maintenance.unidata
+   :no-members:
+   :noindex:
+
+wikimedia\_sites script
+=======================
 
 .. automodule:: scripts.maintenance.wikimedia_sites
    :no-members:
-
+   :noindex:

@@ -6,17 +6,20 @@
    :class:`tools.collections.GeneratorWrapper`
 """
 #
-# (C) Pywikibot team, 2008-2022
+# (C) Pywikibot team, 2008-2023
 #
 # Distributed under the terms of the MIT license.
 #
 from abc import ABC, abstractmethod
-from typing import Union
+from contextlib import suppress
+from typing import Optional, Union
 from warnings import warn
 
 import pywikibot
 from pywikibot import config
+from pywikibot.backports import List
 from pywikibot.exceptions import Error, InvalidTitleError, UnsupportedPageError
+from pywikibot.tools import deprecated
 from pywikibot.tools.collections import GeneratorWrapper
 
 
@@ -42,7 +45,7 @@ class APIGeneratorBase(ABC):
     def _clean_kwargs(self, kwargs, **mw_api_args):
         """Clean kwargs, define site and request class."""
         if 'site' not in kwargs:
-            warn('{} invoked without a site'.format(self.__class__.__name__),
+            warn(f'{self.__class__.__name__} invoked without a site',
                  RuntimeWarning, 3)
             kwargs['site'] = pywikibot.Site()
         assert not hasattr(self, 'site') or self.site == kwargs['site']
@@ -101,6 +104,7 @@ class APIGenerator(APIGeneratorBase, GeneratorWrapper):
         self.limit_name = limit_name
         self.data_name = data_name
 
+        self.query_increment: Optional[int]
         if config.step > 0:
             self.query_increment = config.step
         else:
@@ -157,13 +161,12 @@ class APIGenerator(APIGeneratorBase, GeneratorWrapper):
         n = 0
         while True:
             self.request[self.continue_name] = offset
-            pywikibot.debug('{}: Request: {}'
-                            .format(type(self).__name__, self.request))
+            pywikibot.debug(f'{type(self).__name__}: Request: {self.request}')
             data = self.request.submit()
 
             n_items = len(data[self.data_name])
-            pywikibot.debug('{}: Retrieved {} items'
-                            .format(type(self).__name__, n_items))
+            pywikibot.debug(
+                f'{type(self).__name__}: Retrieved {n_items} items')
             if n_items > 0:
                 for item in data[self.data_name]:
                     yield item
@@ -213,12 +216,10 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
     _namespaces = None
 
     def __init__(self, **kwargs) -> None:
-        """
-        Initialize a QueryGenerator object.
+        """Initialize a QueryGenerator object.
 
         kwargs are used to create a Request object; see that object's
         documentation for values. 'action'='query' is assumed.
-
         """
         if not hasattr(self, 'site'):
             kwargs = self._clean_kwargs(kwargs)  # hasn't been called yet
@@ -238,7 +239,6 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
 
         parameters['indexpageids'] = True  # always ask for list of pageids
         self.continue_name = 'continue'
-        self.continue_update = self._continue
         # Explicitly enable the simplified continuation
         parameters['continue'] = True
         self.request = self.request_class(**kwargs)
@@ -280,6 +280,7 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
                 else:
                     self.request[prefix + 'limit'] = int(param['max'])
 
+        self.api_limit: Optional[int]
         if config.step > 0:
             self.api_limit = config.step
         else:
@@ -301,16 +302,13 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
         else:
             self.resultkey = self.modules[0]
 
-        # usually the (query-)continue key is the same as the querymodule,
-        # but not always
-        # API can return more than one query-continue key, if multiple
-        # properties are requested by the query, e.g.
-        # "query-continue":{
-        #     "langlinks":{"llcontinue":"12188973|pt"},
-        #     "templates":{"tlcontinue":"310820|828|Namespace_detect"}}
-        # self.continuekey is a list
-        self.continuekey = self.modules
         self._add_slots()
+
+    @property
+    @deprecated(since='8.4.0')
+    def continuekey(self) -> List[str]:
+        """Return deprecated continuekey which is self.modules."""
+        return self.modules
 
     def _add_slots(self) -> None:
         """Add slots to params if the site supports multi-content revisions.
@@ -477,24 +475,18 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
 
         return None
 
-    def _query_continue(self) -> bool:
-        if all(key not in self.data[self.continue_name]
-               for key in self.continuekey):
-            pywikibot.log(
-                "Missing '{}' key(s) in ['{}'] value."
-                .format(self.continuekey, self.continue_name))
-            return True
+    def continue_update(self) -> None:
+        """Update query with continue parameters.
 
-        for query_continue_pair in self.data['query-continue'].values():
-            self._add_continues(query_continue_pair)
-        return False  # a new request with query-continue is needed
-
-    def _continue(self) -> bool:
-        self._add_continues(self.data['continue'])
-        return False  # a new request with continue is needed
-
-    def _add_continues(self, continue_pair) -> None:
-        for key, value in continue_pair.items():
+        .. versionadded:: 3.0
+        .. versionchanged:: 4.0
+           explicit return a bool value to be used in :meth:`generator`
+        .. versionchanged:: 6.0
+           always return *False*
+        .. versionchanged:: 8.4
+           return *None* instead of *False*.
+        """
+        for key, value in self.data['continue'].items():
             # query-continue can return ints (continue too?)
             if isinstance(value, int):
                 value = str(value)
@@ -561,9 +553,8 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
             else:
                 resultdata = [resultdata[k]
                               for k in sorted(resultdata)]
-        pywikibot.debug('{name} received {keys}; limit={limit}'
-                        .format(name=type(self).__name__, keys=keys,
-                                limit=self.limit))
+        pywikibot.debug(
+            f'{type(self).__name__} received {keys}; limit={self.limit}')
         return resultdata
 
     def _extract_results(self, resultdata):
@@ -574,12 +565,14 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
                 continue
 
             yield result
-            if isinstance(item, dict) and set(self.continuekey) & set(item):
+
+            modules_item_intersection = set(self.modules) & set(item)
+            if isinstance(item, dict) and modules_item_intersection:
                 # if we need to count elements contained in items in
                 # self.data["query"]["pages"], we want to count
-                # item[self.continuekey] (e.g. 'revisions') and not
+                # item[self.modules] (e.g. 'revisions') and not
                 # self.resultkey (i.e. 'pages')
-                for key in set(self.continuekey) & set(item):
+                for key in modules_item_intersection:
                     self._count += len(item[key])
             # otherwise we proceed as usual
             else:
@@ -605,13 +598,15 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
         while True:
             prev_limit, new_limit = self._handle_query_limit(
                 prev_limit, new_limit, previous_result_had_data)
+
             if not hasattr(self, 'data'):
                 self.data = self.request.submit()
+
             if not self.data or not isinstance(self.data, dict):
                 pywikibot.debug(
                     '{}: stopped iteration because no dict retrieved from api.'
                     .format(type(self).__name__))
-                return
+                break
 
             if 'query' in self.data and self.resultkey in self.data['query']:
                 resultdata = self._get_resultdata()
@@ -621,10 +616,12 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
                         for item in self.data['query']['normalized']}
                 else:
                     self.normalized = {}
+
                 try:
                     yield from self._extract_results(resultdata)
                 except RuntimeError:
-                    return
+                    break
+
                 # self.resultkey in data in last request.submit()
                 previous_result_had_data = True
             else:
@@ -632,25 +629,27 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
                     pywikibot.log("%s: 'query' not found in api response." %
                                   self.__class__.__name__)
                     pywikibot.log(str(self.data))
+
                 # if (query-)continue is present, self.resultkey might not have
                 # been fetched yet
                 if self.continue_name not in self.data:
-                    # No results.
-                    return
+                    break  # No results.
+
                 # self.resultkey not in data in last request.submit()
                 # only "(query-)continue" was retrieved.
                 previous_result_had_data = False
+
             if self.modules[0] == 'random':
                 # "random" module does not return "(query-)continue"
                 # now we loop for a new random query
                 del self.data  # a new request is needed
                 continue
-            if self.continue_name not in self.data:
-                return
-            if self.continue_update():
-                return
 
-            del self.data  # a new request with (query-)continue is needed
+            if self.continue_name not in self.data:
+                break
+
+            self.continue_update()
+            del self.data  # a new request with continue is needed
 
     def result(self, data):
         """Process result data as needed for particular subclass."""
@@ -722,7 +721,8 @@ class PageGenerator(QueryGenerator):
         if ns == 2:
             p = pywikibot.User(p)
         elif ns == 6:
-            p = pywikibot.FilePage(p)
+            with suppress(ValueError):
+                p = pywikibot.FilePage(p)
         elif ns == 14:
             p = pywikibot.Category(p)
         update_page(p, pagedata, self.props)
@@ -803,9 +803,8 @@ class PropertyGenerator(QueryGenerator):
             elif isinstance(v, list):
                 old_dict.setdefault(k, []).extend(v)
             else:
-                raise ValueError(
-                    'continued API result had an unexpected type: {}'
-                    .format(type(v).__name__))
+                raise ValueError(f'continued API result had an unexpected '
+                                 f'type: {type(v).__name__}')
 
 
 class ListGenerator(QueryGenerator):
@@ -870,13 +869,11 @@ def _update_pageid(page, pagedict: dict):
         # Something is wrong.
         if page.site.sametitle(page.title(), pagedict['title']) \
            and 'invalid' in pagedict:
-            raise InvalidTitleError('{}: {}'
-                                    .format(page, pagedict['invalidreason']))
+            raise InvalidTitleError(f"{page}: {pagedict['invalidreason']}")
         if int(pagedict['ns']) < 0:
             raise UnsupportedPageError(page)
-        raise RuntimeError(
-            "Page {} has neither 'pageid' nor 'missing' attribute"
-            .format(pagedict['title']))
+        raise RuntimeError(f"Page {pagedict['title']} has neither 'pageid'"
+                           " nor 'missing' attribute")
 
 
 def _update_contentmodel(page, pagedict: dict) -> None:
@@ -914,21 +911,30 @@ def _update_revisions(page, revisions) -> None:
 
 def _update_templates(page, templates) -> None:
     """Update page templates."""
-    templ_pages = [pywikibot.Page(page.site, tl['title']) for tl in templates]
+    templ_pages = {pywikibot.Page(page.site, tl['title']) for tl in templates}
     if hasattr(page, '_templates'):
-        page._templates.extend(templ_pages)
+        page._templates |= templ_pages
     else:
         page._templates = templ_pages
 
 
+def _update_categories(page, categories):
+    """Update page categories."""
+    cat_pages = {pywikibot.Page(page.site, ct['title']) for ct in categories}
+    if hasattr(page, '_categories'):
+        page._categories |= cat_pages
+    else:
+        page._categories = cat_pages
+
+
 def _update_langlinks(page, langlinks) -> None:
     """Update page langlinks."""
-    links = [pywikibot.Link.langlinkUnsafe(link['lang'], link['*'],
+    links = {pywikibot.Link.langlinkUnsafe(link['lang'], link['*'],
                                            source=page.site)
-             for link in langlinks]
+             for link in langlinks}
 
     if hasattr(page, '_langlinks'):
-        page._langlinks.extend(links)
+        page._langlinks |= links
     else:
         page._langlinks = links
 
@@ -986,8 +992,7 @@ def update_page(page, pagedict: dict, props=None):
     if 'imageinfo' in pagedict:
         if not isinstance(page, pywikibot.FilePage):
             raise RuntimeError(
-                '"imageinfo" found but {} is not a FilePage object'
-                .format(page))
+                f'"imageinfo" found but {page} is not a FilePage object')
         page._load_file_revisions(pagedict['imageinfo'])
 
     if 'categoryinfo' in pagedict:
@@ -996,12 +1001,17 @@ def update_page(page, pagedict: dict, props=None):
     if 'templates' in pagedict:
         _update_templates(page, pagedict['templates'])
     elif 'templates' in props:
-        page._templates = []
+        page._templates = set()
+
+    if 'categories' in pagedict:
+        _update_categories(page, pagedict['categories'])
+    elif 'categories' in props:
+        page._categories = set()
 
     if 'langlinks' in pagedict:
         _update_langlinks(page, pagedict['langlinks'])
     elif 'langlinks' in props:
-        page._langlinks = []
+        page._langlinks = set()
 
     if 'coordinates' in pagedict:
         _update_coordinates(page, pagedict['coordinates'])
@@ -1014,7 +1024,10 @@ def update_page(page, pagedict: dict, props=None):
     elif 'pageprops' in props:
         page._pageprops = {}
 
-    if 'preload' in pagedict:
+    # preload is deprecated in MW 1.41, try preloadcontent first
+    if 'preloadcontent' in pagedict:
+        page._preloadedtext = pagedict['preloadcontent']['*']
+    elif 'preload' in pagedict:
         page._preloadedtext = pagedict['preload']
 
     if 'flowinfo' in pagedict:
