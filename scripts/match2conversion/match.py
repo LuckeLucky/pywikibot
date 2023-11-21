@@ -5,6 +5,7 @@ from scripts.utils.parser_helper import get_value
 from .external_links import MAP_LINKS, STREAMS, MATCH_LINKS
 from .map import Map
 from .opponent import Opponent
+from .map_veto import MapVeto
 
 MAX_MAPS = 10
 
@@ -33,6 +34,7 @@ class Match(object):
 
 		self.reset = reset
 		self.bye = False
+		self.veto = None
 
 	def is_valid(self) -> bool:
 		return (self.opponent1 and self.opponent2) or self.summary
@@ -66,6 +68,11 @@ class Match(object):
 			result = re.sub(r'^(\d*)/.*', '\\1', self.links['hltv'], 0, re.MULTILINE)
 			self.links['hltv'] = result
 
+	def populate_veto(self):
+		if self.summary.has('mapbans'):
+			vetoTemplate = self.summary.get('mapbans').value.filter_templates()[0]
+			self.veto = MapVeto(vetoTemplate)
+			self.veto.process()
 	def process(self):
 		if self.opponent1 and self.opponent2:
 			if self.opponent1.is_bye():
@@ -99,6 +106,7 @@ class Match(object):
 
 		self.populate_streams()
 		self.populate_links()
+		self.populate_veto()
 
 	def __str__(self) -> str:
 		out = '{{Match'
@@ -154,6 +162,10 @@ class Match(object):
 			for mapIndex, map in enumerate(self.maps):
 				out = out + '\n\t'
 				out = out + '|map' + str(mapIndex + 1) + '=' + str(map)
+
+		if self.veto:
+			out = out + '\n\t'
+			out = out + f'|mapveto={str(self.veto)}'
 
 		return out + '\n}}'
 

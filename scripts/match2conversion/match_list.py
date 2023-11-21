@@ -90,7 +90,6 @@ class MatchListAbstract(object):
 		if self.matches:
 			for _, match in enumerate(self.matches):
 				out = out + '\n|' + str(match)
-
 		return out + '\n}}'
 
 
