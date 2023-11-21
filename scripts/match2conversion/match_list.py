@@ -30,6 +30,7 @@ class MatchListAbstract(object):
 				link = get_value(matchMap, 'player' + str(opponentIndex) + 'link')
 				flag = get_value(matchMap, 'player' + str(opponentIndex) + 'flag')
 				return SoloOpponent(playerName, score, link, flag)
+			teamName = get_value(matchMap, 'team' + str(opponentIndex) + "csgo")
 		return TeamOpponent(teamName, score)
 
 	def get_summary(self, matchMap: Template):
