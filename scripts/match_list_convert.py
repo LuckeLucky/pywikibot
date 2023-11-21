@@ -1,9 +1,11 @@
+import logging
 import mwparserfromhell
 import pywikibot
 from pywikibot import pagegenerators
 
 from match2conversion import MatchList
 from scripts.match2conversion.match_list import MatchListLegacy
+from scripts.match2conversion import match2exceptions
 from scripts.utils.parser_helper import remove_and_squash
 from scripts.utils.text_handler import get_text, put_text
 
@@ -19,7 +21,7 @@ def process(text: str):
 		for template in wikicode.filter_templates():
 			if template.name.matches('MatchListStart'):
 				matchListStart = template
-				if (previousTemplate.name.matches('GroupTableLeague')
+				if (previousTemplate is not None) and (previousTemplate.name.matches('GroupTableLeague')
 					or previousTemplate.name.matches('GroupTableEnd')):
 					template.add('attached', 'true')
 
@@ -98,11 +100,21 @@ def main(*args):
 				isLegacy = True
 
 	generator = genFactory.getCombinedGenerator()
-
+	logging.basicConfig(filename="log_Match_list.txt", level=logging.INFO)
 	for page in generator:
-		text = get_text(page)
-		new_text = process_text(text, isLegacy)
-		put_text(page, summary=edit_summary, new=new_text)
+		if not page.has_permission():
+			continue
+		logging.info("Working on " + page.full_url())
+		try:
+			text = get_text(page)
+			new_text = process_text(text, isLegacy)
+			put_text(page, summary=edit_summary, new=new_text)
+		except match2exceptions.VodX:
+			logging.error("VodX:"+str(page))
+		except match2exceptions.WikiStyle:
+			logging.error("WikiStyle:"+str(page))
+		except match2exceptions.MalformedScore:
+			logging.error("MalformedScore:"+str(page))
 
 if __name__ == '__main__':
 	main()
