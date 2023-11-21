@@ -17,13 +17,7 @@ class MapVeto(object):
         firstpick = get_value(self.veto, 'firstban')
         if firstpick:
             out += f'\n\t\t|firstpick={firstpick}'
-        vetoTypes = ""
-        for x in range(1, 5):
-            key = 'r'+str(x)
-            if self.veto.has(key):
-                vetoTypes += get_value(self.veto, key) + ","
-        if vetoTypes[-1] == ",":
-            vetoTypes = vetoTypes[0: -1]
+        vetoTypes = ",".join(get_value(self.veto, f'r{x}') for x in range(1, 5) if self.veto.has(f'r{x}'))
         out += f'\n\t\t|types={vetoTypes}'
         for mapIdx in range(1, 4):
             outMapBan = ""
