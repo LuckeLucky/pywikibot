@@ -1,6 +1,5 @@
 import re
 from mwparserfromhell.nodes import Text, Template
-from scripts.match2conversion.match2exceptions import VodX, WikiStyle
 
 def get_parent_wikicode(wikicode, node):
     """

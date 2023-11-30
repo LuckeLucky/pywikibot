@@ -1,15 +1,13 @@
-import logging
 import mwparserfromhell
 import pywikibot
 from pywikibot import pagegenerators
 
-from match2conversion.bracket import Bracket
-from scripts.match2conversion import match2exceptions
-from scripts.match2conversion.bracket_helper import BracketHelper
+from match2.bracket_factory import BracketFactory
+from match2.bracket_helper import BracketHelper
 from scripts.utils.parser_helper import get_value, remove_and_squash
 from utils import get_text, put_text
 
-def process_text(text: str, templateToReplace: str):
+def process_text(text: str, language: str, old_template_name: str):
 	shortNames = ''
 	while(True):
 		templatesToRemove = []
@@ -17,7 +15,7 @@ def process_text(text: str, templateToReplace: str):
 		bracket = None
 		for template in wikicode.filter_templates():
 			templateName = str(template.name).strip()
-			if template.name.matches(templateToReplace):
+			if template.name.matches(old_template_name):
 				bracket = template
 				if shortNames:
 					bracket.add('shortNames', shortNames)
@@ -27,8 +25,7 @@ def process_text(text: str, templateToReplace: str):
 
 		if bracket is None:
 			break
-
-		newBracket = Bracket(templateToReplace, bracket)	
+		newBracket = BracketFactory.new_bracket(language, old_template_name, bracket)	
 		newBracket.process()
 		wikicode.replace(bracket, str(newBracket))
 
@@ -63,21 +60,12 @@ def main(*args):
 		return
 
 	edit_summary = f'Convert Bracket {templateToReplace} to Match2'
-	logging.basicConfig(filename="log_"+templateToReplace.replace('/','_')+".txt", level=logging.INFO)
 	generator = genFactory.getCombinedGenerator()
-	logging.info("--------"+templateToReplace+"--------")
 	for page in generator:
-		logging.info("Working on " + page.full_url())
-		try:
-			text = get_text(page)
-			new_text = process_text(text, templateToReplace)
-			put_text(page, summary=edit_summary, new=new_text)
-		except match2exceptions.VodX:
-			logging.error("VodX:"+str(page))
-		except match2exceptions.WikiStyle:
-			logging.error("WikiStyle:"+str(page))
-		except match2exceptions.MalformedScore:
-			logging.error("MalformedScore:"+str(page))
+		text = get_text(page)
+		lang = page.site.code
+		new_text = process_text(text, lang, templateToReplace)
+		put_text(page, summary=edit_summary, new=new_text)
 
 if __name__ == '__main__':
 	main()
