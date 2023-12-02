@@ -2,8 +2,8 @@ import mwparserfromhell
 import pywikibot
 from pywikibot import pagegenerators
 
-from match2.bracket_factory import BracketFactory
-from match2.bracket_helper import BracketHelper
+from match2.factory import BracketFactory
+from match2.commons.bracket_helper import BracketHelper
 from scripts.utils.parser_helper import get_value, remove_and_squash
 from utils import get_text, put_text
 

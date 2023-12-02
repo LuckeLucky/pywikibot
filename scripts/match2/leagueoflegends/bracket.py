@@ -1,10 +1,6 @@
-from mwparserfromhell.nodes import Template
-from ..bracket import Bracket as Base
+from ..commons.bracket import Bracket
 from .match import Match
 
-class BracketLeagueOfLegends(Base):
-    def __init__(self, oldTemplateName: str, bracket: Template) -> None:
-        super().__init__(oldTemplateName, bracket)
-
+class BracketLeagueOfLegends(Bracket):
     def match_class(self):
         return Match

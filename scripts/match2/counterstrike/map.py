@@ -1,7 +1,7 @@
 from mwparserfromhell.nodes import Template
-from scripts.match2.utils import Template
-from ..map import Map
-from ..utils import *
+from ..commons.utils import Template
+from ..commons.map import Map
+from ..commons.utils import *
 
 MAP_LINKS = [
 	'esl',

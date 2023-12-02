@@ -1,7 +1,5 @@
-from mwparserfromhell.nodes import Template
-
-from ..utils import *
-from ..map import Map
+from ..commons.utils import *
+from ..commons.map import Map
 
 class Map(Map):
 	def get_team_params(self, prefix: str) -> str:

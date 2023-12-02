@@ -1,10 +1,8 @@
 import io
 from mwparserfromhell.nodes import Template
-from scripts.match2.utils import Template
 
-from ..utils import *
-from ..match import Match, STREAMS
-from ..opponent import Opponent
+from ..commons.utils import *
+from ..commons.match import Match, STREAMS
 
 from .map import Map
 

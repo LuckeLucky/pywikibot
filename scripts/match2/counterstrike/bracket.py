@@ -1,13 +1,11 @@
 from mwparserfromhell.nodes import Template
 
-from ..opponent import Opponent, TeamOpponent
-from scripts.match2.opponent import Opponent
-from ..bracket import Bracket as Base
+from ..commons.utils import *
+from ..commons.opponent import Opponent, TeamOpponent
+from ..commons.bracket import Bracket
 from .match import Match
 
-from scripts.utils.parser_helper import get_value
-
-class BracketCounterstrike(Base):
+class BracketCounterstrike(Bracket):
 	def __init__(self, oldTemplateName: str, bracket: Template) -> None:
 		super().__init__(oldTemplateName, bracket)
 
@@ -15,10 +13,10 @@ class BracketCounterstrike(Base):
 		return Match
 	
 	def get_team_opponent(self, key: str, scoreKey: str) -> Opponent:
-		name = get_value(self.bracket, key + 'team')
-		csName = get_value(self.bracket, key)
-		literal = get_value(self.bracket, key + 'literal')
-		score = get_value(self.bracket, key + scoreKey)
+		name = get_parameter_str(self.bracket, key + 'team')
+		csName = get_parameter_str(self.bracket, key)
+		literal = get_parameter_str(self.bracket, key + 'literal')
+		score = get_parameter_str(self.bracket, key + scoreKey)
 		if name is not None:
 			return TeamOpponent(name, score)
 		elif csName is not None:

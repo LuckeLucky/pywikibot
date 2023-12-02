@@ -1,26 +1,23 @@
-import logging
 import mwparserfromhell
 import pywikibot
 from pywikibot import pagegenerators
 
-from match2conversion.showmatch import Showmatch
-from scripts.match2conversion import match2exceptions
+from match2.factory import ShowmatchFactory
 from utils import get_text, put_text
 
-def process_text(text: str):
+def process_text(text: str, language: str, old_template_name: str):
 	while(True):
 		wikicode = mwparserfromhell.parse(text)
 
 		showmatchTemplate = None
 		for template in wikicode.filter_templates():
-			if template.name.matches('Showmatch'):
+			if template.name.matches(old_template_name):
 				showmatchTemplate = template
 		
 		if showmatchTemplate is None:
 			break
 
-		newShowmatch = Showmatch(showmatchTemplate)
-		newShowmatch.process()
+		newShowmatch = ShowmatchFactory.new_showmatch(language, showmatchTemplate)
 		wikicode.replace(showmatchTemplate, str(newShowmatch))
 		text = str(wikicode)
 
@@ -35,24 +32,26 @@ def main(*args):
 	local_args = pywikibot.handle_args(args)
 	genFactory = pagegenerators.GeneratorFactory()
 
+	templateToReplace = ''
+
 	for arg in local_args:
 		if genFactory.handle_arg(arg):
 			continue
+		if arg.startswith('-'):
+			arg = arg[1:]
+			arg, _, value = arg.partition(':')
+			if arg == 'template':
+				templateToReplace = value
+
+	if not templateToReplace:
+		templateToReplace = pywikibot.input('Template to replace:')
 
 	generator = genFactory.getCombinedGenerator()
-	logging.basicConfig(filename="log_Showmath.txt", level=logging.INFO)
 	for page in generator:
-		logging.info("Working on " + page.full_url())
-		try:
-			text = get_text(page)
-			new_text = process_text(text)
-			put_text(page, summary=edit_summary, new=new_text)
-		except match2exceptions.VodX:
-			logging.error("VodX:"+str(page))
-		except match2exceptions.WikiStyle:
-			logging.error("WikiStyle:"+str(page))
-		except match2exceptions.MalformedScore:
-			logging.error("MalformedScore:"+str(page))
+		text = get_text(page)
+		lang = page.site.code
+		new_text = process_text(text, lang, templateToReplace)
+		put_text(page, summary=edit_summary, new=new_text)
 
 if __name__ == '__main__':
 	main()
