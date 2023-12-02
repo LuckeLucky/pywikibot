@@ -39,7 +39,7 @@ class Match(Match):
 				match_template.add('win', winner)
 			if match_template is None:
 				break
-			self.maps.append(Map(int(index), match_template))
+			self.maps.append(Map(index, match_template))
 			index += 1
 
 	def __str__(self) -> str:

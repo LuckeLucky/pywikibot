@@ -111,52 +111,11 @@ class Match(object):
 	def __str__(self) -> str:
 		out = '{{Match'
 
-		if self.opponent1:
-			out = out + '\n\t|opponent1=' + str(self.opponent1)
-		if self.opponent2:
-			out = out + '|opponent2=' + str(self.opponent2)
-
-		if self.bye:
-			return out + '|finished=true\n}}'
-
-		if self.overturned == 'true' and self.winner >= 0:
-			out = out + '\n\t|winner=' + str(self.winner)
-
-		if ((self.opponent1 and not self.opponent1.score)
-			and (self.opponent2 and not self.opponent2.score)
-			and self.winner >= 0):
-			out = out + '\n\t|winner=' + str(self.winner)
-
-		if self.finished and (not self.date):
-			out = out + '\n\t|finished=' + self.finished
-		elif (not self.finished) and (not self.date):
-			out = out + '\n\t|date=|finished='
-		elif (not self.finished) and self.date:
-			out = out + '\n\t|date=' + self.date + '|finished='
-		else:
-			out = out + '\n\t|date=' + self.date + '|finished=' + self.finished
-
-		if self.streams:
-			out = out + '\n\t'
-			for streamKey, streamValue in self.streams.items():
-				out = out + '|' + streamKey + '=' + streamValue
-
 		if self.links:
 			out = out + '\n\t'
 			for linkKey, linkValue in self.links.items():
 				out = out + '|' + linkKey + '=' + linkValue
 
-		if self.comment:
-			out = out + '\n\t|comment=' + self.comment
-
-		if self.overturned or self.nostats or self.nosides:
-			out = out + '\n\t'
-			if self.overturned:
-				out = out + '|overturned=' + self.overturned
-			if self.nostats:
-				out = out + '|nostats=' + self.nostats
-			if self.nosides:
-				out = out + '|nosides=' + self.nosides
 
 		if self.maps:
 			for mapIndex, map in enumerate(self.maps):
