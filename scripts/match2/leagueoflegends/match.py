@@ -3,29 +3,25 @@ from mwparserfromhell.nodes import Template
 from scripts.match2.utils import Template
 
 from ..utils import *
-from ..match import Match
+from ..match import Match, STREAMS
 from ..opponent import Opponent
 
 from .map import Map
 
-STREAMS = [
-	'stream',
-	'twitch',
-	'twitch2',
-	'afreeca',
-	'afreecatv',
-	'dailymotion',
-	'douyu',
-	'huomao',
-	'youtube',
-	'facebook',
-	'pandatv',
-	'huya',
-	'bilibili',
-	'steamtv',
+LEAGUE_PARAMS = STREAMS + [
+	'walkover',
 	'vod',
-	'vod2',
-	'reddit'
+	'comment',
+	'location',
+	'mvp',
+	'mvppoints',
+	'preview',
+	'lrthread',
+	'reddit',
+	'bestgg',
+	'interview',
+	'review',
+	'recap'
 ]
 
 class Match(Match):
@@ -51,13 +47,14 @@ class Match(Match):
 		out = ("{{Match2\n" +
 			f"{indent}|opponent1={str(self.opponent1)}\n" +
 			f"{indent}|opponent2={str(self.opponent2)}\n" +
-			f"{indent}|date={get_value_or_empty(self.data, 'date')}\n"
+			f"{indent}|date={get_value_or_empty(self.data, 'date')}"
+			f"{indent}|finished={get_value_or_empty(self.data, 'finished')}\n"
 		)
 		winner = get_value_or_empty(self.data, 'winner')
 		if winner:
 			out += f"{indent}|winner={winner}\n"
 
-		for key in KeysInDictionaryIterator(STREAMS, self.data):
+		for key in KeysInDictionaryIterator(LEAGUE_PARAMS, self.data):
 			out += f"{indent}|{key}={self.data[key]}\n"
 			
 		for key in PrefixIterator('vodgame', self.data):
@@ -65,14 +62,6 @@ class Match(Match):
 
 		for key in PrefixIterator('matchhistory', self.data):
 			out += f"{indent}|{key}={self.data[key]}\n"
-
-		walkover = get_value_or_empty(self.data, 'walkover')
-		if walkover:
-			out += f"{indent}|walkover={walkover}\n"
-
-		comment = get_value_or_empty(self.data, 'comment')
-		if comment:
-			out += f"{indent}!comment={comment}\n"
 
 		for map in self.maps:
 			index = map.index

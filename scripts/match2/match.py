@@ -3,6 +3,28 @@ from mwparserfromhell.nodes import Template
 from .opponent import Opponent
 from .utils import *
 
+STREAMS = [
+	'stream',
+	'afreeca',
+	'afreecatv',
+	'bilibili',
+	'cc163',
+	'dailymotion',
+	'douyu',
+	'facebook',
+	'huomao',
+	'huya',
+	'loco',
+	'mildom',
+	'nimo',
+	'stream',
+	'tl',
+	'trovo',
+	'twitch',
+	'twitch2',
+	'youtube',
+]
+
 class Match(object):
 	def __init__(self, opponent1: Opponent, opponent2: Opponent, winner: int, template: Template, is_reset: bool) -> None:
 		self.opponent1 = opponent1
