@@ -29,22 +29,22 @@ STREAMS = [
 ]
 
 class Match(Match):
-	def __init__(self, opponent1: Opponent, opponent2: Opponent, winner: int, template: Template, is_reset: bool) -> None:
-		super().__init__(opponent1, opponent2, winner, template, is_reset)
-
 	def get_maps(self):
-		for key in PrefixIterator('match', self.data):
-			match_template = get_parameter_template(self.template, key)
-			index = key.replace('match', '')
+		index = 1
+		while(True):
+			strIndex = str(index)
+			match_template = get_parameter_template(self.template, 'match' + strIndex)
 			#Winner outside of MatchLua
-			winner = get_value_or_empty(self.data, 'map' + index + 'winner')
+			winner = get_value_or_empty(self.data, 'map' + strIndex + 'winner')
 			if match_template is None and winner:
 				match_template = Template('MatchLua')
 				match_template.add('win', winner)
 			elif not get_parameter_str(match_template, 'win') and winner:
 				match_template.add('win', winner)
-
+			if match_template is None:
+				break
 			self.maps.append(Map(int(index), match_template))
+			index += 1
 
 	def __str__(self) -> str:
 		indent = "  "
@@ -63,6 +63,9 @@ class Match(Match):
 		for key in PrefixIterator('vodgame', self.data):
 			out += f"{indent}|{key}={self.data[key]}\n"
 
+		for key in PrefixIterator('matchhistory', self.data):
+			out += f"{indent}|{key}={self.data[key]}\n"
+
 		walkover = get_value_or_empty(self.data, 'walkover')
 		if walkover:
 			out += f"{indent}|walkover={walkover}\n"
@@ -70,9 +73,6 @@ class Match(Match):
 		comment = get_value_or_empty(self.data, 'comment')
 		if comment:
 			out += f"{indent}!comment={comment}\n"
-
-		for key in PrefixIterator('vodgame', self.data):
-			out += f"{indent}|{key}={self.data[key]}\n"
 
 		for map in self.maps:
 			index = map.index

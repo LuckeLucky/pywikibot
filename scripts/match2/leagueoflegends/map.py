@@ -4,9 +4,6 @@ from ..utils import *
 from ..map import Map
 
 class Map(Map):
-	def __init__(self, index: int, template: Template) -> None:
-		super().__init__(index, template)
-
 	def __str__(self) -> str:
 		indent = "  "
 		out = ("{{Map\n" +

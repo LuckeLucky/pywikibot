@@ -66,6 +66,8 @@ def get_parameter_str(template: Template, key: str = None, index: int = -1) -> s
 	return None
 
 def get_parameter_template(template: Template, key: str) -> Template:
+	if template is None:
+		return None
 	if template.has(key):
 		return template.get(key).value.filter_templates()[0]
 	return None
