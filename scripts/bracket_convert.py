@@ -4,7 +4,7 @@ from pywikibot import pagegenerators
 
 from match2.factory import BracketFactory
 from match2.commons.bracket_helper import BracketHelper
-from scripts.utils.parser_helper import get_value, remove_and_squash
+from match2.commons.utils import get_value, remove_and_squash
 from utils import get_text, put_text
 
 def process_text(text: str, language: str, old_template_name: str):

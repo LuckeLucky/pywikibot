@@ -25,3 +25,4 @@ docs/_build/
 .vscode/
 log_*.txt
 **/.DS_Store
+/venv

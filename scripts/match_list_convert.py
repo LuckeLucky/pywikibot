@@ -1,4 +1,4 @@
-import logging
+""" import logging
 import mwparserfromhell
 import pywikibot
 from pywikibot import pagegenerators
@@ -117,4 +117,4 @@ def main(*args):
 			logging.error("MalformedScore:"+str(page))
 
 if __name__ == '__main__':
-	main()
+	main() """

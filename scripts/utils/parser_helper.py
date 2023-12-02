@@ -1,4 +1,3 @@
-import re
 from mwparserfromhell.nodes import Text, Template
 
 def get_parent_wikicode(wikicode, node):
@@ -67,38 +66,3 @@ def remove_and_squash(wikicode, obj):
         # merge successive Text nodes
         prev.value += next_.value
         parent.remove(next_)
-
-def sanitize_template(template: Template, removeComments: bool = False):
-	for parameter in template.params:
-		name = str(parameter.name)
-		value = str(parameter.value).strip()
-		isValueSet = True if len(value) > 0 else False
-		if isValueSet and (('vod2' in name) or ('vod3' in name) or ('vod4' in name) or ('vod5' in name) or ('vod1' in name)):
-			raise VodX
-		if isValueSet and ('2vod' in name):
-			raise VodX
-		if 'score' in name:
-			if isValueSet and ("''" in value):
-				raise WikiStyle
-		if '<!--' in value and removeComments:
-			value = re.sub(r'(<!--.*?-->)', '', value, 0, re.MULTILINE)
-		template.add(str(parameter.name), value.strip(), preserve_spacing=False)
-	return template
-
-def get_value(template: Template, key: str = None, index: int = -1) -> str:
-	'''Check if template has a key, if true return str(value) or empty string'''
-	if template is None:
-		return None
-	if key:
-		if template.has(key):
-			return str(template.get(key).value)
-	if index >= 0:
-		if len(template.params) > index:
-			return str(template.params[index].value)
-	return None
-
-def dict_has_value_set(dictionary: dict) -> bool:
-	for _, v in dictionary.items():
-		if v != '':
-			return True
-	return False
