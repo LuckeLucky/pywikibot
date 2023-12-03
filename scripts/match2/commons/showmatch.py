@@ -24,7 +24,11 @@ class Showmatch(object):
 		opponent2 = self.get_opponent('team2', 'score2')
 		winner = get_value_or_empty(self.data, 'win')
 		details = get_parameter_template(self.template, 'details')
-		self.match = self.match_class()(opponent1, opponent2, int(winner), details, False)
+		if winner:
+			if not details:
+				details = Template("FAKE")
+			details.add('winner', winner)
+		self.match = self.match_class()(opponent1, opponent2, details)
 
 	def __str__(self) -> str:
 		out = '{{SingleMatch|id=' + generate_id()

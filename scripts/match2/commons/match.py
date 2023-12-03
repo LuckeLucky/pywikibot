@@ -26,7 +26,7 @@ STREAMS = [
 ]
 
 class Match(object):
-	def __init__(self, opponent1: Opponent, opponent2: Opponent, winner: int, template: Template, is_reset: bool) -> None:
+	def __init__(self, opponent1: Opponent, opponent2: Opponent, template: Template) -> None:
 		self.opponent1 = opponent1
 		self.opponent2 = opponent2
 		self.template = sanitize_template(template)
@@ -37,9 +37,6 @@ class Match(object):
 
 	def is_valid(self) -> bool:
 		return (self.opponent1 and self.opponent2) or self.template
-	
-	def is_reset(self) -> bool:
-		return self.is_reset
 
 	def get_maps(self):
 		pass

@@ -54,10 +54,10 @@ class Bracket(object):
 
 	def get_winner(self, team1Key: str, team2Key) -> int:
 		if get_parameter_str(self.bracket, team1Key + 'win'):
-			return 1
+			return '1'
 		if get_parameter_str(self.bracket, team2Key + 'win'):
-			return 2
-		return -1
+			return '2'
+		return ''
 
 	def populate_round_data(self, match, roundData, lastRound, lowerHeaders):
 		id = BracketHelper.get_simplified_id(match['match2id'])
@@ -116,9 +116,13 @@ class Bracket(object):
 			winner2Param = param
 			round['W'] = round['W'] + 1
 
-		winner = self.get_winner(winner1Param, winner2Param)
 		details = self.get_details('R' + str(round['R']) + 'G' + str(round['G']), index = 1 if reset else 0)
-		match2 = self.match_class()(opponent1, opponent2, winner, details, reset)
+		winner = self.get_winner(winner1Param, winner2Param)
+		if winner:
+			if not details:
+				details = Template("FAKE")
+			details.add('winner', winner)
+		match2 = self.match_class()(opponent1, opponent2, details)
 		self.roundData[id] = match2
 		roundData[round['R']] = round
 		lastRound = round
@@ -136,6 +140,10 @@ class Bracket(object):
 			opponent1 = self.get_opponent(opp1param, scoreKey= 'score2' if reset else 'score')
 			opponent2 = self.get_opponent(opp2param, scoreKey= 'score2' if reset else 'score')
 			winner = self.get_winner(opp1param, opp2param)
+			if winner:
+				if not details:
+					details = Template("FAKE")
+				details.add('winner', winner)
 			match2 = self.match_class()(opponent1, opponent2, winner, details)
 			self.roundData[roundParam] = match2
 
@@ -148,10 +156,10 @@ class Bracket(object):
 		if (self.bracket is None):
 			return
 
-		self.shortNames = get_value(self.bracket, 'shortNames')
-		self.columnwidth = get_value(self.bracket, 'column-width')
+		self.shortNames = get_parameter_str(self.bracket, 'shortNames')
+		self.columnwidth = get_parameter_str(self.bracket, 'column-width')
 		if not self.columnwidth:
-			self.columnwidth = get_value(self.bracket, 'column-width1')
+			self.columnwidth = get_parameter_str(self.bracket, 'column-width1')
 
 		roundData = {}
 		lowerHeaders = {}
@@ -161,10 +169,10 @@ class Bracket(object):
 			roundData, lastRound, lowerHeaders = self.populate_round_data(match, roundData, lastRound, lowerHeaders)
 
 		for n in range(1, lastRound['R'] + 1):
-			headerUp = get_value(self.bracket, 'R' + str(n))
+			headerUp = get_parameter_str(self.bracket, 'R' + str(n))
 			if headerUp:
 				self.roundData['R' + str(n) + 'M1header'] = headerUp
-			headerLow = get_value(self.bracket, 'L' + str(n))
+			headerLow = get_parameter_str(self.bracket, 'L' + str(n))
 			if headerLow and (n in lowerHeaders):
 				self.roundData['R' + str(n) + 'M' + str(lowerHeaders[n]) + 'header'] = headerLow
 	
@@ -194,7 +202,7 @@ class Bracket(object):
 			if match.is_valid():
 				if param == 'RxMBR':
 					#We dont check winner because for reset match final winner == reset winner (match1)
-					if (not match.opponent1.score) and (not match.opponent2.score) and (not match.template):
+					if (not match.opponent1.score) and (not match.opponent2.score) and (not match.template or match.template.name == "FAKE"):
 						continue
 				elif param == 'RxMTP':
 					if (not match.opponent1.score) and (not match.opponent2.score) and match.winner < 0:
