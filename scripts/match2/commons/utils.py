@@ -1,5 +1,6 @@
 from mwparserfromhell.nodes import Template
 
+import re
 import random
 import string
 
@@ -44,12 +45,14 @@ def get_value_or_empty(dictionary: dict, key: str):
     else:
         return ""
 	
-def sanitize_template(template: Template):
+def sanitize_template(template: Template, removeComments: bool = False):
 	if template is None:
 		return template
 	for parameter in template.params:
 		name = str(parameter.name)
 		value = str(parameter.value).strip()
+		if '<!--' in value and removeComments:
+			value = re.sub(r'(<!--.*?-->)', '', value, 0, re.MULTILINE)
 		template.add(name, value.strip(), preserve_spacing=False)
 	return template
 

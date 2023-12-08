@@ -1,10 +1,14 @@
 from mwparserfromhell.nodes import Template
+
 from .leagueoflegends.bracket import BracketLeagueOfLegends
 from .leagueoflegends.showmatch import ShowmatchLeagueOfLegends
 
+from .counterstrike.bracket import BracketCounterstrike
+
 class BracketFactory(object):
 	mappings = {
-		'leagueoflegends': BracketLeagueOfLegends
+		'leagueoflegends': BracketLeagueOfLegends,
+		'counterstrike': BracketCounterstrike
 	}
 	@staticmethod
 	def new_bracket(language: str, old_template_name: str, template: Template):

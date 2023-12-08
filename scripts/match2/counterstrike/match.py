@@ -1,5 +1,10 @@
 import io
 
+from mwparserfromhell.nodes import Template
+
+from scripts.match2.commons.opponent import Opponent
+from scripts.match2.commons.utils import Template
+
 from ..commons.utils import *
 from ..commons.match import Match, STREAMS
 
@@ -29,6 +34,11 @@ CS_PARAMS = STREAMS + [
 ]
 
 class Match(Match):
+	def __init__(self, opponent1: Opponent, opponent2: Opponent, template: Template) -> None:
+		super().__init__(opponent1, opponent2, template)
+		""" self.out = None
+		self.out = str(self) """
+
 	def get_maps(self):
 		index = 1
 		while(True):
@@ -41,6 +51,8 @@ class Match(Match):
 			index += 1
 
 	def __str__(self) -> str:
+		""" if self.out:
+			return self.out """
 		indent = "\t"
 		out = ("{{Match\n" +
 			f"{indent}|opponent1={str(self.opponent1)}\n" +
@@ -66,3 +78,6 @@ class Match(Match):
 					out += indent + line
 				else:
 					out += line
+
+		out += "}}"
+		return out

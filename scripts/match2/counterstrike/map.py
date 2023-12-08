@@ -30,7 +30,7 @@ class Map(Map):
 	def __init__(self, index: int, template: Template) -> None:
 		super().__init__(index, template)
 		self.prefix = 'map' + str(self.index)
-		winner = get_parameter_str(self.template, self.prefix + 'win')
+		winner = get_value_or_empty(self.data, self.prefix + 'win')
 		if winner in ['1', '2', '0']:
 			self.winner = int(winner)
 			self.finished = 'true'
@@ -39,17 +39,17 @@ class Map(Map):
 			self.finished = 'true'
 		elif winner == SKIP:
 			self.finished = SKIP
-		score = get_parameter_str(self.template, self.prefix + 'score')
+		score = get_value_or_empty(self.data, self.prefix + 'score')
 		self.score = score.split('-', 1)
 		strIndex = str(self.index)
 		self.links = [x + strIndex for x in MAP_LINKS]
 
 	def get_half(self, half: str) -> str:
 		result = ""
+		half = half + self.prefix
 		for key in [half + 't1firstside', half + 't1t', half + 't1ct', half + 't2t', half + 't2ct']:
-			val = self.data[key]
-			if val:
-				result += f"|{key}={val}"
+			if key in self.data:
+				result += f"|{key}={self.data[key]}"
 		return result
 
 	def __str__(self) -> str:
@@ -65,21 +65,24 @@ class Map(Map):
 			return out
 		out += "\n"
 
-		out += f"{indent}|winner={self.winner}\n"
-
+		halfKey = ''
+		overtimes = 0
 		while(True):
-			halfKey = ''
-			overtimes = 0
 			half = self.get_half(halfKey)
 			if half:
 				out += f"{indent}{half}\n"
+				overtimes += 1
+				halfKey = 'o' + str(overtimes)
 			else:
 				break
-			overtimes += 1
-			halfKey = 'o' + str(overtimes)
 
+		if halfKey == '':
+			out += f"{indent}|winner={self.winner}\n"
+
+		#FIX ME
 		for key in KeysInDictionaryIterator(self.links, self.data):
-			out += f"|{key}={self.data[key]}"
+			suffix = key.removesuffix(str(self.index))
+			out += f"{indent}|{suffix}={self.data[key]}"
 		
 		vod = get_value_or_empty(self.data, 'vodgame' + str(self.index))
 		if vod:

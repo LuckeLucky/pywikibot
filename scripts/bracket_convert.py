@@ -4,8 +4,8 @@ from pywikibot import pagegenerators
 
 from match2.factory import BracketFactory
 from match2.commons.bracket_helper import BracketHelper
-from match2.commons.utils import get_value, remove_and_squash
-from utils import get_text, put_text
+from match2.commons.utils import get_parameter_str
+from utils import get_text, put_text, remove_and_squash
 
 def process_text(text: str, language: str, old_template_name: str):
 	shortNames = ''
@@ -20,7 +20,7 @@ def process_text(text: str, language: str, old_template_name: str):
 				if shortNames:
 					bracket.add('shortNames', shortNames)
 			if templateName == '#vardefine:bracket_short_teams':
-				shortNames = get_value(template, index = 0)
+				shortNames = get_parameter_str(template, index = 0)
 				templatesToRemove.append(template)
 
 		if bracket is None:
