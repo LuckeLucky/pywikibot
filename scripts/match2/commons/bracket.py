@@ -70,7 +70,7 @@ class Bracket(object):
 		reset = False
 		if id == THIRD_PLACE_MATCH:
 			round = lastRound
-		elif id == 'RESET_MATCH':
+		elif id == RESET_MATCH:
 			round = lastRound
 			round['G'] = round['G'] - 2
 			round['W'] = round['W'] - 2
@@ -135,7 +135,7 @@ class Bracket(object):
 	def handle_custom_mapping(self):
 		for roundParam, match1Params in BracketHelper.mapping.items():
 			reset = False
-			if roundParam == 'RESET_MATCH':
+			if roundParam == RESET_MATCH:
 				reset = True
 			opp1param = match1Params["opp1"]
 			opp2param = match1Params["opp2"]
@@ -198,12 +198,12 @@ class Bracket(object):
 
 			if not param in self.roundData:
 				#Todo add empty match
-				if param != THIRD_PLACE_MATCH and param != 'RESET_MATCH':
+				if param != THIRD_PLACE_MATCH and param != RESET_MATCH:
 					matchOut = matchOut + '\n|' + param + '=' + '\n'
 				continue
 			match = self.roundData[param]
 			if match.is_valid():
-				if param == 'RESET_MATCH':
+				if param == RESET_MATCH:
 					#We dont check winner because for reset match final winner == reset winner (match1)
 					if (not match.opponent1.score) and (not match.opponent2.score) and (not match.template or match.template.name == "FAKE"):
 						continue
@@ -211,7 +211,7 @@ class Bracket(object):
 					if (not match.opponent1.score) and (not match.opponent2.score) and match.winner < 0:
 						continue
 				header = ''
-				if param == THIRD_PLACE_MATCH or param == 'RESET_MATCH':
+				if param == THIRD_PLACE_MATCH or param == RESET_MATCH:
 					if param == THIRD_PLACE_MATCH:
 						header = '\n\n' + '<!-- Third Place Match -->'
 				elif 'header' in round:
