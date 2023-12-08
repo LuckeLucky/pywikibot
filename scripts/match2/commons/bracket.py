@@ -8,6 +8,9 @@ from .bracket_helper import BracketHelper
 TEAM = 'team'
 SOLO = 'solo'
 
+RESET_MATCH = 'RxMBR'
+THIRD_PLACE_MATCH = 'RxMTP'
+
 class Bracket(object):
 	new_match = Match
 	def __init__(self, oldTemplateName: str, bracket: Template) -> None:
@@ -65,9 +68,9 @@ class Bracket(object):
 		if roundNumber.isnumeric():
 			roundNumber = int(roundNumber)
 		reset = False
-		if id == 'RxMTP':
+		if id == THIRD_PLACE_MATCH:
 			round = lastRound
-		elif id == 'RxMBR':
+		elif id == 'RESET_MATCH':
 			round = lastRound
 			round['G'] = round['G'] - 2
 			round['W'] = round['W'] - 2
@@ -132,7 +135,7 @@ class Bracket(object):
 	def handle_custom_mapping(self):
 		for roundParam, match1Params in BracketHelper.mapping.items():
 			reset = False
-			if roundParam == 'RxMBR':
+			if roundParam == 'RESET_MATCH':
 				reset = True
 			opp1param = match1Params["opp1"]
 			opp2param = match1Params["opp2"]
@@ -195,21 +198,21 @@ class Bracket(object):
 
 			if not param in self.roundData:
 				#Todo add empty match
-				if param != 'RxMTP' and param != 'RxMBR':
+				if param != THIRD_PLACE_MATCH and param != 'RESET_MATCH':
 					matchOut = matchOut + '\n|' + param + '=' + '\n'
 				continue
 			match = self.roundData[param]
 			if match.is_valid():
-				if param == 'RxMBR':
+				if param == 'RESET_MATCH':
 					#We dont check winner because for reset match final winner == reset winner (match1)
 					if (not match.opponent1.score) and (not match.opponent2.score) and (not match.template or match.template.name == "FAKE"):
 						continue
-				elif param == 'RxMTP':
+				elif param == THIRD_PLACE_MATCH:
 					if (not match.opponent1.score) and (not match.opponent2.score) and match.winner < 0:
 						continue
 				header = ''
-				if param == 'RxMTP' or param == 'RxMBR':
-					if param == 'RxMTP':
+				if param == THIRD_PLACE_MATCH or param == 'RESET_MATCH':
+					if param == THIRD_PLACE_MATCH:
 						header = '\n\n' + '<!-- Third Place Match -->'
 				elif 'header' in round:
 					header = BracketHelper.get_header(round['header'])
