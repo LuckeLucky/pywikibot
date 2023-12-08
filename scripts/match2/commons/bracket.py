@@ -144,7 +144,7 @@ class Bracket(object):
 				if not details:
 					details = Template("FAKE")
 				details.add('winner', winner)
-			match2 = self.match_class()(opponent1, opponent2, winner, details)
+			match2 = self.match_class()(opponent1, opponent2, details)
 			self.roundData[roundParam] = match2
 
 			if "header" in match1Params:

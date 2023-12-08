@@ -157,7 +157,9 @@ bracketAlias = {
 	'32SE-4RTeamBracket': '32-4Q',
 	'4DE2WTeamBracket2': '4L2DSU2L1D',
 	'3Qual-8SE4STeamBracket': '8L4DS-2Q-2-1Q',
-	'32DETeamBracketCPL' : '32U8L1D'
+	'32DETeamBracketCPL' : '32U8L1D',
+	'DemaciaCupTeamBracket': '8L8D-4Q-4L4D-2Q-2L2D-1Q',
+	'NESTTeamBracket': '2L2DH2L-1Q'
 }
 
 class BracketHelper(object):

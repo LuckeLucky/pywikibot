@@ -1373,5 +1373,12 @@
 			"opp1": "R2W3",
 			"opp2": "R2W4"
 		}
+	},
+	"Bracket/2L2DH2L-1Q" : {
+		"R3M2" : {
+			"details": "R3G2",
+			"opp1": "R3D2",
+			"opp2": "R3W2"
+		}
 	}
 }
