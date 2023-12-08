@@ -162,7 +162,8 @@ bracketAlias = {
 	'DemaciaCupTeamBracket': '8L8D-4Q-4L4D-2Q-2L2D-1Q',
 	'NESTTeamBracket': '2L2DH2L-1Q',
 	'8STeamBracket': '2L6D',
-	'8Qual-8SE4DETeamBracket': '8L4D-4Q-U-8-4Q'
+	'8Qual-8SE4DETeamBracket': '8L4D-4Q-U-8-4Q',
+	'7STeamBracket': '2L5D'
 }
 
 class BracketHelper(object):

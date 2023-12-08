@@ -17,7 +17,6 @@ STREAMS = [
 	'loco',
 	'mildom',
 	'nimo',
-	'stream',
 	'tl',
 	'trovo',
 	'twitch',
