@@ -1380,5 +1380,27 @@
 			"opp1": "R3D2",
 			"opp2": "R3W2"
 		}
+	},
+	"Bracket/8L4D-4Q-U-8-4Q" : {
+		"R2M5" : {
+			"details": "R2G5",
+			"opp1": "R2W5",
+			"opp2": "R2W6"
+		},
+		"R2M6" : {
+			"details": "R2G6",
+			"opp1": "R2W7",
+			"opp2": "R2W8"
+		},
+		"R2M7" : {
+			"details": "R2G7",
+			"opp1": "R2W9",
+			"opp2": "R2W10"
+		},
+		"R2M8" : {
+			"details": "R2G8",
+			"opp1": "R2W11",
+			"opp2": "R2W12"
+		}
 	}
 }
