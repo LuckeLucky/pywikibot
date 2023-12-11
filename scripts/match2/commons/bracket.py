@@ -168,12 +168,12 @@ class Bracket(object):
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
 		name = get_parameter_str(self.template, key + 'team')
-		literal = get_parameter_str(self.template, key + 'literal')
 		score = get_parameter_str(self.template, key + scoreKey)
 		if name is not None:
 			return TeamOpponent(name, score)
+		literal = get_parameter_str(self.template, key + 'literal')
 		if literal is not None:
-			return Opponent(name, score)
+			return Opponent(literal, score)
 		return None
 
 	def getSoloOpponent(self, key: str, scoreKey: str) -> Opponent:
