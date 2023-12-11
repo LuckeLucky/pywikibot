@@ -8,6 +8,7 @@ from ..commons.bracket import Bracket
 from .match import Match
 
 class BracketCounterstrike(Bracket):
+	Match = Match
 	bracketAlias = {
 		'2SETeamBracket/compact': '2',
 		'8SETeamBracket/reseeded': '8',
@@ -160,9 +161,6 @@ class BracketCounterstrike(Bracket):
 
 	def __init__(self, oldTemplateName: str, bracket: Template) -> None:
 		super().__init__(oldTemplateName, bracket)
-
-	def matchClass(self):
-		return Match
 	
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
 		name = get_parameter_str(self.template, key + 'team')

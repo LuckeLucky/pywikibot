@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 class BracketLeagueOfLegends(Bracket):
+    Match = Match
     bracketAlias = {
         'DemaciaCupTeamBracket': '8L8D-4Q-4L4D-2Q-2L2D-1Q',
         'NESTTeamBracket': '2L2DH2L-1Q',
@@ -29,6 +30,3 @@ class BracketLeagueOfLegends(Bracket):
         file = p.open()
         data = json.load(file)
         cls.customMapping = data[cls.newTemplateId] if cls.newTemplateId in data else None
-
-    def matchClass(self):
-        return Match

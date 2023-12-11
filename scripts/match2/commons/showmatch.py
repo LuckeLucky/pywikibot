@@ -4,15 +4,13 @@ from .utils import *
 from .match import Match
 
 class Showmatch(object):
+	Match = Match
 	def __init__(self, template: Template) -> None:
 		self.template = sanitize_template(template)
 		self.data = template_parameters_to_str_dict(template)
 		self.match = None
 		
 		self.get_match()
-
-	def match_class(self):
-		return Match
 
 	def get_opponent(self, key: str, scoreKey: str) -> Opponent:
 		name = get_value_or_empty(self.data, key)
@@ -28,7 +26,7 @@ class Showmatch(object):
 			if not details:
 				details = Template("FAKE")
 			details.add('winner', winner)
-		self.match = self.match_class()(opponent1, opponent2, details)
+		self.match = self.Match(opponent1, opponent2, details)
 
 	def __str__(self) -> str:
 		out = '{{SingleMatch|id=' + generate_id()

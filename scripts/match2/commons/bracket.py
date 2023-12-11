@@ -16,6 +16,7 @@ RESET_MATCH = 'RxMBR'
 THIRD_PLACE_MATCH = 'RxMTP'
 
 class Bracket(object):
+	Match = Match
 	bracketAlias: dict = {
 		'2SETeamBracket': '2',
 		'2SEBracket': '2',
@@ -165,9 +166,6 @@ class Bracket(object):
 		self.columnwidth = ''
 		self.roundData = {}
 
-	def matchClass(self):
-		return Match
-
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
 		name = get_parameter_str(self.template, key + 'team')
 		literal = get_parameter_str(self.template, key + 'literal')
@@ -269,7 +267,7 @@ class Bracket(object):
 			if not details:
 				details = Template("FAKE")
 			details.add('winner', winner)
-		match2 = self.matchClass()(opponent1, opponent2, details)
+		match2 = self.Match(opponent1, opponent2, details)
 		self.roundData[id] = match2
 		roundData[round['R']] = round
 		lastRound = round
@@ -291,7 +289,7 @@ class Bracket(object):
 				if not details:
 					details = Template("FAKE")
 				details.add('winner', winner)
-			match2 = self.matchClass()(opponent1, opponent2, details)
+			match2 = self.Match(opponent1, opponent2, details)
 			self.roundData[roundParam] = match2
 
 			if "header" in match1Params:
