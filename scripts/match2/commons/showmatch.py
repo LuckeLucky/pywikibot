@@ -29,7 +29,7 @@ class Showmatch(object):
 		self.match = self.Match(opponent1, opponent2, details)
 
 	def __str__(self) -> str:
-		out = '{{SingleMatch|id=' + generate_id()
+		out = '{{SingleMatch|id=' + generateId()
 
 		if self.match:
 			out = out + '\n|' + str(self.match)

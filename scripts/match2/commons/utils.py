@@ -75,7 +75,7 @@ def get_parameter_template(template: Template, key: str) -> Template:
 		return template.get(key).value.filter_templates()[0]
 	return None
 
-def generate_id():
+def generateId():
 	ran = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 10))
 	return ran
 

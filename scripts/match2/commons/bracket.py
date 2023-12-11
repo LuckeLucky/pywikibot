@@ -325,7 +325,7 @@ class Bracket(object):
 			self.handleCustomMapping()
 
 	def __str__(self) -> str:
-		out = '{{Bracket|'+ self.newTemplateId + '|id=' + generate_id()
+		out = '{{Bracket|'+ self.newTemplateId + '|id=' + generateId()
 		if self.shortNames:
 			out = out + '|forceShortName=true'
 		if self.columnwidth:
