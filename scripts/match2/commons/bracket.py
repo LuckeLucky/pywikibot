@@ -39,7 +39,7 @@ class Bracket(object):
 	outputOrder: list = None
 
 	@classmethod
-	def isSupported(cls, oldTemplateId: str) -> bool:
+	def isAliasSet(cls, oldTemplateId: str) -> bool:
 		"""
 			Checks if the old template can be converted
 		"""
@@ -76,10 +76,12 @@ class Bracket(object):
 			Load bracket data and custom mappings into memory
 			returns true if sucessfull
 		"""
-		if not cls.isSupported(oldTemplateId):
+		if not cls.isAliasSet(oldTemplateId):
 			return False
 		cls.newTemplateId = cls.getNewTemplateId(oldTemplateId)
 		cls.loadBracketData()
+		if cls.bracketData is None:
+			return False
 		cls.loadCustomMapping()
 		cls.loadHeadersData()
 		return True

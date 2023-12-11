@@ -6,9 +6,7 @@ from match2.factory import BracketFactory
 from match2.commons.utils import get_parameter_str
 from utils import get_text, put_text, remove_and_squash
 
-BracketClass = None
-
-def processText(text: str, oldTemplateId: str):
+def processText(bracketClass, text: str, oldTemplateId: str):
 	shortNames = ''
 	while(True):
 		templatesToRemove = []
@@ -26,7 +24,7 @@ def processText(text: str, oldTemplateId: str):
 
 		if bracket is None:
 			break
-		newBracket = BracketClass(oldTemplateId, bracket)
+		newBracket = bracketClass(oldTemplateId, bracket)
 		newBracket.process()
 		wikicode.replace(bracket, str(newBracket))
 
@@ -63,9 +61,9 @@ def main(*args):
 	if not oldTemplateId:
 		oldTemplateId = pywikibot.input('Template to replace:')
 
-	BracketClass = BracketFactory.getBracketClassForLanguage(language)
+	bracketClass = BracketFactory.getBracketClassForLanguage(language)
 
-	if not BracketClass.load(oldTemplateId):
+	if not bracketClass.load(oldTemplateId):
 		pywikibot.stdout("<<lightred>>Missing support for template: " + oldTemplateId)
 		return
 
@@ -73,12 +71,11 @@ def main(*args):
 	generator = genFactory.getCombinedGenerator()
 	for page in generator:
 		text = get_text(page)
-		lang = page.site.code
-		new_text = processText(text, lang, oldTemplateId)
+		newText = processText(bracketClass, text, oldTemplateId)
 		if save:
-			put_text(page, summary=edit_summary, new=new_text)
+			put_text(page, summary=edit_summary, new=newText)
 		else:
-			print(new_text)
+			print(newText)
 
 if __name__ == '__main__':
 	main()

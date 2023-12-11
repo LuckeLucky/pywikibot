@@ -15,13 +15,15 @@ class BracketLeagueOfLegends(Bracket):
         '2Qual-4STeamBracket': '2L2D-2QL',
         '32SE4STeamBracket': '32L4DSS',
         '3Qual-5DETeamBracketSpecial': '2L1D-1Q-2-1Q-U-2-1Q',
-        '4Qual-12DE4STeamBracket': '8L4DS-2Q-U-8L4DSL2D-2Q'
+        '4Qual-12DE4STeamBracket': '8L4DS-2Q-U-8L4DSL2D-2Q',
+        '4SE6STeamBracket': '4L6DS',
+        '4TeamBracketSpecial': '2L2D',
+        '5Qual-16DETeamBracket': '16-2Q-U-8L4DSL2D-2Q-2-1Q'
     }
     bracketAlias.update(Bracket.bracketAlias)
 
     @classmethod
     def loadCustomMapping(cls):
-        pass
         p = Path(__file__).with_name('bracket_custom_mappings.json')
         file = p.open()
         data = json.load(file)

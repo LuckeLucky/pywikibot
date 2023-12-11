@@ -153,7 +153,6 @@ class BracketCounterstrike(Bracket):
 
 	@classmethod
 	def loadCustomMapping(cls):
-		pass
 		p = Path(__file__).with_name('bracket_custom_mappings.json')
 		file = p.open()
 		data = json.load(file)
