@@ -1,0 +1,48 @@
+{
+	"Bracket/2L2DH2L-1Q" : {
+		"R3M2" : {
+			"details": "R3G2",
+			"opp1": "R3D2",
+			"opp2": "R3W2"
+		}
+	},
+	"Bracket/8L4D-4Q-U-8-4Q" : {
+		"R2M5" : {
+			"details": "R2G5",
+			"opp1": "R2W5",
+			"opp2": "R2W6"
+		},
+		"R2M6" : {
+			"details": "R2G6",
+			"opp1": "R2W7",
+			"opp2": "R2W8"
+		},
+		"R2M7" : {
+			"details": "R2G7",
+			"opp1": "R2W9",
+			"opp2": "R2W10"
+		},
+		"R2M8" : {
+			"details": "R2G8",
+			"opp1": "R2W11",
+			"opp2": "R2W12"
+		}
+	},
+	"Bracket/2U2-1Q": {
+		"R1M1": {
+			"details": "R1G1",
+			"opp1": "R1D1",
+			"opp2": "R1D2"
+		},
+		"R1M2": {
+			"details": "R2G1",
+			"opp1": "R2D1",
+			"opp2": "R2D2"
+		},
+		"R2M1": {
+			"details": "R3G1",
+			"opp1": "R3W1",
+			"opp2": "R3W2"
+		}
+	}
+}

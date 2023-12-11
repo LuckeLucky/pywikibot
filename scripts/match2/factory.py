@@ -1,5 +1,6 @@
 from mwparserfromhell.nodes import Template
 
+from .commons.bracket import Bracket
 from .leagueoflegends.bracket import BracketLeagueOfLegends
 from .leagueoflegends.showmatch import ShowmatchLeagueOfLegends
 
@@ -11,12 +12,12 @@ class BracketFactory(object):
 		'counterstrike': BracketCounterstrike
 	}
 	@staticmethod
-	def new_bracket(language: str, old_template_name: str, template: Template):
-		bracket_class = BracketFactory.mappings[language]
-		if bracket_class:
-			return bracket_class(old_template_name, template)
+	def getBracketClassForLanguage(language: str):
+		bracketClass = BracketFactory.mappings[language]
+		if bracketClass:
+			return bracketClass
 		else:
-			raise ValueError(f"Unsupported language: {language}")
+			return Bracket
 		
 class ShowmatchFactory(object):
 	mappings = {

@@ -3,11 +3,12 @@ import pywikibot
 from pywikibot import pagegenerators
 
 from match2.factory import BracketFactory
-from match2.commons.bracket_helper import BracketHelper
 from match2.commons.utils import get_parameter_str
 from utils import get_text, put_text, remove_and_squash
 
-def process_text(text: str, language: str, old_template_name: str):
+BracketClass = None
+
+def processText(text: str, oldTemplateId: str):
 	shortNames = ''
 	while(True):
 		templatesToRemove = []
@@ -15,7 +16,7 @@ def process_text(text: str, language: str, old_template_name: str):
 		bracket = None
 		for template in wikicode.filter_templates():
 			templateName = str(template.name).strip()
-			if template.name.matches(old_template_name):
+			if template.name.matches(oldTemplateId):
 				bracket = template
 				if shortNames:
 					bracket.add('shortNames', shortNames)
@@ -25,7 +26,7 @@ def process_text(text: str, language: str, old_template_name: str):
 
 		if bracket is None:
 			break
-		newBracket = BracketFactory.new_bracket(language, old_template_name, bracket)	
+		newBracket = BracketClass(oldTemplateId, bracket)
 		newBracket.process()
 		wikicode.replace(bracket, str(newBracket))
 
@@ -41,7 +42,7 @@ def main(*args):
 	local_args = pywikibot.handle_args(args)
 	genFactory = pagegenerators.GeneratorFactory()
 
-	templateToReplace = ''
+	oldTemplateId = ''
 	save = True
 
 	for arg in local_args:
@@ -51,23 +52,29 @@ def main(*args):
 			arg = arg[1:]
 			arg, _, value = arg.partition(':')
 			if arg == 'template':
-				templateToReplace = value
+				oldTemplateId = value
 			if arg == 'nosave':
 				save = False
 
-	if not templateToReplace:
-		templateToReplace = pywikibot.input('Template to replace:')
-
-	if not BracketHelper.load(templateToReplace):
-		pywikibot.stdout("<<lightred>>Missing support for template: " + templateToReplace)
+	language = genFactory.site.code
+	if not language:
 		return
 
-	edit_summary = f'Convert Bracket {templateToReplace} to Match2'
+	if not oldTemplateId:
+		oldTemplateId = pywikibot.input('Template to replace:')
+
+	BracketClass = BracketFactory.getBracketClassForLanguage(language)
+
+	if not BracketClass.load(oldTemplateId):
+		pywikibot.stdout("<<lightred>>Missing support for template: " + oldTemplateId)
+		return
+
+	edit_summary = f'Convert Bracket {oldTemplateId} to Match2'
 	generator = genFactory.getCombinedGenerator()
 	for page in generator:
 		text = get_text(page)
 		lang = page.site.code
-		new_text = process_text(text, lang, templateToReplace)
+		new_text = processText(text, lang, oldTemplateId)
 		if save:
 			put_text(page, summary=edit_summary, new=new_text)
 		else:
