@@ -163,7 +163,12 @@ bracketAlias = {
 	'NESTTeamBracket': '2L2DH2L-1Q',
 	'8STeamBracket': '2L6D',
 	'8Qual-8SE4DETeamBracket': '8L4D-4Q-U-8-4Q',
-	'7STeamBracket': '2L5D'
+	'7STeamBracket': '2L5D',
+	'1Qual-2SE1LTeamBracket': '2U2-1Q',
+	'2Qual-4STeamBracket': '2L2D-2QL',
+	'32SE4STeamBracket': '32L4DSS',
+	'3Qual-5DETeamBracketSpecial': '2L1D-1Q-2-1Q-U-2-1Q',
+	'4Qual-12DE4STeamBracket': '8L4DS-2Q-U-8L4DSL2D-2Q'
 }
 
 class BracketHelper(object):

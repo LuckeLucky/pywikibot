@@ -208,7 +208,7 @@ class Bracket(object):
 					if (not match.opponent1.score) and (not match.opponent2.score) and (not match.template or match.template.name == "FAKE"):
 						continue
 				elif param == THIRD_PLACE_MATCH:
-					if (not match.opponent1.score) and (not match.opponent2.score) and match.winner < 0:
+					if (not match.opponent1.score) and (not match.opponent2.score) and (get_parameter_str(match.template, 'winner') == None):
 						continue
 				header = ''
 				if param == THIRD_PLACE_MATCH or param == RESET_MATCH:
