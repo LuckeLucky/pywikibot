@@ -56,5 +56,27 @@
 			"opp1": "R2D3",
 			"opp2": "R2D4"
 		}
+	},
+	"Bracket/2L1DH2LH4L" : {
+		"R2M1" : {
+			"details": "R2G1",
+			"opp1": "R2D1",
+			"opp2": "R2D2"
+		},
+		"R2M2" : {
+			"details": "R2G2",
+			"opp1": "R2D3",
+			"opp2": "R2D4"
+		},
+		"R2M3" : {
+			"details": "R2G3",
+			"opp1": "R2D5",
+			"opp2": "R2D6"
+		},
+		"R2M4" : {
+			"details": "R2G4",
+			"opp1": "R2D7",
+			"opp2": "R2D8"
+		}
 	}
 }
