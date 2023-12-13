@@ -63,7 +63,8 @@ def main(*args):
 			continue
 		text = get_text(page)
 		new_text = processText(text, oldTemplateId, newTemplateId, bracketType)
-		put_text(page, summary=editSummary, new=new_text)
+		if text != new_text:
+			put_text(page, summary=editSummary, new=new_text)
 
 if __name__ == '__main__':
 	main()

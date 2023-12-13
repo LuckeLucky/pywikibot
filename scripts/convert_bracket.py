@@ -4,29 +4,30 @@ from pywikibot import pagegenerators
 
 from match2.factory import BracketFactory
 from match2.commons.utils import get_parameter_str
+from scripts.match2.commons.bracket import Bracket
 from utils import get_text, put_text, remove_and_squash
 
-def processText(bracketClass, text: str, oldTemplateId: str):
+def processText(bracketClass: Bracket, text: str, oldTemplateId: str):
 	shortNames = ''
 	while(True):
 		templatesToRemove = []
 		wikicode = mwparserfromhell.parse(text)
-		bracket = None
+		bracketTemplate = None
 		for template in wikicode.filter_templates():
 			templateName = str(template.name).strip()
 			if template.name.matches(oldTemplateId):
-				bracket = template
+				bracketTemplate = template
 				if shortNames:
-					bracket.add('shortNames', shortNames)
+					bracketTemplate.add('shortNames', shortNames)
 			if templateName == '#vardefine:bracket_short_teams':
 				shortNames = get_parameter_str(template, index = 0)
 				templatesToRemove.append(template)
 
-		if bracket is None:
+		if bracketTemplate is None:
 			break
-		newBracket = bracketClass(oldTemplateId, bracket)
+		newBracket = bracketClass.createNewBracket(bracketTemplate, oldTemplateId)
 		newBracket.process()
-		wikicode.replace(bracket, str(newBracket))
+		wikicode.replace(bracketTemplate, str(newBracket))
 
 		for template in templatesToRemove:
 			remove_and_squash(wikicode, template)
@@ -61,7 +62,7 @@ def main(*args):
 	if not oldTemplateId:
 		oldTemplateId = pywikibot.input('Template to replace:')
 
-	bracketClass = BracketFactory.getBracketClassForLanguage(language)
+	bracketClass: Bracket = BracketFactory.getBracketClassForLanguage(language)
 
 	if not bracketClass.isAliasSet(oldTemplateId):
 		pywikibot.stdout("<<lightred>>Missing support for template: " + oldTemplateId)

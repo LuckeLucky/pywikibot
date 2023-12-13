@@ -161,7 +161,7 @@ class Bracket(object):
 	
 	@classmethod
 	def createNewBracket(cls, template: Template, oldTemplateId: str = ""):
-		if oldTemplateId != "" and not Bracket.isAliasSet(oldTemplateId):
+		if oldTemplateId != "" and not cls.isAliasSet(oldTemplateId):
 			return None
 		bracket = cls(template)
 		if oldTemplateId == "":
@@ -170,7 +170,7 @@ class Bracket(object):
 			bracket.bracketType = get_parameter_str(bracket.template, 'type')
 			bracket.id = get_parameter_str(bracket.template, 'id')
 		else:
-			bracket.newTemplateId = bracket.getNewTemplateId(oldTemplateId)
+			bracket.newTemplateId = cls.getNewTemplateId(oldTemplateId)
 			bracket.oldTemplateId = oldTemplateId
 			bracket.bracketType = TEAM if TEAM in oldTemplateId.lower() else SOLO
 			bracket.id = generateId()
