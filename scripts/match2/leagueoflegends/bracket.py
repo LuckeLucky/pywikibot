@@ -34,7 +34,7 @@ class BracketLeagueOfLegends(Bracket):
 		p = Path(__file__).with_name('bracket_custom_mappings.json')
 		file = p.open()
 		data = json.load(file)
-		cls.customMapping = data[cls.newTemplateId] if cls.newTemplateId in data else None
+		cls.customMapping = data
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
 		name = get_parameter_str(self.template, key + 'team')

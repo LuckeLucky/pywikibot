@@ -33,11 +33,11 @@ class Bracket(object):
 		'128SETeamBracket': '128',
 		'128SEBracket': '128',
 	}
-	newTemplateId: str = ""
+	isLoaded: bool = False
 	bracketData: list = None
 	headersData: dict = None
 	customMapping: dict = None
-	outputOrder: list = None
+	outputOrder: list = {}
 
 	@classmethod
 	def isAliasSet(cls, oldTemplateId: str) -> bool:
@@ -47,18 +47,24 @@ class Bracket(object):
 		return oldTemplateId in cls.bracketAlias
 	
 	@classmethod
+	def isBracketDataAvailable(cls, newTemplateId: str) -> bool:
+		if not cls.isLoaded:
+			cls.load()
+		return newTemplateId in cls.bracketData
+	
+	@classmethod
 	def getNewTemplateId(cls, oldTemplateId: str) -> str:
 		"""
 			Returns the new Bracket name
 		"""
-		return 'Bracket/' + cls.bracketAlias[oldTemplateId]
+		return 'Bracket/' + cls.bracketAlias[oldTemplateId] if oldTemplateId in cls.bracketAlias else None
 	
 	@classmethod
 	def loadBracketData(cls):
 		p = Path(__file__).with_name('bracket_templates.json')
 		file = p.open()
 		data = json.load(file)
-		cls.bracketData = data[cls.newTemplateId] if cls.newTemplateId in data else None
+		cls.bracketData = data
 
 	@classmethod
 	def loadHeadersData(cls):
@@ -72,20 +78,14 @@ class Bracket(object):
 		pass
 
 	@classmethod
-	def load(cls, oldTemplateId: str) -> bool:
+	def load(cls):
 		"""
 			Load bracket data and custom mappings into memory
-			returns true if sucessfull
 		"""
-		if not cls.isAliasSet(oldTemplateId):
-			return False
-		cls.newTemplateId = cls.getNewTemplateId(oldTemplateId)
 		cls.loadBracketData()
-		if cls.bracketData is None:
-			return False
 		cls.loadCustomMapping()
 		cls.loadHeadersData()
-		return True
+		cls.isLoaded = True
 
 	@classmethod
 	def getSimplifiedId(cls, id: str) -> str:
@@ -115,12 +115,12 @@ class Bracket(object):
 		return ''
 	
 	@classmethod
-	def getRoundOutputOrder(cls):
-		if cls.outputOrder:
-			return cls.outputOrder
+	def getRoundOutputOrder(cls, newTemplateId: str):
+		if newTemplateId in cls.outputOrder:
+			return cls.outputOrder[newTemplateId]
 		bracketDataList = []
 
-		for match in cls.bracketData:
+		for match in cls.bracketData[newTemplateId]:
 			id = cls.getSimplifiedId(match['match2id'])
 			bracketData = match['match2bracketdata']
 			bracketData['matchKey'] = id
@@ -155,16 +155,40 @@ class Bracket(object):
 			return 1 if len(itemA) < len(itemB) else -1
 
 		bracketDataList = sorted(bracketDataList, key = cmp_to_key(compare))
-		cls.outputOrder = copy.copy(bracketDataList)
+		cls.outputOrder[newTemplateId] = copy.copy(bracketDataList)
 
 		return bracketDataList
+	
+	@classmethod
+	def createNewBracket(cls, template: Template, oldTemplateId: str = ""):
+		if oldTemplateId != "" and not Bracket.isAliasSet(oldTemplateId):
+			return None
+		bracket = cls(template)
+		if oldTemplateId == "":
+			bracket.newTemplateId = get_parameter_str(bracket.template, index=0)
+			bracket.oldTemplateId = get_parameter_str(bracket.template, index=1)
+			bracket.bracketType = get_parameter_str(bracket.template, 'type')
+			bracket.id = get_parameter_str(bracket.template, 'id')
+		else:
+			bracket.newTemplateId = bracket.getNewTemplateId(oldTemplateId)
+			bracket.oldTemplateId = oldTemplateId
+			bracket.bracketType = TEAM if TEAM in oldTemplateId.lower() else SOLO
+			bracket.id = generateId()
 
-	def __init__(self, oldTemplateId: str, template: Template) -> None:
-		self.template = sanitize_template(template, removeComments = True)	
-		self.type = TEAM if TEAM in oldTemplateId.lower() else SOLO
+		return bracket
+
+	def __init__(self, template: Template) -> None:
+		if not self.isLoaded:
+			self.load()
+		self.template = sanitize_template(template, removeComments = True)
 		self.shortNames = ''
 		self.columnwidth = ''
 		self.roundData = {}
+
+		self.newTemplateId = None
+		self.oldTemplateId = None
+		self.bracketType = None
+		self.id = None
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
 		name = get_parameter_str(self.template, key + 'team')
@@ -185,9 +209,9 @@ class Bracket(object):
 		return SoloOpponent(name, score, '', flag)
 
 	def getOpponent(self, key: str, scoreKey: str = 'score') -> Opponent:
-		if self.type == TEAM:
+		if self.bracketType == TEAM:
 			return self.getTeamOpponent(key, scoreKey)
-		elif self.type == SOLO:
+		elif self.bracketType == SOLO:
 			return self.getSoloOpponent(key, scoreKey)
 
 	def getDetails(self, key, index = 0):
@@ -275,7 +299,7 @@ class Bracket(object):
 		return roundData, lastRound, lowerHeaders
 
 	def handleCustomMapping(self):
-		for roundParam, match1Params in self.customMapping.items():
+		for roundParam, match1Params in self.customMapping[self.newTemplateId].items():
 			reset = False
 			if roundParam == RESET_MATCH:
 				reset = True
@@ -310,7 +334,7 @@ class Bracket(object):
 		lowerHeaders = {}
 		lastRound = None
 		#Mapping via lpdb template data
-		for match in self.bracketData:
+		for match in self.bracketData[self.newTemplateId]:
 			roundData, lastRound, lowerHeaders = self.populateRoundData(match, roundData, lastRound, lowerHeaders)
 
 		for n in range(1, lastRound['R'] + 1):
@@ -321,18 +345,18 @@ class Bracket(object):
 			if headerLow and (n in lowerHeaders):
 				self.roundData['R' + str(n) + 'M' + str(lowerHeaders[n]) + 'header'] = headerLow
 	
-		if self.customMapping:
+		if self.newTemplateId in self.customMapping:
 			self.handleCustomMapping()
 
 	def __str__(self) -> str:
-		out = '{{Bracket|'+ self.newTemplateId + '|id=' + generateId()
+		out = '{{Bracket|'+ self.newTemplateId + '|id=' + self.id
 		if self.shortNames:
 			out = out + '|forceShortName=true'
 		if self.columnwidth:
 			out = out + '|matchWidth=' + self.columnwidth
 			
 		matchOut = ''
-		roundOutputOrder = self.getRoundOutputOrder()
+		roundOutputOrder = self.getRoundOutputOrder(self.newTemplateId)
 		for round in roundOutputOrder:
 			param = round['matchKey']
 			if param + 'header' in self.roundData:

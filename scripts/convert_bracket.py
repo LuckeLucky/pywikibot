@@ -63,9 +63,9 @@ def main(*args):
 
 	bracketClass = BracketFactory.getBracketClassForLanguage(language)
 
-	if not bracketClass.load(oldTemplateId):
+	if not bracketClass.isAliasSet(oldTemplateId):
 		pywikibot.stdout("<<lightred>>Missing support for template: " + oldTemplateId)
-		return
+		exit(1)
 
 	edit_summary = f'Convert Bracket {oldTemplateId} to Match2'
 	generator = genFactory.getCombinedGenerator()
