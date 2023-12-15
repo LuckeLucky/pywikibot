@@ -174,6 +174,7 @@ class Bracket(object):
 			bracket.oldTemplateId = oldTemplateId
 			bracket.bracketType = TEAM if TEAM in oldTemplateId.lower() else SOLO
 			bracket.id = generateId()
+		bracket.mappingKey = bracket.newTemplateId + "$$" + bracket.oldTemplateId
 
 		return bracket
 
@@ -189,6 +190,7 @@ class Bracket(object):
 		self.oldTemplateId = None
 		self.bracketType = None
 		self.id = None
+		self.mappingKey = None
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
 		name = get_parameter_str(self.template, key + 'team')
@@ -299,7 +301,7 @@ class Bracket(object):
 		return roundData, lastRound, lowerHeaders
 
 	def handleCustomMapping(self):
-		for roundParam, match1Params in self.customMapping[self.newTemplateId].items():
+		for roundParam, match1Params in self.customMapping[self.mappingKey].items():
 			reset = False
 			if roundParam == RESET_MATCH:
 				reset = True
@@ -345,7 +347,7 @@ class Bracket(object):
 			if headerLow and (n in lowerHeaders):
 				self.roundData['R' + str(n) + 'M' + str(lowerHeaders[n]) + 'header'] = headerLow
 	
-		if self.newTemplateId in self.customMapping:
+		if self.mappingKey in self.customMapping:
 			self.handleCustomMapping()
 
 	def __str__(self) -> str:
