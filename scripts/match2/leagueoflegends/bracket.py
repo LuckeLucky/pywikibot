@@ -26,7 +26,9 @@ class BracketLeagueOfLegends(Bracket):
 		'6STeamBracket': '2L4D',
 		'12DE4STeamBracket2': '8L4DSSU8L2DSL1D',
 		'12DETeamBracket': '8L4DSSU8L2DSL1D',
-		'1Qual-6SETeamBracket': '4L2DS-1Q'
+		'1Qual-6SETeamBracket': '4L2DS-1Q',
+		'3Qual-5DETeamBracket': '2-1Q-U-4-1Q-U-2L1D-1Q',
+		'32DETeamBracket': '32U16L8DSL4DSL2DSL1D',
 	}
 	bracketAlias.update(Bracket.bracketAlias)
 
