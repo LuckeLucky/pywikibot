@@ -25,7 +25,7 @@ STREAMS = [
 	'youtube',
 ]
 
-class Match(object):
+class Match:
 	def __init__(self, opponents: List[Opponent], template: Template) -> None:
 		self.opponents = opponents
 		self.template = sanitizeTemplate(template)

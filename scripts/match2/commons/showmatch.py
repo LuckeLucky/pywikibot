@@ -3,7 +3,7 @@ from .opponent import Opponent, TeamOpponent
 from .utils import sanitizeTemplate, getTemplateParameters, getValueOrEmpty, getNestedTemplateFromTemplate, generateId
 from .match import Match
 
-class Showmatch(object):
+class Showmatch:
 	Match = Match
 	def __init__(self, template: Template) -> None:
 		self.template = sanitizeTemplate(template)
