@@ -160,14 +160,10 @@ class BracketCounterstrike(Bracket):
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
 		name = getStringFromTemplate(self.template, key + 'team')
-		csName = getStringFromTemplate(self.template, key)
-		literal = getStringFromTemplate(self.template, key + 'literal')
 		score = getStringFromTemplate(self.template, key + scoreKey)
 		if name:
 			return TeamOpponent(name, score)
-		elif csName:
+		csName = getStringFromTemplate(self.template, key)
+		if csName:
 			return Opponent(csName, score)
-		elif literal:
-			return Opponent(literal, score)
-		else:
-			return None
+		return TeamOpponent()

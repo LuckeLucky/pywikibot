@@ -43,15 +43,9 @@ class BracketLeagueOfLegends(Bracket):
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
 		name = getStringFromTemplate(self.template, key + 'team')
 		score = getStringFromTemplate(self.template, key + scoreKey)
-		if name is not None:
+		if name:
 			return TeamOpponent(name, score)
 		leagueName = getStringFromTemplate(self.template, key + 'league')
-		if leagueName is not None:
+		if leagueName:
 			return Opponent(leagueName, score)
-		leagueName = getStringFromTemplate(self.template, key)
-		if leagueName is not None:
-			return Opponent(leagueName, score)
-		literal = getStringFromTemplate(self.template, key + 'literal')
-		if literal is not None:
-			return Opponent(literal, score)
-		return None
+		return TeamOpponent()

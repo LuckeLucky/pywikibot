@@ -195,26 +195,24 @@ class Bracket:
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
 		name = getStringFromTemplate(self.template, key + 'team')
 		score = getStringFromTemplate(self.template, key + scoreKey)
-		if name is not None:
+		if name:
 			return TeamOpponent(name, score)
-		literal = getStringFromTemplate(self.template, key + 'literal')
-		if literal is not None:
-			return Opponent(literal, score)
-		return None
+		return TeamOpponent()
 
 	def getSoloOpponent(self, key: str, scoreKey: str) -> Opponent:
 		name = getStringFromTemplate(self.template, key)
 		flag = getStringFromTemplate(self.template, key + 'flag')
 		score = getStringFromTemplate(self.template, key + scoreKey)
 		if (name is None) and (score is None) and (flag is None):
-			return None
+			return SoloOpponent()
 		return SoloOpponent(name, score, '', flag)
 
 	def getOpponent(self, key: str, scoreKey: str = 'score') -> Opponent:
 		if self.bracketType == TEAM:
 			return self.getTeamOpponent(key, scoreKey)
-		elif self.bracketType == SOLO:
+		if self.bracketType == SOLO:
 			return self.getSoloOpponent(key, scoreKey)
+		return None
 
 	def getDetails(self, key, index = 0):
 		if self.template.has(key + 'details'):
