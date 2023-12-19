@@ -37,7 +37,7 @@ class Bracket(object):
 	bracketData: list = None
 	headersData: dict = None
 	customMapping: dict = None
-	outputOrder: list = {}
+	outputOrder: dict = {}
 
 	@classmethod
 	def isAliasSet(cls, oldTemplateId: str) -> bool:
@@ -293,7 +293,7 @@ class Bracket(object):
 			if not details:
 				details = Template("FAKE")
 			details.add('winner', winner)
-		match2 = self.Match(opponent1, opponent2, details)
+		match2 = self.Match([opponent1, opponent2], details)
 		self.roundData[id] = match2
 		roundData[round['R']] = round
 		lastRound = round
@@ -315,7 +315,7 @@ class Bracket(object):
 				if not details:
 					details = Template("FAKE")
 				details.add('winner', winner)
-			match2 = self.Match(opponent1, opponent2, details)
+			match2 = self.Match([opponent1, opponent2], details)
 			self.roundData[roundParam] = match2
 
 			if "header" in match1Params:

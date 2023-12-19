@@ -26,7 +26,7 @@ class Showmatch(object):
 			if not details:
 				details = Template("FAKE")
 			details.add('winner', winner)
-		self.match = self.Match(opponent1, opponent2, details)
+		self.match = self.Match([opponent1, opponent2], details)
 
 	def __str__(self) -> str:
 		out = '{{SingleMatch|id=' + generateId()

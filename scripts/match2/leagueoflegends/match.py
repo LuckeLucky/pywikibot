@@ -42,9 +42,11 @@ class Match(Match):
 
 	def __str__(self) -> str:
 		indent = "  "
+		opponent1 = self.opponents[0]
+		opponent2 = self.opponents[1]
 		out = ("{{Match2\n" +
-			f"{indent}|opponent1={str(self.opponent1)}\n" +
-			f"{indent}|opponent2={str(self.opponent2)}\n" +
+			f"{indent}|opponent1={str(opponent1)}\n" +
+			f"{indent}|opponent2={str(opponent2)}\n" +
 			f"{indent}|date={get_value_or_empty(self.data, 'date')}"
 			f"{indent}|finished={get_value_or_empty(self.data, 'finished')}\n"
 		)

@@ -260,5 +260,17 @@
             "opp1": "R8D1",
             "opp2": "R8W1"
         }
+    },
+    "Bracket/4-2Q$$2Qual-6SETeamBracketSpecial": {
+        "R1M1": {
+            "details": "R2G1",
+            "opp1": "R2D1",
+            "opp2": "R2W1"
+        },
+        "R1M2": {
+            "details": "R2G2",
+            "opp1": "R2D2",
+            "opp2": "R2W2"
+        }
     }
 }

@@ -34,11 +34,6 @@ CS_PARAMS = STREAMS + [
 ]
 
 class Match(Match):
-	def __init__(self, opponent1: Opponent, opponent2: Opponent, template: Template) -> None:
-		super().__init__(opponent1, opponent2, template)
-		""" self.out = None
-		self.out = str(self) """
-
 	def get_maps(self):
 		index = 1
 		while(True):
@@ -51,12 +46,12 @@ class Match(Match):
 			index += 1
 
 	def __str__(self) -> str:
-		""" if self.out:
-			return self.out """
 		indent = "\t"
+		opponent1 = self.opponents[0]
+		opponent2 = self.opponents[1]
 		out = ("{{Match\n" +
-			f"{indent}|opponent1={str(self.opponent1)}\n" +
-			f"{indent}|opponent2={str(self.opponent2)}\n" +
+			f"{indent}|opponent1={str(opponent1)}\n" +
+			f"{indent}|opponent2={str(opponent2)}\n" +
 			f"{indent}|date={get_value_or_empty(self.data, 'date')}"
 			f"{indent}|finished={get_value_or_empty(self.data, 'finished')}\n"
 		)
