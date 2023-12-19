@@ -2,31 +2,28 @@ from mwparserfromhell.nodes import Template
 
 from .commons.bracket import Bracket
 from .leagueoflegends.bracket import BracketLeagueOfLegends
-from .leagueoflegends.showmatch import ShowmatchLeagueOfLegends
-
 from .counterstrike.bracket import BracketCounterstrike
 
-class BracketFactory:
-	mappings = {
-		'leagueoflegends': BracketLeagueOfLegends,
-		'counterstrike': BracketCounterstrike
-	}
-	@staticmethod
-	def getBracketClassForLanguage(language: str):
-		bracketClass = BracketFactory.mappings[language]
-		if bracketClass:
-			return bracketClass
-		else:
-			return Bracket
+from .commons.showmatch import Showmatch
+from .leagueoflegends.showmatch import ShowmatchLeagueOfLegends
 
-class ShowmatchFactory(object):
-	mappings = {
-		'leagueoflegends': ShowmatchLeagueOfLegends
-	}
-	@staticmethod
-	def getShowmatchClassForLanguage(language: str, template: Template):
-		showmatchClass = ShowmatchFactory.mappings[language]
-		if showmatchClass:
-			return showmatchClass(template)
-		else:
-			raise ValueError(f"Unsupported language: {language}")
+bracketMappings = {
+	'leagueoflegends': BracketLeagueOfLegends,
+	'counterstrike': BracketCounterstrike
+}
+
+def getBracketClassForLanguage(language: str):
+	bracketClass = bracketMappings[language]
+	if bracketClass:
+		return bracketClass
+	return Bracket
+
+showmatchMappings = {
+	'leagueoflegends': ShowmatchLeagueOfLegends
+}
+
+def getShowmatchClassForLanguage(language: str, template: Template):
+	showmatchClass = showmatchMappings[language]
+	if showmatchClass:
+		return showmatchClass(template)
+	return Showmatch

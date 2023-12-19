@@ -2,12 +2,11 @@ import mwparserfromhell
 import pywikibot
 from pywikibot import pagegenerators
 
-from match2.factory import BracketFactory
-from match2.commons.utils import getStringFromTemplate
-from utils import get_text, put_text, remove_and_squash
+from scripts.match2.factory import getBracketClassForLanguage
+from scripts.utils import get_text, put_text
 
 def processText(bracketClass, text: str):
-	while(True):
+	while True:
 		wikicode = mwparserfromhell.parse(text)
 		legacyBracket = None
 		for template in wikicode.filter_templates():
@@ -30,12 +29,12 @@ def processText(bracketClass, text: str):
 
 def main(*args):
 	# Read commandline parameters.
-	local_args = pywikibot.handle_args(args)
+	localArgs = pywikibot.handle_args(args)
 	genFactory = pagegenerators.GeneratorFactory()
 
 	save = True
 
-	for arg in local_args:
+	for arg in localArgs:
 		if genFactory.handle_arg(arg):
 			continue
 		if arg.startswith('-'):
@@ -48,15 +47,15 @@ def main(*args):
 	if not language:
 		return
 
-	bracketClass = BracketFactory.getBracketClassForLanguage(language)
+	bracketClass = getBracketClassForLanguage(language)
 
-	edit_summary = f'Convert LegacyBracket to Match2'
+	editSummary = 'Convert LegacyBracket to Match2'
 	generator = genFactory.getCombinedGenerator()
 	for page in generator:
 		text = get_text(page)
 		newText = processText(bracketClass, text)
 		if save:
-			put_text(page, summary=edit_summary, new=newText)
+			put_text(page, summary=editSummary, new=newText)
 		else:
 			print(newText)
 

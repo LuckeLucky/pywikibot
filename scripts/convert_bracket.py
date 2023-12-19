@@ -1,15 +1,16 @@
+import sys
 import mwparserfromhell
 import pywikibot
 from pywikibot import pagegenerators
 
-from match2.factory import BracketFactory
-from match2.commons.utils import getStringFromTemplate
+from scripts.match2.factory import getBracketClassForLanguage
+from scripts.match2.commons.utils import getStringFromTemplate
 from scripts.match2.commons.bracket import Bracket
-from utils import get_text, put_text, remove_and_squash
+from scripts.utils import get_text, put_text, remove_and_squash
 
 def processText(bracketClass: Bracket, text: str, oldTemplateId: str):
 	shortNames = ''
-	while(True):
+	while True:
 		templatesToRemove = []
 		wikicode = mwparserfromhell.parse(text)
 		bracketTemplate = None
@@ -38,13 +39,13 @@ def processText(bracketClass: Bracket, text: str, oldTemplateId: str):
 
 def main(*args):
 	# Read commandline parameters.
-	local_args = pywikibot.handle_args(args)
+	localArgs = pywikibot.handle_args(args)
 	genFactory = pagegenerators.GeneratorFactory()
 
 	oldTemplateId = ''
 	save = True
 
-	for arg in local_args:
+	for arg in localArgs:
 		if genFactory.handle_arg(arg):
 			continue
 		if arg.startswith('-'):
@@ -62,19 +63,19 @@ def main(*args):
 	if not oldTemplateId:
 		oldTemplateId = pywikibot.input('Template to replace:')
 
-	bracketClass: Bracket = BracketFactory.getBracketClassForLanguage(language)
+	bracketClass: Bracket = getBracketClassForLanguage(language)
 
 	if not bracketClass.isAliasSet(oldTemplateId):
 		pywikibot.stdout("<<lightred>>Missing support for template: " + oldTemplateId)
-		exit(1)
+		sys.exit(1)
 
-	edit_summary = f'Convert Bracket {oldTemplateId} to Match2'
+	editSummary = f'Convert Bracket {oldTemplateId} to Match2'
 	generator = genFactory.getCombinedGenerator()
 	for page in generator:
 		text = get_text(page)
 		newText = processText(bracketClass, text, oldTemplateId)
 		if save:
-			put_text(page, summary=edit_summary, new=newText)
+			put_text(page, summary=editSummary, new=newText)
 		else:
 			print(newText)
 
