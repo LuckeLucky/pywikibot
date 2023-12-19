@@ -54,16 +54,16 @@ def sanitizeTemplate(template: Template, removeComments: bool = False):
 	return template
 
 def getStringFromTemplate(template: Template, key: str = None, index: int = -1) -> str:
-	'''Check if template has a key, if true return str(value) or None'''
+	'''Check if template has a key, if true return str(value) or empty string'''
 	if template is None:
-		return None
+		return ''
 	if key:
 		if template.has(key):
 			return str(template.get(key).value)
 	if index >= 0:
 		if len(template.params) > index:
 			return str(template.params[index].value)
-	return None
+	return ''
 
 def getNestedTemplateFromTemplate(template: Template, key: str) -> Template:
 	if template is None:
