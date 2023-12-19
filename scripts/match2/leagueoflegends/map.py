@@ -11,7 +11,7 @@ class Map(Map):
 	def __str__(self) -> str:
 		indent = "  "
 		out = ("{{Map\n" +
-			f"{indent}|team1side={get_value_or_empty(self.data, 'team1side')}\n"
+			f"{indent}|team1side={getValueOrEmpty(self.data, 'team1side')}\n"
 		)
 
 		team1picks = self.get_team_params('t1c')
@@ -21,7 +21,7 @@ class Map(Map):
 		if team1bans:
 			out += f"{indent}{team1bans}\n"
 
-		out = out + f"{indent}|team2side={get_value_or_empty(self.data, 'team2side')}\n"
+		out = out + f"{indent}|team2side={getValueOrEmpty(self.data, 'team2side')}\n"
 
 		team2picks = self.get_team_params('t2c')
 		if team2picks:
@@ -30,8 +30,8 @@ class Map(Map):
 		if team2bans:
 			out += f"{indent}{team2bans}\n"
 
-		out += f"{indent}|length={get_value_or_empty(self.data, 'length')}"
-		out += f" |winner={get_value_or_empty(self.data, 'win')}"
+		out += f"{indent}|length={getValueOrEmpty(self.data, 'length')}"
+		out += f" |winner={getValueOrEmpty(self.data, 'win')}"
 
 		out += "\n" + indent + "}}"
 		return out

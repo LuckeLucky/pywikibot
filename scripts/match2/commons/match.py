@@ -2,7 +2,7 @@ from typing import List
 from mwparserfromhell.nodes import Template
 
 from .opponent import Opponent
-from .utils import *
+from .utils import sanitizeTemplate, getTemplateParameters
 
 STREAMS = [
 	'stream',
@@ -32,10 +32,10 @@ class Match(object):
 		self.data = getTemplateParameters(self.template)
 		self.maps = []
 
-		self.get_maps()
+		self.getMaps()
 
-	def is_valid(self) -> bool:
+	def isValid(self) -> bool:
 		return (self.opponents[0] and self.opponents[1]) or self.template
 
-	def get_maps(self):
+	def getMaps(self):
 		pass

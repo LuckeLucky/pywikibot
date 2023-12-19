@@ -34,7 +34,7 @@ CS_PARAMS = STREAMS + [
 ]
 
 class Match(Match):
-	def get_maps(self):
+	def getMaps(self):
 		index = 1
 		while(True):
 			strIndex = str(index)
@@ -52,10 +52,10 @@ class Match(Match):
 		out = ("{{Match\n" +
 			f"{indent}|opponent1={str(opponent1)}\n" +
 			f"{indent}|opponent2={str(opponent2)}\n" +
-			f"{indent}|date={get_value_or_empty(self.data, 'date')}"
-			f"{indent}|finished={get_value_or_empty(self.data, 'finished')}\n"
+			f"{indent}|date={getValueOrEmpty(self.data, 'date')}"
+			f"{indent}|finished={getValueOrEmpty(self.data, 'finished')}\n"
 		)
-		winner = get_value_or_empty(self.data, 'winner')
+		winner = getValueOrEmpty(self.data, 'winner')
 		if winner:
 			out += f"{indent}|winner={winner}\n"
 

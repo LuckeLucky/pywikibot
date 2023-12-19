@@ -1,4 +1,4 @@
-class Opponent(object):	
+class Opponent:
 	def __init__(self, name: str = '', score: str = ''):
 		self.name = name
 		self.score = score
@@ -6,22 +6,16 @@ class Opponent(object):
 	def type(self):
 		return 'literal'
 
-	def is_bye(self) -> bool:
-		return self.name.lower() == 'bye'
-
 	def __str__(self) -> str:
 		out = '{{LiteralOpponent|'
 		if self.name:
 			out = out + self.name
 		if self.score:
-			out = out + '|score=' + self.score 
+			out = out + '|score=' + self.score
 
 		return out + '}}'
 
 class TeamOpponent(Opponent):
-	def __init__(self, name: str = '', score: str = ''):
-		super().__init__(name, score)
-
 	def type(self):
 		return 'team'
 
@@ -30,7 +24,7 @@ class TeamOpponent(Opponent):
 		if self.name:
 			out = out + self.name
 		if self.score:
-			out = out + '|score=' + self.score 
+			out = out + '|score=' + self.score
 
 		return out + '}}'
 

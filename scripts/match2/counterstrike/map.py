@@ -30,7 +30,7 @@ class Map(Map):
 	def __init__(self, index: int, template: Template) -> None:
 		super().__init__(index, template)
 		self.prefix = 'map' + str(self.index)
-		winner = get_value_or_empty(self.data, self.prefix + 'win')
+		winner = getValueOrEmpty(self.data, self.prefix + 'win')
 		if winner in ['1', '2', '0']:
 			self.winner = int(winner)
 			self.finished = 'true'
@@ -39,7 +39,7 @@ class Map(Map):
 			self.finished = 'true'
 		elif winner == SKIP:
 			self.finished = SKIP
-		score = get_value_or_empty(self.data, self.prefix + 'score')
+		score = getValueOrEmpty(self.data, self.prefix + 'score')
 		self.score = score.split('-', 1)
 		strIndex = str(self.index)
 		self.links = [x + strIndex for x in MAP_LINKS]
@@ -54,7 +54,7 @@ class Map(Map):
 
 	def __str__(self) -> str:
 		indent = "\t"
-		out = f"{{{{Map|map={get_value_or_empty(self.data, self.prefix)}"
+		out = f"{{{{Map|map={getValueOrEmpty(self.data, self.prefix)}"
 
 		if len(self.score) == 2:
 			out += f"|score1={self.score[0]}|score2={self.score[1]}"
@@ -84,10 +84,10 @@ class Map(Map):
 			suffix = key.removesuffix(str(self.index))
 			out += f"{indent}|{suffix}={self.data[key]}"
 		
-		vod = get_value_or_empty(self.data, 'vodgame' + str(self.index))
+		vod = getValueOrEmpty(self.data, 'vodgame' + str(self.index))
 		if vod:
 			out += f"\n|vod={vod}"
-		vod2 = get_value_or_empty(self.data, '2vodgame' + str(self.index))
+		vod2 = getValueOrEmpty(self.data, '2vodgame' + str(self.index))
 		if vod2:
 			out += f"\n|vod2={vod2}"
 

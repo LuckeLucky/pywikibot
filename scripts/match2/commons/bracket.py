@@ -1,13 +1,15 @@
-from mwparserfromhell.nodes import Template
 import copy
 import json
-
 from functools import cmp_to_key
 from pathlib import Path
+from typing import Dict, List
 
-from .utils import *
+from mwparserfromhell.nodes import Template
+
 from .match import Match
 from .opponent import Opponent, SoloOpponent, TeamOpponent
+from .utils import generateId, getStringFromTemplate, sanitizeTemplate
+
 
 TEAM = 'team'
 SOLO = 'solo'
@@ -15,9 +17,9 @@ SOLO = 'solo'
 RESET_MATCH = 'RxMBR'
 THIRD_PLACE_MATCH = 'RxMTP'
 
-class Bracket(object):
+class Bracket:
 	Match = Match
-	bracketAlias: dict = {
+	bracketAlias: Dict[str, str] = {
 		'2SETeamBracket': '2',
 		'2SEBracket': '2',
 		'4SETeamBracket': '4',
@@ -34,10 +36,10 @@ class Bracket(object):
 		'128SEBracket': '128',
 	}
 	isLoaded: bool = False
-	bracketData: list = None
-	headersData: dict = None
-	customMapping: dict = None
-	outputOrder: dict = {}
+	bracketData: Dict[str, List] = {}
+	headersData: Dict[str, str] = {}
+	customMapping: Dict[str, List] = {}
+	outputOrder: Dict[str, List] = {}
 
 	@classmethod
 	def isAliasSet(cls, oldTemplateId: str) -> bool:
@@ -45,34 +47,34 @@ class Bracket(object):
 			Checks if the old template can be converted
 		"""
 		return oldTemplateId in cls.bracketAlias
-	
+
 	@classmethod
 	def isBracketDataAvailable(cls, newTemplateId: str) -> bool:
 		if not cls.isLoaded:
 			cls.load()
 		return newTemplateId in cls.bracketData
-	
+
 	@classmethod
 	def getNewTemplateId(cls, oldTemplateId: str) -> str:
 		"""
 			Returns the new Bracket name
 		"""
 		return 'Bracket/' + cls.bracketAlias[oldTemplateId] if oldTemplateId in cls.bracketAlias else None
-	
+
 	@classmethod
 	def loadBracketData(cls):
-		p = Path(__file__).with_name('bracket_templates.json')
-		file = p.open()
-		data = json.load(file)
-		cls.bracketData = data
+		filePath = Path(__file__).with_name('bracket_templates.json')
+		with filePath.open(encoding='utf-8') as file:
+			data = json.load(file)
+			cls.bracketData = data
 
 	@classmethod
 	def loadHeadersData(cls):
-		p = Path(__file__).with_name('headers_data.json')
-		file = p.open()
-		data = json.load(file)
-		cls.headersData = data
-	
+		filePath = Path(__file__).with_name('headers_data.json')
+		with filePath.open(encoding='utf-8') as file:
+			data = json.load(file)
+			cls.headersData = data
+
 	@classmethod
 	def loadCustomMapping(cls):
 		pass
@@ -88,20 +90,20 @@ class Bracket(object):
 		cls.isLoaded = True
 
 	@classmethod
-	def getSimplifiedId(cls, id: str) -> str:
+	def getSimplifiedId(cls, match2Id: str) -> str:
 
 		"""
 			Simplify round id
 			ex. id = 'R01M001' return 'R1M1'
 		"""
-		id = id.split('_')[1] if len(id.split('_')) > 1 else id
-		if id == 'RxMTP':
-			return id
-		elif id == 'RxMBR':
-			return id
+		match2Id = match2Id.split('_')[1] if len(match2Id.split('_')) > 1 else match2Id
+		if match2Id == 'RxMTP':
+			return match2Id
+		elif match2Id == 'RxMBR':
+			return match2Id
 		else:
-			id = id.replace('-', '')
-			roundNumber, _, matchNumber = id[1:].partition('M')
+			match2Id = match2Id.replace('-', '')
+			roundNumber, _, matchNumber = match2Id[1:].partition('M')
 			return 'R' + str(int(roundNumber)) + 'M' + str(int(matchNumber))
 
 	@classmethod
@@ -111,9 +113,8 @@ class Bracket(object):
 
 		if headerCode in cls.headersData:
 			return '\n\n' + '<!-- ' + cls.headersData[headerCode] + ' -->'
-		
 		return ''
-	
+
 	@classmethod
 	def getRoundOutputOrder(cls, newTemplateId: str):
 		if newTemplateId in cls.outputOrder:
@@ -121,9 +122,9 @@ class Bracket(object):
 		bracketDataList = []
 
 		for match in cls.bracketData[newTemplateId]:
-			id = cls.getSimplifiedId(match['match2id'])
+			simplifiedId = cls.getSimplifiedId(match['match2id'])
 			bracketData = match['match2bracketdata']
-			bracketData['matchKey'] = id
+			bracketData['matchKey'] = simplifiedId
 			bracketDataList.append(bracketData)
 
 		def sortKey(bracketData):
@@ -151,14 +152,13 @@ class Bracket(object):
 					return -1
 				elif iteamAsort[index] > iteamBsort[index]:
 					return 1
-			
 			return 1 if len(itemA) < len(itemB) else -1
 
 		bracketDataList = sorted(bracketDataList, key = cmp_to_key(compare))
 		cls.outputOrder[newTemplateId] = copy.copy(bracketDataList)
 
 		return bracketDataList
-	
+
 	@classmethod
 	def createNewBracket(cls, template: Template, oldTemplateId: str = ""):
 		if oldTemplateId != "" and not cls.isAliasSet(oldTemplateId):
@@ -231,72 +231,72 @@ class Bracket(object):
 		return ''
 
 	def populateRoundData(self, match, roundData, lastRound, lowerHeaders):
-		id = self.getSimplifiedId(match['match2id'])
-		roundNumber, _, _ = id[1:].partition('M')
+		simplifiedId = self.getSimplifiedId(match['match2id'])
+		roundNumber, _, _ = simplifiedId[1:].partition('M')
 		if roundNumber.isnumeric():
 			roundNumber = int(roundNumber)
 		reset = False
-		if id == THIRD_PLACE_MATCH:
-			round = lastRound
-		elif id == RESET_MATCH:
-			round = lastRound
-			round['G'] = round['G'] - 2
-			round['W'] = round['W'] - 2
-			round['D'] = round['D'] - 2
+		if simplifiedId == THIRD_PLACE_MATCH:
+			currentRound = lastRound
+		elif simplifiedId == RESET_MATCH:
+			currentRound = lastRound
+			currentRound['G'] = currentRound['G'] - 2
+			currentRound['W'] = currentRound['W'] - 2
+			currentRound['D'] = currentRound['D'] - 2
 			reset = True
 		else:
 			if roundNumber in roundData:
-				round = roundData[roundNumber]
+				currentRound = roundData[roundNumber]
 			else:
-				round = {'R': roundNumber, 'G': 0, 'D': 1, 'W': 1}
-		round['G'] = round['G'] + 1
+				currentRound = {'R': roundNumber, 'G': 0, 'D': 1, 'W': 1}
+		currentRound['G'] = currentRound['G'] + 1
 
 		bd = match['match2bracketdata']
 
 		if 'header' in bd:
 			if bd['header'].startswith('!l'):
-				lowerHeaders[roundNumber] = round['G']
+				lowerHeaders[roundNumber] = currentRound['G']
 
 		opponent1 = None
 		winner1Param = ''
 		if (not 'toupper' in bd) and not reset:
-			param = 'R' + str(round['R']) + 'D' + str(round['D'])
+			param = 'R' + str(currentRound['R']) + 'D' + str(currentRound['D'])
 			#RxDx
 			opponent1 = self.getOpponent(param)
 			winner1Param = param
-			round['D'] = round['D'] + 1
+			currentRound['D'] = currentRound['D'] + 1
 		else:
-			param = 'R' + str(round['R']) + 'W' + str(round['W'])
+			param = 'R' + str(currentRound['R']) + 'W' + str(currentRound['W'])
 			#RxWx
 			opponent1 = self.getOpponent(param, scoreKey= 'score2' if reset else 'score')
 			winner1Param = param
-			round['W'] = round['W'] + 1
+			currentRound['W'] = currentRound['W'] + 1
 
 		opponent2 = None
 		winner2Param = ''
 		if (not 'tolower' in bd) and not reset:
-			param = 'R' + str(round['R']) + 'D' + str(round['D'])
+			param = 'R' + str(currentRound['R']) + 'D' + str(currentRound['D'])
 			#RxDx
 			opponent2 = self.getOpponent(param)
 			winner2Param = param
-			round['D'] = round['D'] + 1
+			currentRound['D'] = currentRound['D'] + 1
 		else:
-			param = 'R' + str(round['R']) + 'W' + str(round['W'])
+			param = 'R' + str(currentRound['R']) + 'W' + str(currentRound['W'])
 			#RxWx
 			opponent2 = self.getOpponent(param, scoreKey= 'score2' if reset else 'score')
 			winner2Param = param
-			round['W'] = round['W'] + 1
+			currentRound['W'] = currentRound['W'] + 1
 
-		details = self.getDetails('R' + str(round['R']) + 'G' + str(round['G']), index = 1 if reset else 0)
+		details = self.getDetails('R' + str(currentRound['R']) + 'G' + str(currentRound['G']), index = 1 if reset else 0)
 		winner = self.getWinner(winner1Param, winner2Param)
 		if winner:
 			if not details:
 				details = Template("FAKE")
 			details.add('winner', winner)
 		match2 = self.Match([opponent1, opponent2], details)
-		self.roundData[id] = match2
-		roundData[round['R']] = round
-		lastRound = round
+		self.roundData[simplifiedId] = match2
+		roundData[currentRound['R']] = currentRound
+		lastRound = currentRound
 
 		return roundData, lastRound, lowerHeaders
 
@@ -324,7 +324,7 @@ class Bracket(object):
 					self.roundData[roundParam + 'header'] = header
 
 	def process(self):
-		if (self.template is None):
+		if self.template is None:
 			return
 
 		self.shortNames = getStringFromTemplate(self.template, 'shortNames')
@@ -346,7 +346,7 @@ class Bracket(object):
 			headerLow = getStringFromTemplate(self.template, 'L' + str(n))
 			if headerLow and (n in lowerHeaders):
 				self.roundData['R' + str(n) + 'M' + str(lowerHeaders[n]) + 'header'] = headerLow
-	
+
 		if self.mappingKey in self.customMapping:
 			self.handleCustomMapping()
 
@@ -356,16 +356,15 @@ class Bracket(object):
 			out = out + '|forceShortName=true'
 		if self.columnwidth:
 			out = out + '|matchWidth=' + self.columnwidth
-			
+
 		matchOut = ''
 		roundOutputOrder = self.getRoundOutputOrder(self.newTemplateId)
-		for round in roundOutputOrder:
-			param = round['matchKey']
+		for currentRound in roundOutputOrder:
+			param = currentRound['matchKey']
 			if param + 'header' in self.roundData:
 				out = out + '\n|' + param + 'header=' + self.roundData[param + 'header']
 
 			if not param in self.roundData:
-				#Todo add empty match
 				if param != THIRD_PLACE_MATCH and param != RESET_MATCH:
 					matchOut = matchOut + '\n|' + param + '=' + '\n'
 				continue
@@ -376,14 +375,14 @@ class Bracket(object):
 					if (not match.opponent1.score) and (not match.opponent2.score) and (not match.template or match.template.name == "FAKE"):
 						continue
 				elif param == THIRD_PLACE_MATCH:
-					if (not match.opponent1.score) and (not match.opponent2.score) and (getStringFromTemplate(match.template, 'winner') == None):
+					if (not match.opponent1.score) and (not match.opponent2.score) and (getStringFromTemplate(match.template, 'winner') is None):
 						continue
 				header = ''
 				if param == THIRD_PLACE_MATCH or param == RESET_MATCH:
 					if param == THIRD_PLACE_MATCH:
 						header = '\n\n' + '<!-- Third Place Match -->'
-				elif 'header' in round:
-					header = self.getHeader(round['header'])
+				elif 'header' in currentRound:
+					header = self.getHeader(currentRound['header'])
 				matchOut = matchOut + header
 				matchOut = matchOut + '\n|' + param + '=' + str(match)
 

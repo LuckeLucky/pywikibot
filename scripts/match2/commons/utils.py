@@ -1,8 +1,8 @@
-from mwparserfromhell.nodes import Template
-
 import re
 import random
 import string
+
+from mwparserfromhell.nodes import Template
 
 class PrefixIterator:
 	def __init__(self, prefix: str, dictionary: dict):
@@ -14,11 +14,10 @@ class PrefixIterator:
 
 	def __next__(self):
 		if self.index < len(self.keys):
-			current_key = self.keys[self.index]
+			currentKey = self.keys[self.index]
 			self.index += 1
-			return current_key
-		else:
-			raise StopIteration
+			return currentKey
+		raise StopIteration
 
 class KeysInDictionaryIterator:
 	def __init__(self, keys: list, dictionary: dict) -> None:
@@ -27,24 +26,22 @@ class KeysInDictionaryIterator:
 			if key in dictionary:
 				self.keys.append(key)
 		self.index = 0
-          
 	def __iter__(self):
 		return self
 
 	def __next__(self):
 		if self.index < len(self.keys):
-			current_key = self.keys[self.index]
+			currentKey = self.keys[self.index]
 			self.index += 1
-			return current_key
-		else:
-			raise StopIteration
-        
-def get_value_or_empty(dictionary: dict, key: str):
-    if key in dictionary:
-        return dictionary[key]
-    else:
-        return ""
-	
+			return currentKey
+		raise StopIteration
+
+def getValueOrEmpty(dictionary: dict, key: str):
+	if key in dictionary:
+		return dictionary[key]
+	else:
+		return ""
+
 def sanitizeTemplate(template: Template, removeComments: bool = False):
 	if template is None:
 		return template
