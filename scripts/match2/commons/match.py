@@ -28,8 +28,8 @@ STREAMS = [
 class Match(object):
 	def __init__(self, opponents: List[Opponent], template: Template) -> None:
 		self.opponents = opponents
-		self.template = sanitize_template(template)
-		self.data = template_parameters_to_str_dict(self.template)
+		self.template = sanitizeTemplate(template)
+		self.data = getTemplateParameters(self.template)
 		self.maps = []
 
 		self.get_maps()

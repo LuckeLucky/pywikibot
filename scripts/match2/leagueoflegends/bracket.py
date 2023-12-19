@@ -40,17 +40,17 @@ class BracketLeagueOfLegends(Bracket):
 		cls.customMapping = data
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = get_parameter_str(self.template, key + 'team')
-		score = get_parameter_str(self.template, key + scoreKey)
+		name = getStringFromTemplate(self.template, key + 'team')
+		score = getStringFromTemplate(self.template, key + scoreKey)
 		if name is not None:
 			return TeamOpponent(name, score)
-		leagueName = get_parameter_str(self.template, key + 'league')
+		leagueName = getStringFromTemplate(self.template, key + 'league')
 		if leagueName is not None:
 			return Opponent(leagueName, score)
-		leagueName = get_parameter_str(self.template, key)
+		leagueName = getStringFromTemplate(self.template, key)
 		if leagueName is not None:
 			return Opponent(leagueName, score)
-		literal = get_parameter_str(self.template, key + 'literal')
+		literal = getStringFromTemplate(self.template, key + 'literal')
 		if literal is not None:
 			return Opponent(literal, score)
 		return None

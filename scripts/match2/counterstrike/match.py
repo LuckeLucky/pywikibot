@@ -38,7 +38,7 @@ class Match(Match):
 		index = 1
 		while(True):
 			strIndex = str(index)
-			mapX = get_parameter_str(self.template, 'map' + strIndex)
+			mapX = getStringFromTemplate(self.template, 'map' + strIndex)
 			if mapX:
 				self.maps.append(Map(index, self.template))
 			else:

@@ -163,10 +163,10 @@ class BracketCounterstrike(Bracket):
 		super().__init__(oldTemplateName, bracket)
 	
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = get_parameter_str(self.template, key + 'team')
-		csName = get_parameter_str(self.template, key)
-		literal = get_parameter_str(self.template, key + 'literal')
-		score = get_parameter_str(self.template, key + scoreKey)
+		name = getStringFromTemplate(self.template, key + 'team')
+		csName = getStringFromTemplate(self.template, key)
+		literal = getStringFromTemplate(self.template, key + 'literal')
+		score = getStringFromTemplate(self.template, key + scoreKey)
 		if name is not None:
 			return TeamOpponent(name, score)
 		elif csName is not None:

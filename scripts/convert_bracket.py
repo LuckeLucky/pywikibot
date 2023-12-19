@@ -3,7 +3,7 @@ import pywikibot
 from pywikibot import pagegenerators
 
 from match2.factory import BracketFactory
-from match2.commons.utils import get_parameter_str
+from match2.commons.utils import getStringFromTemplate
 from scripts.match2.commons.bracket import Bracket
 from utils import get_text, put_text, remove_and_squash
 
@@ -20,7 +20,7 @@ def processText(bracketClass: Bracket, text: str, oldTemplateId: str):
 				if shortNames:
 					bracketTemplate.add('shortNames', shortNames)
 			if templateName == '#vardefine:bracket_short_teams':
-				shortNames = get_parameter_str(template, index = 0)
+				shortNames = getStringFromTemplate(template, index = 0)
 				templatesToRemove.append(template)
 
 		if bracketTemplate is None:

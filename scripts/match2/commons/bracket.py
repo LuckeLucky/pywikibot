@@ -165,10 +165,10 @@ class Bracket(object):
 			return None
 		bracket = cls(template)
 		if oldTemplateId == "":
-			bracket.newTemplateId = get_parameter_str(bracket.template, index=0)
-			bracket.oldTemplateId = get_parameter_str(bracket.template, index=1)
-			bracket.bracketType = get_parameter_str(bracket.template, 'type')
-			bracket.id = get_parameter_str(bracket.template, 'id')
+			bracket.newTemplateId = getStringFromTemplate(bracket.template, index=0)
+			bracket.oldTemplateId = getStringFromTemplate(bracket.template, index=1)
+			bracket.bracketType = getStringFromTemplate(bracket.template, 'type')
+			bracket.id = getStringFromTemplate(bracket.template, 'id')
 		else:
 			bracket.newTemplateId = cls.getNewTemplateId(oldTemplateId)
 			bracket.oldTemplateId = oldTemplateId
@@ -181,7 +181,7 @@ class Bracket(object):
 	def __init__(self, template: Template) -> None:
 		if not self.isLoaded:
 			self.load()
-		self.template = sanitize_template(template, removeComments = True)
+		self.template = sanitizeTemplate(template, removeComments = True)
 		self.shortNames = ''
 		self.columnwidth = ''
 		self.roundData = {}
@@ -193,19 +193,19 @@ class Bracket(object):
 		self.mappingKey = None
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = get_parameter_str(self.template, key + 'team')
-		score = get_parameter_str(self.template, key + scoreKey)
+		name = getStringFromTemplate(self.template, key + 'team')
+		score = getStringFromTemplate(self.template, key + scoreKey)
 		if name is not None:
 			return TeamOpponent(name, score)
-		literal = get_parameter_str(self.template, key + 'literal')
+		literal = getStringFromTemplate(self.template, key + 'literal')
 		if literal is not None:
 			return Opponent(literal, score)
 		return None
 
 	def getSoloOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = get_parameter_str(self.template, key)
-		flag = get_parameter_str(self.template, key + 'flag')
-		score = get_parameter_str(self.template, key + scoreKey)
+		name = getStringFromTemplate(self.template, key)
+		flag = getStringFromTemplate(self.template, key + 'flag')
+		score = getStringFromTemplate(self.template, key + scoreKey)
 		if (name is None) and (score is None) and (flag is None):
 			return None
 		return SoloOpponent(name, score, '', flag)
@@ -220,13 +220,13 @@ class Bracket(object):
 		if self.template.has(key + 'details'):
 			templates = self.template.get(key + 'details').value.filter_templates(recursive = False)
 			if len(templates) > index:
-				return sanitize_template(templates[index])
+				return sanitizeTemplate(templates[index])
 		return None
 
 	def getWinner(self, team1Key: str, team2Key) -> int:
-		if get_parameter_str(self.template, team1Key + 'win'):
+		if getStringFromTemplate(self.template, team1Key + 'win'):
 			return '1'
-		if get_parameter_str(self.template, team2Key + 'win'):
+		if getStringFromTemplate(self.template, team2Key + 'win'):
 			return '2'
 		return ''
 
@@ -319,7 +319,7 @@ class Bracket(object):
 			self.roundData[roundParam] = match2
 
 			if "header" in match1Params:
-				header = get_parameter_str(self.template, match1Params["header"])
+				header = getStringFromTemplate(self.template, match1Params["header"])
 				if header:
 					self.roundData[roundParam + 'header'] = header
 
@@ -327,10 +327,10 @@ class Bracket(object):
 		if (self.template is None):
 			return
 
-		self.shortNames = get_parameter_str(self.template, 'shortNames')
-		self.columnwidth = get_parameter_str(self.template, 'column-width')
+		self.shortNames = getStringFromTemplate(self.template, 'shortNames')
+		self.columnwidth = getStringFromTemplate(self.template, 'column-width')
 		if not self.columnwidth:
-			self.columnwidth = get_parameter_str(self.template, 'column-width1')
+			self.columnwidth = getStringFromTemplate(self.template, 'column-width1')
 
 		roundData = {}
 		lowerHeaders = {}
@@ -340,10 +340,10 @@ class Bracket(object):
 			roundData, lastRound, lowerHeaders = self.populateRoundData(match, roundData, lastRound, lowerHeaders)
 
 		for n in range(1, lastRound['R'] + 1):
-			headerUp = get_parameter_str(self.template, 'R' + str(n))
+			headerUp = getStringFromTemplate(self.template, 'R' + str(n))
 			if headerUp:
 				self.roundData['R' + str(n) + 'M1header'] = headerUp
-			headerLow = get_parameter_str(self.template, 'L' + str(n))
+			headerLow = getStringFromTemplate(self.template, 'L' + str(n))
 			if headerLow and (n in lowerHeaders):
 				self.roundData['R' + str(n) + 'M' + str(lowerHeaders[n]) + 'header'] = headerLow
 	
@@ -376,7 +376,7 @@ class Bracket(object):
 					if (not match.opponent1.score) and (not match.opponent2.score) and (not match.template or match.template.name == "FAKE"):
 						continue
 				elif param == THIRD_PLACE_MATCH:
-					if (not match.opponent1.score) and (not match.opponent2.score) and (get_parameter_str(match.template, 'winner') == None):
+					if (not match.opponent1.score) and (not match.opponent2.score) and (getStringFromTemplate(match.template, 'winner') == None):
 						continue
 				header = ''
 				if param == THIRD_PLACE_MATCH or param == RESET_MATCH:

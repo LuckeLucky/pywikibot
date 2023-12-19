@@ -6,8 +6,8 @@ from .match import Match
 class Showmatch(object):
 	Match = Match
 	def __init__(self, template: Template) -> None:
-		self.template = sanitize_template(template)
-		self.data = template_parameters_to_str_dict(template)
+		self.template = sanitizeTemplate(template)
+		self.data = getTemplateParameters(template)
 		self.match = None
 		
 		self.get_match()
@@ -21,7 +21,7 @@ class Showmatch(object):
 		opponent1 = self.get_opponent('team1', 'score1')
 		opponent2 = self.get_opponent('team2', 'score2')
 		winner = get_value_or_empty(self.data, 'win')
-		details = get_parameter_template(self.template, 'details')
+		details = getNestedTemplateFromTemplate(self.template, 'details')
 		if winner:
 			if not details:
 				details = Template("FAKE")

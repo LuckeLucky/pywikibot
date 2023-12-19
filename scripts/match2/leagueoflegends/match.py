@@ -27,13 +27,13 @@ class Match(Match):
 		index = 1
 		while(True):
 			strIndex = str(index)
-			match_template = get_parameter_template(self.template, 'match' + strIndex)
+			match_template = getNestedTemplateFromTemplate(self.template, 'match' + strIndex)
 			#Winner outside of MatchLua
 			winner = get_value_or_empty(self.data, 'map' + strIndex + 'winner')
 			if match_template is None and winner:
 				match_template = Template('MatchLua')
 				match_template.add('win', winner)
-			elif not get_parameter_str(match_template, 'win') and winner:
+			elif not getStringFromTemplate(match_template, 'win') and winner:
 				match_template.add('win', winner)
 			if match_template is None:
 				break

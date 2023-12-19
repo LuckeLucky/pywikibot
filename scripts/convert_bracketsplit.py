@@ -3,7 +3,7 @@ import pywikibot
 from pywikibot import pagegenerators
 
 from match2.factory import BracketFactory
-from match2.commons.utils import get_parameter_str
+from match2.commons.utils import getStringFromTemplate
 from scripts.match2.commons.bracket import Bracket
 from utils import get_text, put_text, remove_and_squash
 

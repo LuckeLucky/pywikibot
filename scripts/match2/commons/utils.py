@@ -45,7 +45,7 @@ def get_value_or_empty(dictionary: dict, key: str):
     else:
         return ""
 	
-def sanitize_template(template: Template, removeComments: bool = False):
+def sanitizeTemplate(template: Template, removeComments: bool = False):
 	if template is None:
 		return template
 	for parameter in template.params:
@@ -56,7 +56,7 @@ def sanitize_template(template: Template, removeComments: bool = False):
 		template.add(name, value.strip(), preserve_spacing=False)
 	return template
 
-def get_parameter_str(template: Template, key: str = None, index: int = -1) -> str:
+def getStringFromTemplate(template: Template, key: str = None, index: int = -1) -> str:
 	'''Check if template has a key, if true return str(value) or None'''
 	if template is None:
 		return None
@@ -68,7 +68,7 @@ def get_parameter_str(template: Template, key: str = None, index: int = -1) -> s
 			return str(template.params[index].value)
 	return None
 
-def get_parameter_template(template: Template, key: str) -> Template:
+def getNestedTemplateFromTemplate(template: Template, key: str) -> Template:
 	if template is None:
 		return None
 	if template.has(key):
@@ -79,7 +79,7 @@ def generateId():
 	ran = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 10))
 	return ran
 
-def template_parameters_to_str_dict(template: Template) -> dict:
+def getTemplateParameters(template: Template) -> dict:
 	if template is None:
 		return {}
 	data = {}
