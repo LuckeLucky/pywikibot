@@ -1,9 +1,10 @@
-from ..commons.bracket import Bracket
-from .match import Match
-from ..commons.utils import *
-from ..commons.opponent import Opponent, TeamOpponent
 import json
 from pathlib import Path
+
+from ..commons.bracket import Bracket
+from .match import Match
+from ..commons.utils import getStringFromTemplate
+from ..commons.opponent import Opponent, TeamOpponent
 
 class BracketLeagueOfLegends(Bracket):
 	Match = Match
@@ -34,10 +35,10 @@ class BracketLeagueOfLegends(Bracket):
 
 	@classmethod
 	def loadCustomMapping(cls):
-		p = Path(__file__).with_name('bracket_custom_mappings.json')
-		file = p.open()
-		data = json.load(file)
-		cls.customMapping = data
+		filePath = Path(__file__).with_name('bracket_custom_mappings.json')
+		with filePath.open(encoding='utf-8') as file:
+			data = json.load(file)
+			cls.customMapping = data
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
 		name = getStringFromTemplate(self.template, key + 'team')

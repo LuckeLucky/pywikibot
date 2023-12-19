@@ -1,8 +1,14 @@
 import io
 from mwparserfromhell.nodes import Template
 
-from ..commons.utils import *
-from ..commons.match import Match, STREAMS
+from ..commons.utils import (
+    getNestedTemplateFromTemplate,
+    getValueOrEmpty,
+    getStringFromTemplate,
+    KeysInDictionaryIterator,
+    PrefixIterator
+)
+from ..commons.match import Match as commonsMatch, STREAMS
 
 from .map import Map
 
@@ -22,22 +28,22 @@ LEAGUE_PARAMS = STREAMS + [
 	'recap'
 ]
 
-class Match(Match):
+class Match(commonsMatch):
 	def getMaps(self):
 		index = 1
-		while(True):
+		while True:
 			strIndex = str(index)
-			match_template = getNestedTemplateFromTemplate(self.template, 'match' + strIndex)
+			matchTemplate = getNestedTemplateFromTemplate(self.template, 'match' + strIndex)
 			#Winner outside of MatchLua
 			winner = getValueOrEmpty(self.data, 'map' + strIndex + 'winner')
-			if match_template is None and winner:
-				match_template = Template('MatchLua')
-				match_template.add('win', winner)
-			elif not getStringFromTemplate(match_template, 'win') and winner:
-				match_template.add('win', winner)
-			if match_template is None:
+			if matchTemplate is None and winner:
+				matchTemplate = Template('MatchLua')
+				matchTemplate.add('win', winner)
+			elif not getStringFromTemplate(matchTemplate, 'win') and winner:
+				matchTemplate.add('win', winner)
+			if matchTemplate is None:
 				break
-			self.maps.append(Map(index, match_template))
+			self.maps.append(Map(index, matchTemplate))
 			index += 1
 
 	def __str__(self) -> str:
@@ -56,17 +62,17 @@ class Match(Match):
 
 		for key in KeysInDictionaryIterator(LEAGUE_PARAMS, self.data):
 			out += f"{indent}|{key}={self.data[key]}\n"
-			
+
 		for key in PrefixIterator('vodgame', self.data):
 			out += f"{indent}|{key}={self.data[key]}\n"
 
 		for key in PrefixIterator('matchhistory', self.data):
 			out += f"{indent}|{key}={self.data[key]}\n"
 
-		for map in self.maps:
-			index = map.index
-			maps_out = f"{indent}|map{index}={str(map)}\n"
-			for line in io.StringIO(maps_out):
+		for matchMap in self.maps:
+			index = matchMap.index
+			mapsOut = f"{indent}|map{index}={str(matchMap)}\n"
+			for line in io.StringIO(mapsOut):
 				if line.startswith(indent) and ('{{' not in line) and ('}}' not in line):
 					out += indent + line
 				else:

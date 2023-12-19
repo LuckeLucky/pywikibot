@@ -1,8 +1,7 @@
-from mwparserfromhell.nodes import Template
 import json
 from pathlib import Path
 
-from ..commons.utils import *
+from ..commons.utils import getStringFromTemplate
 from ..commons.opponent import Opponent, TeamOpponent
 from ..commons.bracket import Bracket
 from .match import Match
@@ -154,24 +153,21 @@ class BracketCounterstrike(Bracket):
 
 	@classmethod
 	def loadCustomMapping(cls):
-		p = Path(__file__).with_name('bracket_custom_mappings.json')
-		file = p.open()
-		data = json.load(file)
-		cls.customMapping = data
+		filePath = Path(__file__).with_name('bracket_custom_mappings.json')
+		with filePath.open(encoding='utf-8') as file:
+			data = json.load(file)
+			cls.customMapping = data
 
-	def __init__(self, oldTemplateName: str, bracket: Template) -> None:
-		super().__init__(oldTemplateName, bracket)
-	
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
 		name = getStringFromTemplate(self.template, key + 'team')
 		csName = getStringFromTemplate(self.template, key)
 		literal = getStringFromTemplate(self.template, key + 'literal')
 		score = getStringFromTemplate(self.template, key + scoreKey)
-		if name is not None:
+		if name:
 			return TeamOpponent(name, score)
-		elif csName is not None:
+		elif csName:
 			return Opponent(csName, score)
-		elif literal is not None:
+		elif literal:
 			return Opponent(literal, score)
 		else:
 			return None

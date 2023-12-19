@@ -1,7 +1,7 @@
 from mwparserfromhell.nodes import Template
 from ..commons.utils import Template
-from ..commons.map import Map
-from ..commons.utils import *
+from ..commons.map import Map as commonsMap
+from ..commons.utils import getValueOrEmpty, KeysInDictionaryIterator
 
 MAP_LINKS = [
 	'esl',
@@ -26,7 +26,7 @@ MAP_LINKS = [
 
 SKIP = 'skip'
 
-class Map(Map):
+class Map(commonsMap):
 	def __init__(self, index: int, template: Template) -> None:
 		super().__init__(index, template)
 		self.prefix = 'map' + str(self.index)
@@ -44,7 +44,7 @@ class Map(Map):
 		strIndex = str(self.index)
 		self.links = [x + strIndex for x in MAP_LINKS]
 
-	def get_half(self, half: str) -> str:
+	def getHalfScores(self, half: str) -> str:
 		result = ""
 		half = half + self.prefix
 		for key in [half + 't1firstside', half + 't1t', half + 't1ct', half + 't2t', half + 't2ct']:
@@ -67,8 +67,8 @@ class Map(Map):
 
 		halfKey = ''
 		overtimes = 0
-		while(True):
-			half = self.get_half(halfKey)
+		while True:
+			half = self.getHalfScores(halfKey)
 			if half:
 				out += f"{indent}{half}\n"
 				overtimes += 1
@@ -79,11 +79,10 @@ class Map(Map):
 		if halfKey == '':
 			out += f"{indent}|winner={self.winner}\n"
 
-		#FIX ME
 		for key in KeysInDictionaryIterator(self.links, self.data):
 			suffix = key.removesuffix(str(self.index))
 			out += f"{indent}|{suffix}={self.data[key]}"
-		
+
 		vod = getValueOrEmpty(self.data, 'vodgame' + str(self.index))
 		if vod:
 			out += f"\n|vod={vod}"

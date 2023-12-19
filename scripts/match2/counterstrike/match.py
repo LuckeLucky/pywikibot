@@ -1,12 +1,7 @@
 import io
 
-from mwparserfromhell.nodes import Template
-
-from scripts.match2.commons.opponent import Opponent
-from scripts.match2.commons.utils import Template
-
-from ..commons.utils import *
-from ..commons.match import Match, STREAMS
+from ..commons.utils import getStringFromTemplate, KeysInDictionaryIterator, getValueOrEmpty
+from ..commons.match import Match as commonsMatch, STREAMS
 
 from .map import Map, MAP_LINKS
 
@@ -33,10 +28,10 @@ CS_PARAMS = STREAMS + [
 	'hltv2'
 ]
 
-class Match(Match):
+class Match(commonsMatch):
 	def getMaps(self):
 		index = 1
-		while(True):
+		while True:
 			strIndex = str(index)
 			mapX = getStringFromTemplate(self.template, 'map' + strIndex)
 			if mapX:
@@ -65,10 +60,10 @@ class Match(Match):
 		for key in KeysInDictionaryIterator(MAP_LINKS, self.data):
 			out += f"{indent}|{key}={self.data[key]}\n"
 
-		for map in self.maps:
-			index = map.index
-			maps_out = f"{indent}|map{index}={str(map)}\n"
-			for line in io.StringIO(maps_out):
+		for matchMap in self.maps:
+			index = matchMap.index
+			mapsOut = f"{indent}|map{index}={str(matchMap)}\n"
+			for line in io.StringIO(mapsOut):
 				if line.startswith(indent) and ('{{' not in line) and ('}}' not in line):
 					out += indent + line
 				else:

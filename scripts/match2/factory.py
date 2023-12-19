@@ -18,15 +18,15 @@ class BracketFactory(object):
 			return bracketClass
 		else:
 			return Bracket
-		
+
 class ShowmatchFactory(object):
 	mappings = {
 		'leagueoflegends': ShowmatchLeagueOfLegends
 	}
 	@staticmethod
-	def new_showmatch(language: str, template: Template):
-		showmatch_class = ShowmatchFactory.mappings[language]
-		if showmatch_class:
-			return showmatch_class(template)
+	def getShowmatchClassForLanguage(language: str, template: Template):
+		showmatchClass = ShowmatchFactory.mappings[language]
+		if showmatchClass:
+			return showmatchClass(template)
 		else:
 			raise ValueError(f"Unsupported language: {language}")

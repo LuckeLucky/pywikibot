@@ -17,7 +17,7 @@ def process_text(text: str, language: str, old_template_name: str):
 		if showmatchTemplate is None:
 			break
 
-		newShowmatch = ShowmatchFactory.new_showmatch(language, showmatchTemplate)
+		newShowmatch = ShowmatchFactory.getShowmatchClassForLanguage(language, showmatchTemplate)
 		wikicode.replace(showmatchTemplate, str(newShowmatch))
 		text = str(wikicode)
 
