@@ -6,7 +6,7 @@ from .leagueoflegends.showmatch import ShowmatchLeagueOfLegends
 
 from .counterstrike.bracket import BracketCounterstrike
 
-class BracketFactory(object):
+class BracketFactory:
 	mappings = {
 		'leagueoflegends': BracketLeagueOfLegends,
 		'counterstrike': BracketCounterstrike
