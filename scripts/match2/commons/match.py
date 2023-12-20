@@ -26,16 +26,28 @@ STREAMS = [
 ]
 
 class Match:
-	def __init__(self, opponents: List[Opponent], template: Template) -> None:
+	def __init__(self, opponents: List[Opponent], template: Template, isReset: bool = False) -> None:
 		self.opponents = opponents
 		self.template = sanitizeTemplate(template)
+		self.isReset = isReset
 		self.data = getTemplateParameters(self.template)
 		self.maps = []
 
 		self.getMaps()
 
-	def isValid(self) -> bool:
-		return (self.opponents[0] and self.opponents[1]) or self.template
+	def isValidResetOrThird(self) -> bool:
+		for opponent in self.opponents:
+			if opponent.score:
+				return True
+
+		for key, val in self.data.items():
+			if val:
+				#We dont check winner because for reset match final winner == reset winner (match1)
+				if key != 'winner':
+					return True
+				if key == 'winner' and not self.isReset:
+					return True
+		return False
 
 	def getMaps(self):
 		pass

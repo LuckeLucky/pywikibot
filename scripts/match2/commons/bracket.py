@@ -6,7 +6,7 @@ from typing import Dict, List
 
 from mwparserfromhell.nodes import Template
 
-from .match import Match
+from .match import Match as commonsMatch
 from .opponent import Opponent, SoloOpponent, TeamOpponent
 from .utils import generateId, getStringFromTemplate, sanitizeTemplate
 
@@ -18,7 +18,7 @@ RESET_MATCH = 'RxMBR'
 THIRD_PLACE_MATCH = 'RxMTP'
 
 class Bracket:
-	Match = Match
+	Match = commonsMatch
 	bracketAlias: Dict[str, str] = {
 		'2SETeamBracket': '2',
 		'2SEBracket': '2',
@@ -291,7 +291,7 @@ class Bracket:
 			if not details:
 				details = Template("FAKE")
 			details.add('winner', winner)
-		match2 = self.Match([opponent1, opponent2], details)
+		match2 = self.Match([opponent1, opponent2], details, reset)
 		self.roundData[simplifiedId] = match2
 		roundData[currentRound['R']] = currentRound
 		lastRound = currentRound
@@ -313,7 +313,7 @@ class Bracket:
 				if not details:
 					details = Template("FAKE")
 				details.add('winner', winner)
-			match2 = self.Match([opponent1, opponent2], details)
+			match2 = self.Match([opponent1, opponent2], details, reset)
 			self.roundData[roundParam] = match2
 
 			if "header" in match1Params:
@@ -366,22 +366,15 @@ class Bracket:
 				if param != THIRD_PLACE_MATCH and param != RESET_MATCH:
 					matchOut = matchOut + '\n|' + param + '=' + '\n'
 				continue
-			match = self.roundData[param]
-			if match.is_valid():
-				if param == RESET_MATCH:
-					#We dont check winner because for reset match final winner == reset winner (match1)
-					if (not match.opponent1.score) and (not match.opponent2.score) and (not match.template or match.template.name == "FAKE"):
-						continue
-				elif param == THIRD_PLACE_MATCH:
-					if (not match.opponent1.score) and (not match.opponent2.score) and (getStringFromTemplate(match.template, 'winner') is None):
-						continue
-				header = ''
-				if param == THIRD_PLACE_MATCH or param == RESET_MATCH:
-					if param == THIRD_PLACE_MATCH:
-						header = '\n\n' + '<!-- Third Place Match -->'
-				elif 'header' in currentRound:
-					header = self.getHeader(currentRound['header'])
-				matchOut = matchOut + header
-				matchOut = matchOut + '\n|' + param + '=' + str(match)
+			match: commonsMatch = self.roundData[param]
+			if param in [THIRD_PLACE_MATCH, RESET_MATCH] and not match.isValidResetOrThird():
+				continue
+			header = ''
+			if param == THIRD_PLACE_MATCH:
+				header = '\n\n' + '<!-- Third Place Match -->'
+			elif 'header' in currentRound:
+				header = self.getHeader(currentRound['header'])
+			matchOut = matchOut + header
+			matchOut = matchOut + '\n|' + param + '=' + str(match)
 
 		return out + matchOut + '\n}}'

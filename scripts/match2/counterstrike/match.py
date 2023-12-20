@@ -48,7 +48,7 @@ class Match(commonsMatch):
 			f"{indent}|opponent1={str(opponent1)}\n" +
 			f"{indent}|opponent2={str(opponent2)}\n" +
 			f"{indent}|date={getValueOrEmpty(self.data, 'date')}"
-			f"{indent}|finished={getValueOrEmpty(self.data, 'finished')}\n"
+			f" |finished={getValueOrEmpty(self.data, 'finished')}\n"
 		)
 		winner = getValueOrEmpty(self.data, 'winner')
 		if winner:
