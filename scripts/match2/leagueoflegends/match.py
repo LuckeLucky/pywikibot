@@ -15,8 +15,6 @@ from .map import Map
 LEAGUE_PARAMS = STREAMS + [
 	'walkover',
 	'vod',
-	'comment',
-	'location',
 	'mvp',
 	'mvppoints',
 	'preview',
@@ -54,7 +52,7 @@ class Match(commonsMatch):
 			f"{indent}|opponent1={str(opponent1)}\n" +
 			f"{indent}|opponent2={str(opponent2)}\n" +
 			f"{indent}|date={getValueOrEmpty(self.data, 'date')}"
-			f"{indent}|finished={getValueOrEmpty(self.data, 'finished')}\n"
+			f" |finished={getValueOrEmpty(self.data, 'finished')}\n"
 		)
 		winner = getValueOrEmpty(self.data, 'winner')
 		if winner:
@@ -62,6 +60,16 @@ class Match(commonsMatch):
 
 		for key in KeysInDictionaryIterator(LEAGUE_PARAMS, self.data):
 			out += f"{indent}|{key}={self.data[key]}\n"
+
+		location = getValueOrEmpty(self.data, 'location')
+		comment = getValueOrEmpty(self.data, 'comment')
+		if location:
+			if comment:
+				comment = comment + '<br/>' + location
+			else:
+				comment = location
+		if comment:
+			out += f"{indent}|comment={comment}\n"
 
 		for key in PrefixIterator('vodgame', self.data):
 			out += f"{indent}|{key}={self.data[key]}\n"
