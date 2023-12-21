@@ -30,11 +30,11 @@ class Bracket:
 			self.load()
 		self.template: Template = sanitizeTemplate(template, removeComments = True)
 		self.roundData: Dict = {}
-		self.newTemplateId = getStringFromTemplate(self.template, index=0)
-		self.oldTemplateId = getStringFromTemplate(self.template, index=1)
-		self.bracketType = getStringFromTemplate(self.template, 'type')
-		self.id = getStringFromTemplate(self.template, 'id')
-		self.mappingKey = self.newTemplateId + "$$" + self.oldTemplateId
+		self.newTemplateId: str = getStringFromTemplate(self.template, index=0)
+		self.oldTemplateId: str = getStringFromTemplate(self.template, index=1)
+		self.bracketType: str = getStringFromTemplate(self.template, 'type')
+		self.id: str = getStringFromTemplate(self.template, 'id')
+		self.mappingKey: str = self.newTemplateId + "$$" + self.oldTemplateId
 
 	@classmethod
 	def isBracketDataAvailable(cls, newTemplateId: str) -> bool:
