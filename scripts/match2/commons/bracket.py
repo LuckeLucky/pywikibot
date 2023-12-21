@@ -182,8 +182,6 @@ class Bracket:
 		if not self.isLoaded:
 			self.load()
 		self.template = sanitizeTemplate(template, removeComments = True)
-		self.shortNames = ''
-		self.columnwidth = ''
 		self.roundData = {}
 
 		self.newTemplateId = None
@@ -325,11 +323,6 @@ class Bracket:
 		if self.template is None:
 			return
 
-		self.shortNames = getStringFromTemplate(self.template, 'shortNames')
-		self.columnwidth = getStringFromTemplate(self.template, 'column-width')
-		if not self.columnwidth:
-			self.columnwidth = getStringFromTemplate(self.template, 'column-width1')
-
 		roundData = {}
 		lowerHeaders = {}
 		lastRound = None
@@ -350,11 +343,6 @@ class Bracket:
 
 	def __str__(self) -> str:
 		out = '{{Bracket|'+ self.newTemplateId + '|id=' + self.id
-		if self.shortNames:
-			out = out + '|forceShortName=true'
-		if self.columnwidth:
-			out = out + '|matchWidth=' + self.columnwidth
-
 		matchOut = ''
 		roundOutputOrder = self.getRoundOutputOrder(self.newTemplateId)
 		for currentRound in roundOutputOrder:
