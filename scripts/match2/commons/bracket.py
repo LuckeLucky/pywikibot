@@ -8,7 +8,7 @@ from mwparserfromhell.nodes import Template
 
 from .match import Match as commonsMatch
 from .opponent import Opponent, SoloOpponent, TeamOpponent
-from .utils import generateId, getStringFromTemplate, sanitizeTemplate, getNestedTemplateFromTemplate, getTemplateParameters
+from .utils import getStringFromTemplate, sanitizeTemplate, getNestedTemplateFromTemplate, getTemplateParameters
 
 
 TEAM = 'team'
@@ -19,47 +19,28 @@ THIRD_PLACE_MATCH = 'RxMTP'
 
 class Bracket:
 	Match = commonsMatch
-	bracketAlias: Dict[str, str] = {
-		'2SETeamBracket': '2',
-		'2SEBracket': '2',
-		'4SETeamBracket': '4',
-		'4SEBracket': '4',
-		'8SETeamBracket': '8',
-		'8SEBracket': '8',
-		'16SETeamBracket': '16',
-		'16SEBracket': '16',
-		'32SETeamBracket': '32',
-		'32SEBracket': '32',
-		'64SETeamBracket': '64',
-		'64SEBracket': '64',
-		'128SETeamBracket': '128',
-		'128SEBracket': '128',
-	}
 	isLoaded: bool = False
 	bracketData: Dict[str, List] = {}
 	headersData: Dict[str, str] = {}
 	customMapping: Dict[str, List] = {}
 	outputOrder: Dict[str, List] = {}
 
-	@classmethod
-	def isAliasSet(cls, oldTemplateId: str) -> bool:
-		"""
-			Checks if the old template can be converted
-		"""
-		return oldTemplateId in cls.bracketAlias
+	def __init__(self, template: Template) -> None:
+		if not self.isLoaded:
+			self.load()
+		self.template: Template = sanitizeTemplate(template, removeComments = True)
+		self.roundData: Dict = {}
+		self.newTemplateId = getStringFromTemplate(self.template, index=0)
+		self.oldTemplateId = getStringFromTemplate(self.template, index=1)
+		self.bracketType = getStringFromTemplate(self.template, 'type')
+		self.id = getStringFromTemplate(self.template, 'id')
+		self.mappingKey = self.newTemplateId + "$$" + self.oldTemplateId
 
 	@classmethod
 	def isBracketDataAvailable(cls, newTemplateId: str) -> bool:
 		if not cls.isLoaded:
 			cls.load()
 		return newTemplateId in cls.bracketData
-
-	@classmethod
-	def getNewTemplateId(cls, oldTemplateId: str) -> str:
-		"""
-			Returns the new Bracket name
-		"""
-		return 'Bracket/' + cls.bracketAlias[oldTemplateId] if oldTemplateId in cls.bracketAlias else None
 
 	@classmethod
 	def loadBracketData(cls):
@@ -160,25 +141,6 @@ class Bracket:
 		return bracketDataList
 
 	@classmethod
-	def createNewBracket(cls, template: Template, oldTemplateId: str = ""):
-		if oldTemplateId != "" and not cls.isAliasSet(oldTemplateId):
-			return None
-		bracket = cls(template)
-		if oldTemplateId == "":
-			bracket.newTemplateId = getStringFromTemplate(bracket.template, index=0)
-			bracket.oldTemplateId = getStringFromTemplate(bracket.template, index=1)
-			bracket.bracketType = getStringFromTemplate(bracket.template, 'type')
-			bracket.id = getStringFromTemplate(bracket.template, 'id')
-		else:
-			bracket.newTemplateId = cls.getNewTemplateId(oldTemplateId)
-			bracket.oldTemplateId = oldTemplateId
-			bracket.bracketType = TEAM if TEAM in oldTemplateId.lower() else SOLO
-			bracket.id = generateId()
-		bracket.mappingKey = bracket.newTemplateId + "$$" + bracket.oldTemplateId
-
-		return bracket
-
-	@classmethod
 	def isMatchValidResetOrThird(cls, match: Match, reset: bool, roundParam: str):
 		if roundParam not in [THIRD_PLACE_MATCH, RESET_MATCH]:
 			return True
@@ -199,18 +161,6 @@ class Bracket:
 				elif key == 'winner' and not reset:
 					return True
 		return False
-
-	def __init__(self, template: Template) -> None:
-		if not self.isLoaded:
-			self.load()
-		self.template = sanitizeTemplate(template, removeComments = True)
-		self.roundData = {}
-
-		self.newTemplateId = None
-		self.oldTemplateId = None
-		self.bracketType = None
-		self.id = None
-		self.mappingKey = None
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
 		name = getStringFromTemplate(self.template, key + 'team')

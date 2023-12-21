@@ -4,34 +4,25 @@ import pywikibot
 from pywikibot import pagegenerators
 
 from scripts.match2.factory import getBracketClassForLanguage
-from scripts.match2.commons.utils import getStringFromTemplate
-from scripts.match2.commons.bracket import Bracket
-from scripts.utils import get_text, put_text, remove_and_squash
+from scripts.utils import get_text, put_text
 
-def processText(bracketClass: Bracket, text: str, oldTemplateId: str):
-	shortNames = ''
+def processText(bracketClass, text: str):
 	while True:
-		templatesToRemove = []
 		wikicode = mwparserfromhell.parse(text)
-		bracketTemplate = None
+		legacyBracket = None
 		for template in wikicode.filter_templates():
-			templateName = str(template.name).strip()
-			if template.name.matches(oldTemplateId):
-				bracketTemplate = template
-				if shortNames:
-					bracketTemplate.add('shortNames', shortNames)
-			if templateName == '#vardefine:bracket_short_teams':
-				shortNames = getStringFromTemplate(template, index = 0)
-				templatesToRemove.append(template)
+			if template.name.matches('LegacyBracket'):
+				legacyBracket = template
+				break
 
-		if bracketTemplate is None:
+		if legacyBracket is None:
 			break
-		newBracket = bracketClass.createNewBracket(bracketTemplate, oldTemplateId)
+		newBracket = bracketClass(legacyBracket)
+		if not bracketClass.isBracketDataAvailable(newBracket.newTemplateId):
+			pywikibot.stdout("<<lightred>>Missing support for template " + newBracket.newTemplateId)
+			sys.exit(1)
 		newBracket.process()
-		wikicode.replace(bracketTemplate, str(newBracket))
-
-		for template in templatesToRemove:
-			remove_and_squash(wikicode, template)
+		wikicode.replace(legacyBracket, str(newBracket))
 
 		text = str(wikicode)
 
@@ -42,7 +33,6 @@ def main(*args):
 	localArgs = pywikibot.handle_args(args)
 	genFactory = pagegenerators.GeneratorFactory()
 
-	oldTemplateId = ''
 	save = True
 
 	for arg in localArgs:
@@ -50,9 +40,7 @@ def main(*args):
 			continue
 		if arg.startswith('-'):
 			arg = arg[1:]
-			arg, _, value = arg.partition(':')
-			if arg == 'template':
-				oldTemplateId = value
+			arg, _, _ = arg.partition(':')
 			if arg == 'nosave':
 				save = False
 
@@ -60,20 +48,13 @@ def main(*args):
 	if not language:
 		return
 
-	if not oldTemplateId:
-		oldTemplateId = pywikibot.input('Template to replace:')
+	bracketClass = getBracketClassForLanguage(language)
 
-	bracketClass: Bracket = getBracketClassForLanguage(language)
-
-	if not bracketClass.isAliasSet(oldTemplateId):
-		pywikibot.stdout("<<lightred>>Missing support for template: " + oldTemplateId)
-		sys.exit(1)
-
-	editSummary = f'Convert Bracket {oldTemplateId} to Match2'
+	editSummary = 'Convert LegacyBracket to Match2'
 	generator = genFactory.getCombinedGenerator()
 	for page in generator:
 		text = get_text(page)
-		newText = processText(bracketClass, text, oldTemplateId)
+		newText = processText(bracketClass, text)
 		if save:
 			put_text(page, summary=editSummary, new=newText)
 		else:
