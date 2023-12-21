@@ -2,7 +2,7 @@ from typing import List
 from mwparserfromhell.nodes import Template
 
 from .opponent import Opponent
-from .utils import sanitizeTemplate, getTemplateParameters, getNestedTemplateFromTemplate
+from .utils import sanitizeTemplate, getTemplateParameters
 
 STREAMS = [
 	'stream',
@@ -26,34 +26,13 @@ STREAMS = [
 ]
 
 class Match:
-	def __init__(self, opponents: List[Opponent], template: Template, isReset: bool = False) -> None:
+	def __init__(self, opponents: List[Opponent], template: Template) -> None:
 		self.opponents = opponents
 		self.template = sanitizeTemplate(template)
-		self.isReset = isReset
 		self.data = getTemplateParameters(self.template)
 		self.maps = []
 
 		self.getMaps()
-
-	def isValidResetOrThird(self) -> bool:
-		for opponent in self.opponents:
-			if opponent.score:
-				return True
-
-		for key, val in self.data.items():
-			if val:
-				if val.startswith('{{'):
-					nestedTemplate = getNestedTemplateFromTemplate(self.template, key)
-					nestedData = getTemplateParameters(sanitizeTemplate(nestedTemplate))
-					for nestedVal in nestedData.values():
-						if nestedVal:
-							return True
-				#We dont check winner because for reset match final winner == reset winner (match1)
-				elif key != 'winner':
-					return True
-				elif key == 'winner' and not self.isReset:
-					return True
-		return False
 
 	def getMaps(self):
 		pass
