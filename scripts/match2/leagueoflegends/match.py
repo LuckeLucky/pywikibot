@@ -5,6 +5,7 @@ from ..commons.utils import (
     getNestedTemplateFromTemplate,
     getValueOrEmpty,
     getStringFromTemplate,
+	sanitizeTemplate,
     KeysInDictionaryIterator,
     PrefixIterator
 )
@@ -32,8 +33,9 @@ class Match(commonsMatch):
 		while True:
 			strIndex = str(index)
 			matchTemplate = getNestedTemplateFromTemplate(self.template, 'match' + strIndex)
+			matchTemplate = sanitizeTemplate(matchTemplate)
 			#Winner outside of MatchLua
-			winner = getValueOrEmpty(self.data, 'map' + strIndex + 'winner')
+			winner = getValueOrEmpty(self.data, 'map' + strIndex + 'win')
 			if matchTemplate is None and winner:
 				matchTemplate = Template('MatchLua')
 				matchTemplate.add('win', winner)
