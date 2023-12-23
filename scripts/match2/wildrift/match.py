@@ -1,13 +1,5 @@
 import io
-from mwparserfromhell.nodes import Template
-
-from ..commons.utils import (
-	sanitizeTemplate,
-    getNestedTemplateFromTemplate,
-    getValueOrEmpty,
-    getStringFromTemplate,
-    KeysInDictionaryIterator
-)
+from ..commons.template import Template
 from ..commons.match import Match as commonsMatch, STREAMS
 
 from .map import Map
@@ -31,18 +23,18 @@ class Match(commonsMatch):
 		index = 1
 		while True:
 			strIndex = str(index)
-			mapTemplate = getNestedTemplateFromTemplate(self.template, 'match' + strIndex)
-			mapTemplate = sanitizeTemplate(mapTemplate)
+			mapTemplate = self.template.getNestedTemplate('match' + strIndex)
+			mapTemplate = Template(mapTemplate)
 			#Winner outside of MatchLua
-			mapWinner = getValueOrEmpty(self.data, 'map' + strIndex + 'win')
-			mapVod = getValueOrEmpty(self.data, 'vodgame' + strIndex)
+			mapWinner = self.template.get('map' + strIndex + 'win')
+			mapVod = self.template('vodgame' + strIndex)
 			if mapTemplate is None and (mapWinner or mapVod):
 				mapTemplate = Template("FAKE")
 			if not mapTemplate:
 				break
-			if not getStringFromTemplate(mapTemplate, 'win'):
+			if not mapTemplate.getValue('win'):
 				mapTemplate.add('win', mapWinner)
-			if not getNestedTemplateFromTemplate(mapTemplate, 'vod'):
+			if not mapTemplate.getValue('vod'):
 				mapTemplate.add('vod', mapVod)
 			self.maps.append(Map(index, mapTemplate))
 			index += 1
@@ -52,17 +44,17 @@ class Match(commonsMatch):
 		opponent1 = self.opponents[0]
 		opponent2 = self.opponents[1]
 		out = ("{{Match\n" +
-		 	f"{indent}|bestof={getValueOrEmpty(self.data, 'bestof')}\n" +
-			f"{indent}|date={getValueOrEmpty(self.data, 'date')}" +
-			f" |finished={getValueOrEmpty(self.data, 'finished')}\n"
+		 	f"{indent}|bestof={self.template.get('bestof')}\n" +
+			f"{indent}|date={self.template.get('date')}" +
+			f" |finished={self.template.get('finished')}\n"
 		)
-		winner = getValueOrEmpty(self.data, 'winner')
+		winner = self.template.get('winner')
 		if winner:
 			out += f"{indent}|winner={winner}\n"
 
 		streamsParams = ""
-		for key in KeysInDictionaryIterator(WILDRIFT_PARAMS, self.data):
-			streamsParams += f"|{key}={self.data[key]}"
+		for key, value in self.template.iterateByItemsMatch(WILDRIFT_PARAMS):
+			streamsParams += f"|{key}={value}"
 		if streamsParams:
 			out += indent + streamsParams + "\n"
 
@@ -81,8 +73,8 @@ class Match(commonsMatch):
 				else:
 					out += line
 
-		location = getValueOrEmpty(self.data, 'location')
-		comment = getValueOrEmpty(self.data, 'comment')
+		location = self.template.getValue('location')
+		comment = self.template.getValue('comment')
 		if location:
 			if comment:
 				comment = comment + '<br/>' + location

@@ -1,14 +1,6 @@
 import io
-from mwparserfromhell.nodes import Template
 
-from ..commons.utils import (
-    getNestedTemplateFromTemplate,
-    getValueOrEmpty,
-    getStringFromTemplate,
-	sanitizeTemplate,
-    KeysInDictionaryIterator,
-    PrefixIterator
-)
+from ..commons.template import Template
 from ..commons.match import Match as commonsMatch, STREAMS
 
 from .map import Map
@@ -32,15 +24,15 @@ class Match(commonsMatch):
 		index = 1
 		while True:
 			strIndex = str(index)
-			mapTemplate = getNestedTemplateFromTemplate(self.template, 'match' + strIndex)
-			mapTemplate = sanitizeTemplate(mapTemplate)
+			mapTemplate = self.template.getNestedTemplate('match' + strIndex)
+			mapTemplate = Template(mapTemplate)
 			#Winner outside of MatchLua
-			mapWinner = getValueOrEmpty(self.data, 'map' + strIndex + 'win')
+			mapWinner = mapTemplate.getValue('map' + strIndex + 'win')
 			if mapTemplate is None and mapWinner:
-				mapTemplate = Template("FAKE")
+				mapTemplate = Template.createFakeTemplate()
 			if not mapTemplate:
 				break
-			if not getStringFromTemplate(mapTemplate, 'win'):
+			if not mapTemplate.getValue(mapTemplate, 'win'):
 				mapTemplate.add('win', mapWinner)
 			self.maps.append(Map(index, mapTemplate))
 			index += 1
@@ -52,18 +44,18 @@ class Match(commonsMatch):
 		out = ("{{Match2\n" +
 			f"{indent}|opponent1={str(opponent1)}\n" +
 			f"{indent}|opponent2={str(opponent2)}\n" +
-			f"{indent}|date={getValueOrEmpty(self.data, 'date')}"
-			f" |finished={getValueOrEmpty(self.data, 'finished')}\n"
+			f"{indent}|date={self.template.getValue('date')}"
+			f" |finished={self.template.getValue('finished')}\n"
 		)
-		winner = getValueOrEmpty(self.data, 'winner')
+		winner = self.template.getValue('winner')
 		if winner:
 			out += f"{indent}|winner={winner}\n"
 
-		for key in KeysInDictionaryIterator(LEAGUE_PARAMS, self.data):
-			out += f"{indent}|{key}={self.data[key]}\n"
+		for key, value in self.template.iterateByItemsMatch(LEAGUE_PARAMS):
+			out += f"{indent}|{key}={value}\n"
 
-		location = getValueOrEmpty(self.data, 'location')
-		comment = getValueOrEmpty(self.data, 'comment')
+		location = self.template.getValue('location')
+		comment = self.template.getValue('comment')
 		if location:
 			if comment:
 				comment = comment + '<br/>' + location
@@ -72,11 +64,11 @@ class Match(commonsMatch):
 		if comment:
 			out += f"{indent}|comment={comment}\n"
 
-		for key in PrefixIterator('vodgame', self.data):
-			out += f"{indent}|{key}={self.data[key]}\n"
+		for key, value in self.template.iterateByPrefix('vodgame'):
+			out += f"{indent}|{key}={value}\n"
 
-		for key in PrefixIterator('matchhistory', self.data):
-			out += f"{indent}|{key}={self.data[key]}\n"
+		for key, value in self.template.iterateByPrefix('matchhistory'):
+			out += f"{indent}|{key}={value}\n"
 
 		for matchMap in self.maps:
 			index = matchMap.index

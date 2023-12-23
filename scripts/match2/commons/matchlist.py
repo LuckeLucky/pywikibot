@@ -1,7 +1,6 @@
 from typing import Dict, List
-from mwparserfromhell.nodes import Template
+from .template import Template
 from .opponent import TeamOpponent
-from .utils import getStringFromTemplate, sanitizeTemplate, getNestedTemplateFromTemplate
 from .match import Match
 
 MAX_NUM_MAPS = 10
@@ -9,7 +8,7 @@ MAX_NUM_MAPS = 10
 class Matchlist:
 	Match = Match
 	def __init__(self, template: Template, matchTemplates: List[Template]):
-		self.template: Template = sanitizeTemplate(template)
+		self.template: Template = template
 		self.matchTemplates: List[Template] = matchTemplates
 		self.args: Dict[str, str] = {}
 		self.headers: Dict[str, str] = {}
@@ -19,22 +18,22 @@ class Matchlist:
 		if self.template is None:
 			return
 
-		self.args['id'] = getStringFromTemplate(self.template, 'id')
-		self.args['title'] = getStringFromTemplate(self.template, 'title')
-		self.args['width'] = getStringFromTemplate(self.template, 'width')
-		hide = getStringFromTemplate(self.template, 'hide')
+		self.args['id'] = self.template.getValue('id')
+		self.args['title'] = self.template.getValue('title')
+		self.args['width'] = self.template.getValue('width')
+		hide = self.template.getValue('hide')
 		if hide in ['true', 't', 'yes', 'y', '1']:
 			self.args['collapsed'] = 'true'
 			self.args['attached'] = 'true'
 
 		for matchIndex, matchTemplate in enumerate(self.matchTemplates):
-			sanitizedMatch = sanitizeTemplate(matchTemplate)
-			opp1 = TeamOpponent(getStringFromTemplate(sanitizedMatch, 'team1'), getStringFromTemplate(sanitizedMatch, 'score1'))
-			opp2 = TeamOpponent(getStringFromTemplate(sanitizedMatch, 'team2'), getStringFromTemplate(sanitizedMatch, 'score2'))
-			winner = getStringFromTemplate(sanitizedMatch, 'winner')
-			details = getNestedTemplateFromTemplate(sanitizedMatch, 'details')
+			sanitizedMatch = Template(matchTemplate)
+			opp1 = TeamOpponent(sanitizedMatch.getValue('team1'), sanitizedMatch.getValue('score1'))
+			opp2 = TeamOpponent(sanitizedMatch.getValue('team2'), sanitizedMatch.getValue('score2'))
+			winner = sanitizedMatch.getValue('winner')
+			details = sanitizedMatch.getNestedTemplate('details')
 
-			header = getStringFromTemplate(sanitizedMatch, 'date')
+			header = sanitizedMatch.getValue('date')
 			if header:
 				self.headers['M' + str(matchIndex+1) + 'header'] = header
 
@@ -43,7 +42,7 @@ class Matchlist:
 					details = Template("FAKE")
 			details.add('winner', winner)
 
-			walkover = getStringFromTemplate(sanitizedMatch, 'walkover')
+			walkover = sanitizedMatch.getValue('walkover')
 			if walkover:
 				if walkover == '1':
 					opp1.score = 'W'
@@ -56,7 +55,7 @@ class Matchlist:
 
 			for x in range(MAX_NUM_MAPS):
 				key = 'map' + str(x) + 'win'
-				mapxwin = getStringFromTemplate(sanitizedMatch, key)
+				mapxwin = sanitizedMatch.getValue(key)
 				if mapxwin:
 					details.add(key, mapxwin)
 

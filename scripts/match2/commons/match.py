@@ -1,8 +1,7 @@
 from typing import List
-from mwparserfromhell.nodes import Template
 
+from .template import Template
 from .opponent import Opponent
-from .utils import sanitizeTemplate, getTemplateParameters
 
 STREAMS = [
 	'stream',
@@ -27,10 +26,11 @@ STREAMS = [
 
 class Match:
 	def __init__(self, opponents: List[Opponent], template: Template) -> None:
-		self.opponents = opponents
-		self.template = sanitizeTemplate(template)
-		self.data = getTemplateParameters(self.template)
-		self.maps = []
+		self.opponents: List[Opponent] = opponents
+		self.template: Template = template
+		if not self.template:
+			self.template = Template.createFakeTemplate()
+		self.maps: List = []
 
 		self.getMaps()
 

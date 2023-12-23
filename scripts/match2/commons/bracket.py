@@ -4,12 +4,9 @@ from functools import cmp_to_key
 from pathlib import Path
 from typing import Dict, List
 
-from mwparserfromhell.nodes import Template
-
+from .template import Template
 from .match import Match as commonsMatch
 from .opponent import Opponent, SoloOpponent, TeamOpponent
-from .utils import getStringFromTemplate, sanitizeTemplate, getNestedTemplateFromTemplate, getTemplateParameters
-
 
 TEAM = 'team'
 SOLO = 'solo'
@@ -28,12 +25,12 @@ class Bracket:
 	def __init__(self, template: Template) -> None:
 		if not self.isLoaded:
 			self.load()
-		self.template: Template = sanitizeTemplate(template, removeComments = True)
+		self.template: Template = template
 		self.roundData: Dict = {}
-		self.newTemplateId: str = getStringFromTemplate(self.template, index=0)
-		self.oldTemplateId: str = getStringFromTemplate(self.template, index=1)
-		self.bracketType: str = getStringFromTemplate(self.template, 'type')
-		self.id: str = getStringFromTemplate(self.template, 'id')
+		self.newTemplateId: str = self.template.getValue(index=0)
+		self.oldTemplateId: str = self.template.getValue(index=1)
+		self.bracketType: str = self.template.getValue('type')
+		self.id: str = self.template.getValue('id')
 		self.mappingKey: str = self.newTemplateId + "$$" + self.oldTemplateId
 
 	@classmethod
@@ -147,32 +144,25 @@ class Bracket:
 		for opponent in match.opponents:
 			if opponent.score:
 				return True
-		for key, val in match.data.items():
-			if val:
-				if val.startswith('{{'):
-					nestedTemplate = getNestedTemplateFromTemplate(match.template, key)
-					nestedData = getTemplateParameters(sanitizeTemplate(nestedTemplate))
-					for nestedVal in nestedData.values():
-						if nestedVal:
-							return True
-				#We dont check winner because for reset match final winner == reset winner (match1)
-				elif key != 'winner':
-					return True
-				elif key == 'winner' and not reset:
-					return True
+
+		for key, _ in match.template.iterateParams(True):
+			if key != 'winner':
+				return True
+			if key == 'winner' and not reset:
+				return True
 		return False
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = getStringFromTemplate(self.template, key + 'team')
-		score = getStringFromTemplate(self.template, key + scoreKey)
+		name = self.template.getValue(key + 'team')
+		score = self.template.getValue(key + scoreKey)
 		if name:
 			return TeamOpponent(name, score)
 		return TeamOpponent()
 
 	def getSoloOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = getStringFromTemplate(self.template, key)
-		flag = getStringFromTemplate(self.template, key + 'flag')
-		score = getStringFromTemplate(self.template, key + scoreKey)
+		name = self.template.getValue(key)
+		flag = self.template.getValue(key + 'flag')
+		score = self.template.getValue(key + scoreKey)
 		if (name is None) and (score is None) and (flag is None):
 			return SoloOpponent()
 		return SoloOpponent(name, score, '', flag)
@@ -188,13 +178,13 @@ class Bracket:
 		if self.template.has(key + 'details'):
 			templates = self.template.get(key + 'details').value.filter_templates(recursive = False)
 			if len(templates) > index:
-				return sanitizeTemplate(templates[index])
+				return Template(templates[index])
 		return None
 
 	def getWinner(self, team1Key: str, team2Key) -> int:
-		if getStringFromTemplate(self.template, team1Key + 'win'):
+		if self.template.getValue(team1Key + 'win'):
 			return '1'
-		if getStringFromTemplate(self.template, team2Key + 'win'):
+		if self.template.getValue(team2Key + 'win'):
 			return '2'
 		return ''
 
@@ -289,7 +279,7 @@ class Bracket:
 			self.roundData[roundParam] = match2
 
 			if "header" in match1Params:
-				header = getStringFromTemplate(self.template, match1Params["header"])
+				header = self.template.getValue(match1Params["header"])
 				if header:
 					self.roundData[roundParam + 'header'] = header
 
@@ -305,10 +295,10 @@ class Bracket:
 			roundData, lastRound, lowerHeaders = self.populateRoundData(match, roundData, lastRound, lowerHeaders)
 
 		for n in range(1, lastRound['R'] + 1):
-			headerUp = getStringFromTemplate(self.template, 'R' + str(n))
+			headerUp = self.template.getValue('R' + str(n))
 			if headerUp:
 				self.roundData['R' + str(n) + 'M1header'] = headerUp
-			headerLow = getStringFromTemplate(self.template, 'L' + str(n))
+			headerLow = self.template.getValue('L' + str(n))
 			if headerLow and (n in lowerHeaders):
 				self.roundData['R' + str(n) + 'M' + str(lowerHeaders[n]) + 'header'] = headerLow
 

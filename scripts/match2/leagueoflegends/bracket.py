@@ -3,7 +3,6 @@ from pathlib import Path
 
 from ..commons.bracket import Bracket
 from .match import Match
-from ..commons.utils import getStringFromTemplate
 from ..commons.opponent import Opponent, TeamOpponent
 
 class BracketLeagueOfLegends(Bracket):
@@ -17,11 +16,11 @@ class BracketLeagueOfLegends(Bracket):
 			cls.customMapping = data
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = getStringFromTemplate(self.template, key + 'team')
-		score = getStringFromTemplate(self.template, key + scoreKey)
+		name = self.template.getValue(key + 'team')
+		score = self.template.getValue(key + scoreKey)
 		if name:
 			return TeamOpponent(name, score)
-		leagueName = getStringFromTemplate(self.template, key + 'league')
+		leagueName = self.template.getValue(key + 'league')
 		if leagueName:
 			return Opponent(leagueName, score)
 		return TeamOpponent()

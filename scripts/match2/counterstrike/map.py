@@ -1,7 +1,6 @@
 from mwparserfromhell.nodes import Template
-from ..commons.utils import Template
+from ..commons.template import Template
 from ..commons.map import Map as commonsMap
-from ..commons.utils import getValueOrEmpty, KeysInDictionaryIterator
 
 MAP_LINKS = [
 	'esl',
@@ -30,7 +29,7 @@ class Map(commonsMap):
 	def __init__(self, index: int, template: Template) -> None:
 		super().__init__(index, template)
 		self.prefix = 'map' + str(self.index)
-		winner = getValueOrEmpty(self.data, self.prefix + 'win')
+		winner = self.template.getValue(self.prefix + 'win')
 		if winner in ['1', '2', '0']:
 			self.winner = int(winner)
 			self.finished = 'true'
@@ -39,22 +38,23 @@ class Map(commonsMap):
 			self.finished = 'true'
 		elif winner == SKIP:
 			self.finished = SKIP
-		score = getValueOrEmpty(self.data, self.prefix + 'score')
+		score = self.template.getValue(self.prefix + 'score')
 		self.score = score.split('-', 1)
 		strIndex = str(self.index)
 		self.links = [x + strIndex for x in MAP_LINKS]
 
-	def getHalfScores(self, half: str) -> str:
+	def getHalfScores(self, halfKey: str) -> str:
 		result = ""
-		half = half + self.prefix
-		for key in [half + 't1firstside', half + 't1t', half + 't1ct', half + 't2t', half + 't2ct']:
-			if key in self.data:
-				result += f"|{key}={self.data[key]}"
+		halfKey = self.prefix + halfKey
+		for key in [halfKey + 't1firstside', halfKey + 't1t', halfKey + 't1ct', halfKey + 't2t', halfKey + 't2ct']:
+			val = self.template.getValue(key)
+			if val:
+				result += f"|{key.replace(self.prefix, '')}={val}"
 		return result
 
 	def __str__(self) -> str:
 		indent = "\t"
-		out = f"{{{{Map|map={getValueOrEmpty(self.data, self.prefix)}"
+		out = f"{{{{Map|map={self.template.getValue(self.prefix)}"
 
 		if len(self.score) == 2:
 			out += f"|score1={self.score[0]}|score2={self.score[1]}"
@@ -79,14 +79,14 @@ class Map(commonsMap):
 		if halfKey == '':
 			out += f"{indent}|winner={self.winner}\n"
 
-		for key in KeysInDictionaryIterator(self.links, self.data):
+		for key, value in self.template.iterateByItemsMatch(self.links):
 			suffix = key.removesuffix(str(self.index))
-			out += f"{indent}|{suffix}={self.data[key]}"
+			out += f"{indent}|{suffix}={value}"
 
-		vod = getValueOrEmpty(self.data, 'vodgame' + str(self.index))
+		vod = self.template.getValue('vodgame' + str(self.index))
 		if vod:
 			out += f"\n|vod={vod}"
-		vod2 = getValueOrEmpty(self.data, '2vodgame' + str(self.index))
+		vod2 = self.template.getValue('2vodgame' + str(self.index))
 		if vod2:
 			out += f"\n|vod2={vod2}"
 

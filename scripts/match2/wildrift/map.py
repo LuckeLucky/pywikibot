@@ -1,24 +1,23 @@
-from ..commons.utils import getValueOrEmpty, PrefixIterator
 from ..commons.map import Map as commonsMap
 
 class Map(commonsMap):
 	def getPrefixedParams(self, prefix: str) -> str:
 		result = ""
-		for key in PrefixIterator(prefix, self.data):
-			result += f"|{key}={self.data[key]}"
+		for key, value in self.template.iterateByPrefix(prefix):
+			result += f"|{key}={value}"
 		return result
 
 	def __str__(self) -> str:
 		indent = "    "
 		out = "{{Map\n"
-		vod = getValueOrEmpty(self.data, 'vod')
+		vod = self.template.getValue('vod')
 		if vod:
 			out += out + f"|vod={vod}"
 		out += (
-			f"{indent}|team1side={getValueOrEmpty(self.data, 'team1side')}" +
-			f"|team2side={getValueOrEmpty(self.data, 'team2side')}" +
-			f"|length={getValueOrEmpty(self.data, 'length')}"
-			f"|winner={getValueOrEmpty(self.data, 'win')}\n"
+			f"{indent}|team1side={self.template.getValue('team1side')}" +
+			f"|team2side={self.template.getValue('team2side')}" +
+			f"|length={self.template.getValue('length')}"
+			f"|winner={self.template.getValue('win')}\n"
 		)
 
 		team1picks = self.getPrefixedParams('t1c')

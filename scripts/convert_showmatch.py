@@ -2,21 +2,22 @@ import mwparserfromhell
 import pywikibot
 from pywikibot import pagegenerators
 
+from scripts.match2.commons.template import Template
 from scripts.match2.factory import getShowmatchClassForLanguage
 from scripts.utils import get_text, put_text
 
-def processText(text: str, language: str, old_template_name: str):
+def processText(text: str, language: str, oldTemplateName: str):
 	while True :
 		wikicode = mwparserfromhell.parse(text)
 		showmatchTemplate = None
 		for template in wikicode.filter_templates():
-			if template.name.matches(old_template_name):
+			if template.name.matches(oldTemplateName):
 				showmatchTemplate = template
 
 		if showmatchTemplate is None:
 			break
 
-		newShowmatch = getShowmatchClassForLanguage(language, showmatchTemplate)
+		newShowmatch = getShowmatchClassForLanguage(language, Template(showmatchTemplate))
 		wikicode.replace(showmatchTemplate, str(newShowmatch))
 		text = str(wikicode)
 

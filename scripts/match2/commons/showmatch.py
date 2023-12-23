@@ -1,33 +1,33 @@
-from mwparserfromhell.nodes import Template
+from .template import Template
 from .opponent import Opponent, TeamOpponent
-from .utils import generateId, sanitizeTemplate, getStringFromTemplate, getNestedTemplateFromTemplate
 from .match import Match
+from ..commons.utils import generateId
 
 class Showmatch:
 	Match = Match
 	def __init__(self, template: Template) -> None:
-		self.template: Template = sanitizeTemplate(template)
-		self.id: str = getStringFromTemplate(self.template, 'id')
+		self.template: Template = template
+		self.id: str = self.template.getValue('id')
 		if not self.id:
 			self.id = generateId()
 		self.match: Match = None
 		self.getMatch()
 
 	def getOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = getStringFromTemplate(self.template, key)
-		score = getStringFromTemplate(self.template, scoreKey)
+		name = self.template.getValue(key)
+		score = self.template.getValue(scoreKey)
 		return TeamOpponent(name, score)
 
 	def getMatch(self):
 		opponent1 = self.getOpponent('team1', 'score1')
 		opponent2 = self.getOpponent('team2', 'score2')
-		winner = getStringFromTemplate(self.template, 'win')
-		details = getNestedTemplateFromTemplate(self.template, 'details')
+		winner = self.template.getValue('win')
+		details = self.template.getNestedTemplate('details')
 		if winner:
 			if not details:
-				details = Template("FAKE")
+				details = Template.createFakeTemplate()
 			details.add('winner', winner)
-		self.match = self.Match([opponent1, opponent2], details)
+		self.match = self.Match([opponent1, opponent2], Template(details))
 
 	def __str__(self) -> str:
 		out = '{{SingleMatch|id=' + self.id

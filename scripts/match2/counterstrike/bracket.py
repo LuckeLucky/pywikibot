@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 
-from ..commons.utils import getStringFromTemplate
 from ..commons.opponent import Opponent, TeamOpponent
 from ..commons.bracket import Bracket
 from .match import Match
@@ -17,11 +16,11 @@ class BracketCounterstrike(Bracket):
 			cls.customMapping = data
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = getStringFromTemplate(self.template, key + 'team')
-		score = getStringFromTemplate(self.template, key + scoreKey)
+		name = self.template.getValue(key + 'team')
+		score = self.template.getValue(key + scoreKey)
 		if name:
 			return TeamOpponent(name, score)
-		csName = getStringFromTemplate(self.template, key)
+		csName = self.template.getValue(key)
 		if csName:
 			return Opponent(csName, score)
 		return TeamOpponent()

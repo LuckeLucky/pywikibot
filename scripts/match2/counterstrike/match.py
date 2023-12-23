@@ -1,6 +1,5 @@
 import io
 
-from ..commons.utils import getStringFromTemplate, KeysInDictionaryIterator, getValueOrEmpty
 from ..commons.match import Match as commonsMatch, STREAMS
 
 from .map import Map, MAP_LINKS
@@ -33,7 +32,7 @@ class Match(commonsMatch):
 		index = 1
 		while True:
 			strIndex = str(index)
-			mapX = getStringFromTemplate(self.template, 'map' + strIndex)
+			mapX = self.template.getValue('map' + strIndex)
 			if mapX:
 				self.maps.append(Map(index, self.template))
 			else:
@@ -47,18 +46,18 @@ class Match(commonsMatch):
 		out = ("{{Match\n" +
 			f"{indent}|opponent1={str(opponent1)}\n" +
 			f"{indent}|opponent2={str(opponent2)}\n" +
-			f"{indent}|date={getValueOrEmpty(self.data, 'date')}"
-			f" |finished={getValueOrEmpty(self.data, 'finished')}\n"
+			f"{indent}|date={self.template.getValue('date')}"
+			f" |finished={self.template.getValue('finished')}\n"
 		)
-		winner = getValueOrEmpty(self.data, 'winner')
+		winner = self.template.getValue('winner')
 		if winner:
 			out += f"{indent}|winner={winner}\n"
 
-		for key in KeysInDictionaryIterator(CS_PARAMS, self.data):
-			out += f"{indent}|{key}={self.data[key]}\n"
+		for key, value in self.template.iterateByItemsMatch(CS_PARAMS):
+			out += f"{indent}|{key}={value}\n"
 
-		for key in KeysInDictionaryIterator(MAP_LINKS, self.data):
-			out += f"{indent}|{key}={self.data[key]}\n"
+		for key, value in self.template.iterateByItemsMatch(MAP_LINKS):
+			out += f"{indent}|{key}={value}\n"
 
 		for matchMap in self.maps:
 			index = matchMap.index

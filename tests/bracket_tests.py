@@ -1,5 +1,6 @@
 import mwparserfromhell
 
+from scripts.match2.commons.template import Template
 from scripts.match2.counterstrike.bracket import BracketCounterstrike
 from tests.aspects import TestCase
 
@@ -24,7 +25,7 @@ class TestBracketLeague(TestCase):
 		)
 		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
 
-		bracket = BracketCounterstrike(oldTemplate)
+		bracket = BracketCounterstrike(Template(oldTemplate))
 		bracket.oldTemplateId = '2SETeamBracket'
 		bracket.newTemplateId = 'Bracket/2'
 		bracket.id = 'TESTID'
@@ -42,15 +43,15 @@ class TestBracketLeague(TestCase):
             "\t|twitch=\n" +
             "\t|hltv=2368518\n" +
             "\t|map1={{Map|map=Overpass|finished=true\n" +
-            "\t\t|map1t1firstside=ct|map1t1t=11|map1t1ct=5|map1t2t=10|map1t2ct=0\n" +
+            "\t\t|t1firstside=ct|t1t=11|t1ct=5|t2t=10|t2ct=0\n" +
             "\t\t|stats=168110\n" +
             "\t}}\n" +
             "\t|map2={{Map|map=Ancient|finished=true\n" +
-            "\t\t|map2t1firstside=t|map2t1t=2|map2t1ct=0|map2t2t=3|map2t2ct=13\n" +
+            "\t\t|t1firstside=t|t1t=2|t1ct=0|t2t=3|t2ct=13\n" +
             "\t\t|stats=168105\n" +
             "\t}}\n" +
             "\t|map3={{Map|map=Vertigo|finished=true\n" +
-            "\t\t|map3t1firstside=t|map3t1t=14|map3t1ct=0|map3t2t=15|map3t2ct=1\n" +
+            "\t\t|t1firstside=t|t1t=14|t1ct=0|t2t=15|t2ct=1\n" +
             "\t\t|stats=168136\n" +
             "\t}}\n" +
             "}}\n}}"

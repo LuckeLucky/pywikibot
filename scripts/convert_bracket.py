@@ -4,6 +4,7 @@ import pywikibot
 from pywikibot import pagegenerators
 
 from scripts.match2.factory import getBracketClassForLanguage
+from scripts.match2.commons.template import Template
 from scripts.utils import get_text, put_text
 
 def processText(bracketClass, text: str):
@@ -17,7 +18,7 @@ def processText(bracketClass, text: str):
 
 		if legacyBracket is None:
 			break
-		newBracket = bracketClass(legacyBracket)
+		newBracket = bracketClass(Template(legacyBracket, removeComments=True))
 		if not bracketClass.isBracketDataAvailable(newBracket.newTemplateId):
 			pywikibot.stdout("<<lightred>>Missing support for template " + newBracket.newTemplateId)
 			sys.exit(1)
