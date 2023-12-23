@@ -27,13 +27,12 @@ class Matchlist:
 			self.args['attached'] = 'true'
 
 		for matchIndex, matchTemplate in enumerate(self.matchTemplates):
-			sanitizedMatch = Template(matchTemplate)
-			opp1 = TeamOpponent(sanitizedMatch.getValue('team1'), sanitizedMatch.getValue('score1'))
-			opp2 = TeamOpponent(sanitizedMatch.getValue('team2'), sanitizedMatch.getValue('score2'))
-			winner = sanitizedMatch.getValue('winner')
-			details = sanitizedMatch.getNestedTemplate('details')
+			opp1 = TeamOpponent(matchTemplate.getValue('team1'), matchTemplate.getValue('score1'))
+			opp2 = TeamOpponent(matchTemplate.getValue('team2'), matchTemplate.getValue('score2'))
+			winner = matchTemplate.getValue('winner')
+			details = matchTemplate.getNestedTemplate('details')
 
-			header = sanitizedMatch.getValue('date')
+			header = matchTemplate.getValue('date')
 			if header:
 				self.headers['M' + str(matchIndex+1) + 'header'] = header
 
@@ -42,7 +41,7 @@ class Matchlist:
 					details = Template("FAKE")
 			details.add('winner', winner)
 
-			walkover = sanitizedMatch.getValue('walkover')
+			walkover = matchTemplate.getValue('walkover')
 			if walkover:
 				if walkover == '1':
 					opp1.score = 'W'
@@ -55,7 +54,7 @@ class Matchlist:
 
 			for x in range(MAX_NUM_MAPS):
 				key = 'map' + str(x) + 'win'
-				mapxwin = sanitizedMatch.getValue(key)
+				mapxwin = matchTemplate.getValue(key)
 				if mapxwin:
 					details.add(key, mapxwin)
 

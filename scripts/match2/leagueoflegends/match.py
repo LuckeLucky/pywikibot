@@ -25,13 +25,13 @@ class Match(commonsMatch):
 		while True:
 			strIndex = str(index)
 			mapTemplate = self.template.getNestedTemplate('match' + strIndex)
-			mapTemplate = Template(mapTemplate)
 			#Winner outside of MatchLua
 			mapWinner = mapTemplate.getValue('map' + strIndex + 'win')
 			if mapTemplate is None and mapWinner:
 				mapTemplate = Template.createFakeTemplate()
 			if not mapTemplate:
 				break
+			mapTemplate = Template(mapTemplate)
 			if not mapTemplate.getValue(mapTemplate, 'win'):
 				mapTemplate.add('win', mapWinner)
 			self.maps.append(Map(index, mapTemplate))

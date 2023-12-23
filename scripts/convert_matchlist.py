@@ -1,17 +1,35 @@
 from typing import List
 
 import mwparserfromhell
-from mwparserfromhell.nodes import Template
 
 import pywikibot
 from pywikibot import pagegenerators
+from scripts.match2.commons.template import Template
 from scripts.match2.commons.matchlist import Matchlist
 from scripts.match2.factory import getMatchlistClassForLanguage
 from scripts.utils import get_text, put_text, remove_and_squash
 
 
 def processTextLegacy(matchlistClass: Matchlist, text: str) -> str:
-	#TODO
+	while True:
+		matchlist: Template = None
+		matchMaps: List[Template] = []
+
+		wikicode = mwparserfromhell.parse(text)
+		for template in wikicode.filter_templates():
+			if template.name.matches('LegacyMatchList'):
+				matchlist = Template(template)
+
+		if not matchlist:
+			break
+
+		for key, _ in matchlist.iterateByPrefix('match'):
+			matchMaps.append(matchlist.getNestedTemplate(key))
+
+		matchList = matchlistClass(matchlist, matchMaps)
+		matchList.process()
+		wikicode.replace(matchlist, str(matchList))
+
 	return text
 
 def processText(matchlistClass: Matchlist, text: str) -> str:
@@ -28,7 +46,7 @@ def processText(matchlistClass: Matchlist, text: str) -> str:
 				matchMaps = []
 				templatesToRemove = []
 			if template.name.matches('MatchMapsLua'):
-				matchMaps.append(template)
+				matchMaps.append(Template(template))
 				templatesToRemove.append(template)
 			if template.name.matches('MatchListEnd'):
 				templatesToRemove.append(template)
@@ -38,7 +56,7 @@ def processText(matchlistClass: Matchlist, text: str) -> str:
 		if not ends:
 			break
 
-		matchList = matchlistClass(matchListStart, matchMaps)
+		matchList = matchlistClass(Template(matchListStart), matchMaps)
 		matchList.process()
 		wikicode.replace(matchListStart, str(matchList))
 		for template in templatesToRemove:

@@ -24,14 +24,14 @@ class Match(commonsMatch):
 		while True:
 			strIndex = str(index)
 			mapTemplate = self.template.getNestedTemplate('match' + strIndex)
-			mapTemplate = Template(mapTemplate)
 			#Winner outside of MatchLua
-			mapWinner = self.template.get('map' + strIndex + 'win')
-			mapVod = self.template('vodgame' + strIndex)
+			mapWinner = self.template.getValue('map' + strIndex + 'win')
+			mapVod = self.template.getValue('vodgame' + strIndex)
 			if mapTemplate is None and (mapWinner or mapVod):
 				mapTemplate = Template("FAKE")
 			if not mapTemplate:
 				break
+			mapTemplate = Template(mapTemplate)
 			if not mapTemplate.getValue('win'):
 				mapTemplate.add('win', mapWinner)
 			if not mapTemplate.getValue('vod'):
@@ -44,11 +44,11 @@ class Match(commonsMatch):
 		opponent1 = self.opponents[0]
 		opponent2 = self.opponents[1]
 		out = ("{{Match\n" +
-		 	f"{indent}|bestof={self.template.get('bestof')}\n" +
-			f"{indent}|date={self.template.get('date')}" +
-			f" |finished={self.template.get('finished')}\n"
+		 	f"{indent}|bestof={self.template.getValue('bestof')}\n" +
+			f"{indent}|date={self.template.getValue('date')}" +
+			f" |finished={self.template.getValue('finished')}\n"
 		)
-		winner = self.template.get('winner')
+		winner = self.template.getValue('winner')
 		if winner:
 			out += f"{indent}|winner={winner}\n"
 
