@@ -27,6 +27,7 @@ def main(*args):
 	localArgs = pywikibot.handle_args(args)
 	genFactory = pagegenerators.GeneratorFactory()
 
+	save = True
 	templateToReplace = ''
 
 	for arg in localArgs:
@@ -35,6 +36,8 @@ def main(*args):
 		if arg.startswith('-'):
 			arg = arg[1:]
 			arg, _, value = arg.partition(':')
+			if arg == 'nosave':
+				save = False
 			if arg == 'template':
 				templateToReplace = value
 
@@ -47,7 +50,10 @@ def main(*args):
 		text = get_text(page)
 		lang = page.site.code
 		newText = processText(text, lang, templateToReplace)
-		put_text(page, summary=editSummary, new=newText)
+		if save:
+			put_text(page, summary=editSummary, new=newText)
+		else:
+			print(newText)
 
 if __name__ == '__main__':
 	main()
