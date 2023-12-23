@@ -26,8 +26,6 @@ class Matchlist:
 		if hide == 'true':
 			self.args['collapsed'] = 'true'
 			self.args['attached'] = 'true'
-		else:
-			self.args['collapsed'] = 'false'
 
 		for matchIndex, matchTemplate in enumerate(self.matchTemplates):
 			sanitizedMatch = sanitizeTemplate(matchTemplate)
