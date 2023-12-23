@@ -32,18 +32,17 @@ class Match(commonsMatch):
 		index = 1
 		while True:
 			strIndex = str(index)
-			matchTemplate = getNestedTemplateFromTemplate(self.template, 'match' + strIndex)
-			matchTemplate = sanitizeTemplate(matchTemplate)
+			mapTemplate = getNestedTemplateFromTemplate(self.template, 'match' + strIndex)
+			mapTemplate = sanitizeTemplate(mapTemplate)
 			#Winner outside of MatchLua
-			winner = getValueOrEmpty(self.data, 'map' + strIndex + 'win')
-			if matchTemplate is None and winner:
-				matchTemplate = Template('MatchLua')
-				matchTemplate.add('win', winner)
-			elif not getStringFromTemplate(matchTemplate, 'win') and winner:
-				matchTemplate.add('win', winner)
-			if matchTemplate is None:
+			mapWinner = getValueOrEmpty(self.data, 'map' + strIndex + 'win')
+			if mapTemplate is None and mapWinner:
+				mapTemplate = Template("FAKE")
+			if not mapTemplate:
 				break
-			self.maps.append(Map(index, matchTemplate))
+			if not getStringFromTemplate(mapTemplate, 'win'):
+				mapTemplate.add('win', mapWinner)
+			self.maps.append(Map(index, mapTemplate))
 			index += 1
 
 	def __str__(self) -> str:
