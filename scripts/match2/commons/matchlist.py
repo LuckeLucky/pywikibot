@@ -23,7 +23,7 @@ class Matchlist:
 		self.args['title'] = getStringFromTemplate(self.template, 'title')
 		self.args['width'] = getStringFromTemplate(self.template, 'width')
 		hide = getStringFromTemplate(self.template, 'hide')
-		if hide == 'true':
+		if hide in ['true', 't', 'yes', 'y', '1']:
 			self.args['collapsed'] = 'true'
 			self.args['attached'] = 'true'
 
