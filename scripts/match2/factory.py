@@ -6,6 +6,7 @@ from .counterstrike.bracket import BracketCounterstrike
 
 from .commons.showmatch import Showmatch
 from .leagueoflegends.showmatch import ShowmatchLeagueOfLegends
+from .wildrift.showmatch import ShowmatchWildRift
 
 from .commons.matchlist import Matchlist
 from .leagueoflegends.matchlist import MatchlistLeagueOfLegends
@@ -22,7 +23,8 @@ def getBracketClassForLanguage(language: str):
 	return Bracket
 
 showmatchMappings = {
-	'leagueoflegends': ShowmatchLeagueOfLegends
+	'leagueoflegends': ShowmatchLeagueOfLegends,
+	'wildrift': ShowmatchWildRift
 }
 
 def getShowmatchClassForLanguage(language: str, template: Template):
