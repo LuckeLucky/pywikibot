@@ -1,6 +1,6 @@
 from mwparserfromhell.nodes import Template
 from .opponent import Opponent, TeamOpponent
-from .utils import sanitizeTemplate, getStringFromTemplate, getValueOrEmpty, getNestedTemplateFromTemplate
+from .utils import generateId, sanitizeTemplate, getStringFromTemplate, getNestedTemplateFromTemplate
 from .match import Match
 
 class Showmatch:
@@ -8,6 +8,8 @@ class Showmatch:
 	def __init__(self, template: Template) -> None:
 		self.template: Template = sanitizeTemplate(template)
 		self.id: str = getStringFromTemplate(self.template, 'id')
+		if not self.id:
+			self.id = generateId()
 		self.match: Match = None
 		self.getMatch()
 
@@ -19,7 +21,7 @@ class Showmatch:
 	def getMatch(self):
 		opponent1 = self.getOpponent('team1', 'score1')
 		opponent2 = self.getOpponent('team2', 'score2')
-		winner = getValueOrEmpty(self.template, 'win')
+		winner = getStringFromTemplate(self.template, 'win')
 		details = getNestedTemplateFromTemplate(self.template, 'details')
 		if winner:
 			if not details:
