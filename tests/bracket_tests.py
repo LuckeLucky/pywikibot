@@ -2,7 +2,12 @@ import mwparserfromhell
 
 from scripts.match2.commons.template import Template
 from scripts.match2.counterstrike.bracket import BracketCounterstrike
+from scripts.match2.counterstrike.match import Match
+from scripts.match2.commons.opponent import TeamOpponent
 from tests.aspects import TestCase
+
+RESET_MATCH = 'RxMBR'
+THIRD_PLACE_MATCH = 'RxMTP'
 
 class TestBracketLeague(TestCase):
 	net = False
@@ -57,3 +62,37 @@ class TestBracketLeague(TestCase):
             "}}\n}}"
 		)
 		self.assertEqual(expected, str(bracket))
+
+	def testValidReset(self):
+		fakeTemplate = Template.createFakeTemplate()
+		fakeTemplate.add('winner', '1')
+		fakeTemplate.add('nested', '{{foo|bar=1}}')
+
+		match = Match([TeamOpponent('saw', '1'), TeamOpponent('ftw', '0')], fakeTemplate)
+
+		isValidReset = BracketCounterstrike.isMatchValidResetOrThird
+
+		#Non extra match are always "valid"
+		self.assertEqual(True, isValidReset(match, False, 'R1M1'))
+		self.assertEqual(True, isValidReset(match, False, THIRD_PLACE_MATCH))
+		self.assertEqual(True, isValidReset(match, True, RESET_MATCH))
+
+		#Reset match should be
+		match.opponents[0].score = ''
+		match.opponents[1].score = ''
+		self.assertEqual(True, isValidReset(match, False, 'R1M1'))
+		self.assertEqual(True, isValidReset(match, False, THIRD_PLACE_MATCH))
+		self.assertEqual(True, isValidReset(match, True, RESET_MATCH))
+
+		match.template.remove('nested')
+		self.assertEqual(True, isValidReset(match, False, 'R1M1'))
+		self.assertEqual(True, isValidReset(match, False, THIRD_PLACE_MATCH))
+		self.assertEqual(False, isValidReset(match, True, RESET_MATCH))
+
+		match.template.remove('winner')
+		self.assertEqual(True, isValidReset(match, False, 'R1M1'))
+		self.assertEqual(False, isValidReset(match, False, THIRD_PLACE_MATCH))
+		self.assertEqual(False, isValidReset(match, True, RESET_MATCH))
+
+		match.opponents[0].score = '1'
+		self.assertEqual(True, isValidReset(match, True, RESET_MATCH))

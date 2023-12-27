@@ -12,6 +12,7 @@ from .opponent import Opponent, SoloOpponent, TeamOpponent
 TEAM = 'team'
 SOLO = 'solo'
 
+MAX_NUMBER_OPPONENTS = 2
 RESET_MATCH = 'RxMBR'
 THIRD_PLACE_MATCH = 'RxMTP'
 
@@ -34,7 +35,7 @@ class Bracket:
 		self.id: str = self.template.getValue('id')
 		if not self.id:
 			self.id = generateId()
-		self.mappingKey: str = self.newTemplateId + "$$" + self.oldTemplateId
+		self.mappingKey: str = self.newTemplateId + '$$' + self.oldTemplateId
 
 	@classmethod
 	def isBracketDataAvailable(cls, newTemplateId: str) -> bool:
@@ -62,9 +63,9 @@ class Bracket:
 
 	@classmethod
 	def load(cls):
-		"""
+		'''
 			Load bracket data and custom mappings into memory
-		"""
+		'''
 		cls.loadBracketData()
 		cls.loadCustomMapping()
 		cls.loadHeadersData()
@@ -73,10 +74,10 @@ class Bracket:
 	@classmethod
 	def getSimplifiedId(cls, match2Id: str) -> str:
 
-		"""
+		'''
 			Simplify round id
 			ex. id = 'R01M001' return 'R1M1'
-		"""
+		'''
 		match2Id = match2Id.split('_')[1] if len(match2Id.split('_')) > 1 else match2Id
 		if match2Id == 'RxMTP':
 			return match2Id
@@ -144,6 +145,7 @@ class Bracket:
 	def isMatchValidResetOrThird(cls, match: Match, reset: bool, roundParam: str):
 		if roundParam not in [THIRD_PLACE_MATCH, RESET_MATCH]:
 			return True
+
 		for opponent in match.opponents:
 			if opponent.score:
 				return True
@@ -218,43 +220,30 @@ class Bracket:
 			if bd['header'].startswith('!l'):
 				lowerHeaders[roundNumber] = currentRound['G']
 
-		opponent1 = None
-		winner1Param = ''
-		if (not 'toupper' in bd) and not reset:
-			param = 'R' + str(currentRound['R']) + 'D' + str(currentRound['D'])
-			#RxDx
-			opponent1 = self.getOpponent(param)
-			winner1Param = param
-			currentRound['D'] = currentRound['D'] + 1
-		else:
-			param = 'R' + str(currentRound['R']) + 'W' + str(currentRound['W'])
-			#RxWx
-			opponent1 = self.getOpponent(param, scoreKey= 'score2' if reset else 'score')
-			winner1Param = param
-			currentRound['W'] = currentRound['W'] + 1
+		opponents: List[Opponent] = []
+		winnerParams: List[str] = []
 
-		opponent2 = None
-		winner2Param = ''
-		if (not 'tolower' in bd) and not reset:
-			param = 'R' + str(currentRound['R']) + 'D' + str(currentRound['D'])
-			#RxDx
-			opponent2 = self.getOpponent(param)
-			winner2Param = param
-			currentRound['D'] = currentRound['D'] + 1
-		else:
-			param = 'R' + str(currentRound['R']) + 'W' + str(currentRound['W'])
-			#RxWx
-			opponent2 = self.getOpponent(param, scoreKey= 'score2' if reset else 'score')
-			winner2Param = param
-			currentRound['W'] = currentRound['W'] + 1
+		for opponentIndex in range(MAX_NUMBER_OPPONENTS):
+			param = None
+			if (not reset and
+				(not 'toupper' in bd and opponentIndex == 0 or
+				not 'tolower' in bd and opponentIndex == 1)):
+				param = 'R' + str(currentRound['R']) + 'D' + str(currentRound['D'])
+				currentRound['D'] = currentRound['D'] + 1
+			else:
+				param = 'R' + str(currentRound['R']) + 'W' + str(currentRound['W'])
+				currentRound['W'] = currentRound['W'] + 1
+
+			opponents.append(self.getOpponent(param, scoreKey= 'score2' if reset else 'score'))
+			winnerParams.append(param)
 
 		details = self.getDetails('R' + str(currentRound['R']) + 'G' + str(currentRound['G']), index = 1 if reset else 0)
-		winner = self.getWinner(winner1Param, winner2Param)
+		winner = self.getWinner(winnerParams[0], winnerParams[1])
 		if winner:
 			if not details:
 				details = Template.createFakeTemplate()
 			details.add('winner', winner)
-		match2 = self.Match([opponent1, opponent2], details)
+		match2 = self.Match(opponents, details)
 		match2.isValidResetOrThird = self.isMatchValidResetOrThird(match2, reset, simplifiedId)
 		self.roundData[simplifiedId] = match2
 		roundData[currentRound['R']] = currentRound
@@ -267,24 +256,25 @@ class Bracket:
 			reset = False
 			if roundParam == RESET_MATCH:
 				reset = True
-			opp1param = match1Params["opp1"]
-			opp2param = match1Params["opp2"]
-			details = self.getDetails(match1Params["details"], index = 1 if reset else 0)
-			opponent1 = self.getOpponent(opp1param, scoreKey= 'score2' if reset else 'score')
-			opponent2 = self.getOpponent(opp2param, scoreKey= 'score2' if reset else 'score')
+
+			if 'header' in match1Params:
+				header = self.template.getValue(match1Params['header'])
+				if header:
+					self.roundData[roundParam + 'header'] = header
+
+			opp1param = match1Params['opp1']
+			opp2param = match1Params['opp2']
+			details = self.getDetails(match1Params['details'], index = 1 if reset else 0)
 			winner = self.getWinner(opp1param, opp2param)
 			if winner:
 				if not details:
 					details = Template.createFakeTemplate()
 				details.add('winner', winner)
+			opponent1 = self.getOpponent(opp1param, scoreKey= 'score2' if reset else 'score')
+			opponent2 = self.getOpponent(opp2param, scoreKey= 'score2' if reset else 'score')
 			match2 = self.Match([opponent1, opponent2], details)
 			match2.isValidResetOrThird = self.isMatchValidResetOrThird(match2, reset, roundParam)
 			self.roundData[roundParam] = match2
-
-			if "header" in match1Params:
-				header = self.template.getValue(match1Params["header"])
-				if header:
-					self.roundData[roundParam + 'header'] = header
 
 	def process(self):
 		if self.template is None:
