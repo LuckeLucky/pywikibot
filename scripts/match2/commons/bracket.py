@@ -9,9 +9,6 @@ from .template import Template
 from .match import Match as commonsMatch
 from .opponent import Opponent, SoloOpponent, TeamOpponent
 
-TEAM = 'team'
-SOLO = 'solo'
-
 MAX_NUMBER_OPPONENTS = 2
 RESET_MATCH = 'RxMBR'
 THIRD_PLACE_MATCH = 'RxMTP'
@@ -173,11 +170,10 @@ class Bracket:
 		return SoloOpponent(name, score, '', flag)
 
 	def getOpponent(self, key: str, scoreKey: str = 'score') -> Opponent:
-		if self.bracketType == TEAM:
-			return self.getTeamOpponent(key, scoreKey)
-		if self.bracketType == SOLO:
-			return self.getSoloOpponent(key, scoreKey)
-		return None
+		opponentGet = getattr(self, 'get' + str(self.bracketType).capitalize() + 'Opponent')
+		if not opponentGet:
+			raise ValueError(self.bracketType + 'is not supported')
+		return opponentGet(key, scoreKey)
 
 	def getDetails(self, key, index = 0):
 		if self.template.has(key + 'details'):
