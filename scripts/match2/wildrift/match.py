@@ -68,7 +68,7 @@ class Match(commonsMatch):
 			index = matchMap.index
 			mapsOut = f"{indent}|map{index}={str(matchMap)}\n"
 			for line in io.StringIO(mapsOut):
-				if line.startswith(indent) and ('{{' not in line) and ('}}' not in line):
+				if ('{{' not in line) and ('}}' not in line):
 					out += indent + line
 				else:
 					out += line

@@ -12,7 +12,7 @@ class Map(commonsMap):
 		out = "{{Map\n"
 		vod = self.template.getValue('vod')
 		if vod:
-			out += out + f"|vod={vod}"
+			out += f"|vod={vod}\n"
 		out += (
 			f"{indent}|team1side={self.template.getValue('team1side')}" +
 			f"|team2side={self.template.getValue('team2side')}" +
