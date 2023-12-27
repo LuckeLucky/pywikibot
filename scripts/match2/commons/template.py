@@ -42,16 +42,16 @@ class Template(mwTemplate):
 			if param.value.startswith('{{') and nested:
 				nestedTemplate = Template(self.getNestedTemplate(param.name))
 				for _nestedParam in nestedTemplate.params:
-					yield _nestedParam.name, _nestedParam.value
+					yield str(_nestedParam.name), str(_nestedParam.value)
 			else:
-				yield param.name, param.value
+				yield str(param.name), str(param.value)
 
 	def iterateByPrefix(self, prefix: str, ignoreEmpty: bool = False):
 		for param in self.params:
 			if param.name.startswith(prefix):
 				if ignoreEmpty and not param.value:
 					continue
-				yield param.name, param.value
+				yield str(param.name), str(param.value)
 
 	def iterateByItemsMatch(self, items: List[str], ignoreEmpty: bool = False):
 		for item in items:
