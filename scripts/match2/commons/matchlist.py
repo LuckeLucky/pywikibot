@@ -38,7 +38,7 @@ class Matchlist:
 
 			if winner:
 				if not details:
-					details = Template("FAKE")
+					details = Template.createFakeTemplate()
 			details.add('winner', winner)
 
 			walkover = matchTemplate.getValue('walkover')

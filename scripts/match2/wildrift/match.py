@@ -28,7 +28,7 @@ class Match(commonsMatch):
 			mapWinner = self.template.getValue('map' + strIndex + 'win')
 			mapVod = self.template.getValue('vodgame' + strIndex)
 			if mapTemplate is None and (mapWinner or mapVod):
-				mapTemplate = Template("FAKE")
+				mapTemplate = Template.createFakeTemplate()
 			if not mapTemplate:
 				break
 			mapTemplate = Template(mapTemplate)

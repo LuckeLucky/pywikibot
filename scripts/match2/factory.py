@@ -3,6 +3,7 @@ from mwparserfromhell.nodes import Template
 from .commons.bracket import Bracket
 from .leagueoflegends.bracket import BracketLeagueOfLegends
 from .counterstrike.bracket import BracketCounterstrike
+from .wildrift.bracket import BracketWildRift
 
 from .commons.showmatch import Showmatch
 from .leagueoflegends.showmatch import ShowmatchLeagueOfLegends
@@ -13,6 +14,7 @@ from .leagueoflegends.matchlist import MatchlistLeagueOfLegends
 
 bracketMappings = {
 	'leagueoflegends': BracketLeagueOfLegends,
+	'wildrift': BracketWildRift,
 	'counterstrike': BracketCounterstrike
 }
 

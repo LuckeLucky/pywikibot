@@ -4,6 +4,7 @@ from functools import cmp_to_key
 from pathlib import Path
 from typing import Dict, List
 
+from .utils import generateId
 from .template import Template
 from .match import Match as commonsMatch
 from .opponent import Opponent, SoloOpponent, TeamOpponent
@@ -31,6 +32,8 @@ class Bracket:
 		self.oldTemplateId: str = self.template.getValue(index=1)
 		self.bracketType: str = self.template.getValue('type')
 		self.id: str = self.template.getValue('id')
+		if not self.id:
+			self.id = generateId()
 		self.mappingKey: str = self.newTemplateId + "$$" + self.oldTemplateId
 
 	@classmethod
@@ -249,7 +252,7 @@ class Bracket:
 		winner = self.getWinner(winner1Param, winner2Param)
 		if winner:
 			if not details:
-				details = Template("FAKE")
+				details = Template.createFakeTemplate()
 			details.add('winner', winner)
 		match2 = self.Match([opponent1, opponent2], details)
 		match2.isValidResetOrThird = self.isMatchValidResetOrThird(match2, reset, simplifiedId)
@@ -272,7 +275,7 @@ class Bracket:
 			winner = self.getWinner(opp1param, opp2param)
 			if winner:
 				if not details:
-					details = Template("FAKE")
+					details = Template.createFakeTemplate()
 				details.add('winner', winner)
 			match2 = self.Match([opponent1, opponent2], details)
 			match2.isValidResetOrThird = self.isMatchValidResetOrThird(match2, reset, roundParam)
