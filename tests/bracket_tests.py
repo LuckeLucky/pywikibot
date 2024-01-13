@@ -67,6 +67,7 @@ class TestBracketLeague(TestCase):
 		fakeTemplate = Template.createFakeTemplate()
 		fakeTemplate.add('winner', '1')
 		fakeTemplate.add('nested', '{{foo|bar=1}}')
+		fakeTemplate.add('ff', 'olas')
 
 		match = Match([TeamOpponent('saw', '1'), TeamOpponent('ftw', '0')], fakeTemplate)
 
@@ -87,9 +88,10 @@ class TestBracketLeague(TestCase):
 		match.template.remove('nested')
 		self.assertEqual(True, isValidReset(match, False, 'R1M1'))
 		self.assertEqual(True, isValidReset(match, False, THIRD_PLACE_MATCH))
-		self.assertEqual(False, isValidReset(match, True, RESET_MATCH))
+		self.assertEqual(True, isValidReset(match, True, RESET_MATCH))
 
 		match.template.remove('winner')
+		match.template.remove('ff')
 		self.assertEqual(True, isValidReset(match, False, 'R1M1'))
 		self.assertEqual(False, isValidReset(match, False, THIRD_PLACE_MATCH))
 		self.assertEqual(False, isValidReset(match, True, RESET_MATCH))

@@ -147,11 +147,12 @@ class Bracket:
 			if opponent.score:
 				return True
 
-		for key, _ in match.template.iterateParams(True):
-			if key != 'winner':
-				return True
-			if key == 'winner' and not reset:
-				return True
+		for key, value in match.template.iterateParams(True):
+			if value:
+				if key != 'winner':
+					return True
+				if key == 'winner' and not reset:
+					return True
 		return False
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
