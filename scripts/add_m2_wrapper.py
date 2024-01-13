@@ -1,3 +1,29 @@
+r"""
+This bot will make direct text replacements.
+
+It will retrieve information on which pages might need changes either from
+an XML dump or a text file, or only change a single page.
+
+These command line parameters can be used to specify which pages to work on:
+
+&params;
+
+Furthermore, the following command line parameters are supported:
+
+-isMatchList	Is MatchListTemplate?
+-oldTemplateId
+-newTemplateId
+-bracketType	Only required for brackets
+
+Examples
+--------
+python pwb.py add_m2_wrapper -lang:valorant -isMatchList 
+	-oldTemplateId:"MatchListStart" 
+	-newTemplateId:"LegacyMatchListStart" 
+	-transcludes:"MatchListStart" 
+	-ns:0,2
+"""
+
 import sys
 import mwparserfromhell
 import pywikibot
@@ -62,7 +88,7 @@ def main(*args):
 		for template in wikicode.filter_templates():
 			if template.name.matches(oldTemplateId):
 				templateStr = str(template)
-				templateStr = templateStr.replace(oldTemplateId, newTemplateText + generateId())
+				templateStr = templateStr.replace(oldTemplateId, newTemplateText + generateId(), 1)
 				wikicode.replace(template, templateStr)
 
 		newText = str(wikicode)
