@@ -15,7 +15,7 @@ def processText(bracketClass, text: str, config: Dict[str, str]):
 		wikicode = mwparserfromhell.parse(text)
 		legacyBracket = None
 		for template in wikicode.filter_templates():
-			if (template.name.matches('LegacyBracket') or
+			if (config is None and template.name.matches('LegacyBracket') or
 				(config is not None and template.name.matches(config['oldTemplateId']))):
 				legacyBracket = template
 				break

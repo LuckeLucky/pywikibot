@@ -28,7 +28,6 @@ SKIP = 'skip'
 class Map(commonsMap):
 	def __init__(self, index: int, template: Template) -> None:
 		super().__init__(index, template)
-		self.prefix = 'map' + str(self.index)
 		winner = self.template.getValue(self.prefix + 'win')
 		if winner in ['1', '2', '0']:
 			self.winner = int(winner)
