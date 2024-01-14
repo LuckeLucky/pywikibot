@@ -1,10 +1,15 @@
-import io
+from typing import List
+
+from scripts.match2.commons.opponent import Opponent
+from scripts.match2.commons.template import Template
 
 from ..commons.match import Match as commonsMatch, STREAMS
+from ..commons.mapveto import MapVeto
 
 from .map import Map
 
 VALORANT_PARAMS = STREAMS + [
+	'bestof'
 	'comment',
 	'vod',
 	'mvp',
@@ -13,6 +18,12 @@ VALORANT_PARAMS = STREAMS + [
 ]
 
 class Match(commonsMatch):
+	def __init__(self, opponents: List[Opponent], template: Template) -> None:
+		super().__init__(opponents, template)
+		mapbans = self.template.getNestedTemplate('mapbans')
+		if mapbans:
+			self.mapveto = MapVeto(Template(mapbans))
+
 	def getMaps(self):
 		index = 1
 		while True:
@@ -45,6 +56,13 @@ class Match(commonsMatch):
 			index = matchMap.index
 			mapsOut = f"{indent}|map{index}={str(matchMap)}\n"
 			splitLines = mapsOut.splitlines(keepends=True)
+			out += splitLines[0]
+			out += ''.join(indent + line for line in splitLines[1:-1])
+			out += splitLines[-1]
+
+		if self.mapveto:
+			vetoOut = f'{indent}|mapveto={str(self.mapveto)}\n'
+			splitLines = vetoOut.splitlines(keepends=True)
 			out += splitLines[0]
 			out += ''.join(indent + line for line in splitLines[1:-1])
 			out += splitLines[-1]
