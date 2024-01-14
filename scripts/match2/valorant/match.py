@@ -36,7 +36,7 @@ class Match(commonsMatch):
 			index += 1
 
 	def __str__(self) -> str:
-		indent = "  "
+		indent = self.indent
 		opponent1 = self.opponents[0]
 		opponent2 = self.opponents[1]
 		out = ("{{Match\n" +

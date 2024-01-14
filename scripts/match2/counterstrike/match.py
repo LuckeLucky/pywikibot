@@ -1,4 +1,8 @@
 import io
+from typing import List
+
+from scripts.match2.commons.opponent import Opponent
+from scripts.match2.commons.template import Template
 
 from ..commons.match import Match as commonsMatch, STREAMS
 
@@ -28,6 +32,10 @@ CS_PARAMS = STREAMS + [
 ]
 
 class Match(commonsMatch):
+	def __init__(self, opponents: List[Opponent], template: Template) -> None:
+		super().__init__(opponents, template)
+		self.indent = '\t'
+
 	def getMaps(self):
 		index = 1
 		while True:
@@ -40,7 +48,7 @@ class Match(commonsMatch):
 			index += 1
 
 	def __str__(self) -> str:
-		indent = "\t"
+		indent = self.indent
 		opponent1 = self.opponents[0]
 		opponent2 = self.opponents[1]
 		out = ("{{Match\n" +
