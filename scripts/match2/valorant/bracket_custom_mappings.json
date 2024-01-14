@@ -148,5 +148,17 @@
 			"opp1": "R2W15",
 			"opp2": "R2W16"
 		}
+	},
+	"Bracket/2L1DH2L$$4SE1STeamBracket": {
+		"R2M1": {
+			"details": "R2G1",
+			"opp1": "R2W1",
+			"opp2": "R2W2"
+		},
+		"R2M2": {
+			"details": "R2G2",
+			"opp1": "R2W3",
+			"opp2": "R2W4"
+		}
 	}
 }

@@ -11,6 +11,7 @@ from .map import Map
 MAX_NUMBER_OF_MAPS = 10
 VALORANT_PARAMS = STREAMS + [
 	'bestof'
+	'walkover',
 	'comment',
 	'vod',
 	'mvp',
