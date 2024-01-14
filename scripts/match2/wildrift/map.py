@@ -8,7 +8,7 @@ class Map(commonsMap):
 		return result
 
 	def __str__(self) -> str:
-		indent = "    "
+		indent = self.indent
 		out = "{{Map\n"
 		vod = self.template.getValue('vod')
 		if vod:
@@ -36,5 +36,5 @@ class Map(commonsMap):
 		if team2bans:
 			out += f"{indent}{team2bans}\n"
 
-		out += indent + "}}"
+		out += indent[:len(indent)//2] + "}}"
 		return out

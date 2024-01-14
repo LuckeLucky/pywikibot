@@ -1,10 +1,9 @@
-import io
-
 from ..commons.template import Template
 from ..commons.match import Match as commonsMatch, STREAMS
 
 from .map import Map
 
+MAX_NUMBER_OF_MAPS = 10
 LEAGUE_PARAMS = STREAMS + [
 	'walkover',
 	'vod',
@@ -21,12 +20,9 @@ LEAGUE_PARAMS = STREAMS + [
 
 class Match(commonsMatch):
 	def getMaps(self):
-		index = 1
-		while True:
-			strIndex = str(index)
-			mapTemplate = self.template.getNestedTemplate('match' + strIndex)
-			#Winner outside of MatchLua
-			mapWinner = mapTemplate.getValue('map' + strIndex + 'win')
+		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
+			mapTemplate = self.template.getNestedTemplate('match' + str(mapIndex))
+			mapWinner = self.template.getValue('map' + str(mapIndex) + 'win')
 			if mapTemplate is None and mapWinner:
 				mapTemplate = Template.createFakeTemplate()
 			if not mapTemplate:
@@ -34,8 +30,8 @@ class Match(commonsMatch):
 			mapTemplate = Template(mapTemplate)
 			if not mapTemplate.getValue(mapTemplate, 'win'):
 				mapTemplate.add('win', mapWinner)
-			self.maps.append(Map(index, mapTemplate))
-			index += 1
+			newMap = Map(mapIndex, mapTemplate)
+			newMap.indent = self.indent * 2
 
 	def __str__(self) -> str:
 		indent = self.indent
@@ -72,12 +68,7 @@ class Match(commonsMatch):
 
 		for matchMap in self.maps:
 			index = matchMap.index
-			mapsOut = f"{indent}|map{index}={str(matchMap)}\n"
-			for line in io.StringIO(mapsOut):
-				if line.startswith(indent) and ('{{' not in line) and ('}}' not in line):
-					out += indent + line
-				else:
-					out += line
+			out += f"{indent}|map{index}={str(matchMap)}\n"
 
 		out += "}}"
 		return out

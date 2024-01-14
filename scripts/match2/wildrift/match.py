@@ -1,4 +1,3 @@
-import io
 from typing import List
 
 from scripts.match2.commons.opponent import Opponent
@@ -7,6 +6,7 @@ from ..commons.match import Match as commonsMatch, STREAMS
 
 from .map import Map
 
+MAX_NUMBER_OF_MAPS = 10
 WILDRIFT_PARAMS = STREAMS + [
 	'walkover',
 	'vod',
@@ -27,13 +27,10 @@ class Match(commonsMatch):
 		self.indent = '    '
 
 	def getMaps(self):
-		index = 1
-		while True:
-			strIndex = str(index)
-			mapTemplate = self.template.getNestedTemplate('match' + strIndex)
-			#Winner outside of MatchLua
-			mapWinner = self.template.getValue('map' + strIndex + 'win')
-			mapVod = self.template.getValue('vodgame' + strIndex)
+		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
+			mapTemplate = self.template.getNestedTemplate('match' + str(mapIndex))
+			mapWinner = self.template.getValue('map' + str(mapIndex) + 'win')
+			mapVod = self.template.getValue('vodgame' + str(mapIndex))
 			if mapTemplate is None and (mapWinner or mapVod):
 				mapTemplate = Template.createFakeTemplate()
 			if not mapTemplate:
@@ -43,8 +40,8 @@ class Match(commonsMatch):
 				mapTemplate.add('win', mapWinner)
 			if not mapTemplate.getValue('vod'):
 				mapTemplate.add('vod', mapVod)
-			self.maps.append(Map(index, mapTemplate))
-			index += 1
+			newMap = Map(mapIndex, mapTemplate)
+			newMap.indent = self.indent * 2
 
 	def __str__(self) -> str:
 		indent = self.indent
@@ -73,12 +70,7 @@ class Match(commonsMatch):
 
 		for matchMap in self.maps:
 			index = matchMap.index
-			mapsOut = f"{indent}|map{index}={str(matchMap)}\n"
-			for line in io.StringIO(mapsOut):
-				if ('{{' not in line) and ('}}' not in line):
-					out += indent + line
-				else:
-					out += line
+			out += f"{indent}|map{index}={str(matchMap)}\n"
 
 		location = self.template.getValue('location')
 		comment = self.template.getValue('comment')

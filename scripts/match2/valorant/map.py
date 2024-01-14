@@ -54,11 +54,10 @@ class Map(commonsMap):
 		return out, ok
 
 	def __str__(self) -> str:
-		indent = "  "
-
 		if self.finished == SKIP:
 			return f"{{{{Map|map={self.template.getValue(self.prefix)} |finished={self.finished}}}}}\n"
 
+		indent = self.indent
 		out = "{{Map\n"
 		for oppIndex in range(1, MAX_NUMBER_OF_OPPONENTS+1):
 			teamStatsOut = []
@@ -114,5 +113,5 @@ class Map(commonsMap):
 			out += f'|vod={vod}'
 
 		out += '\n'
-		out += indent + '}}'
+		out += indent[:len(indent)//2] + "}}"
 		return out

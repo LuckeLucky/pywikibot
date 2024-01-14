@@ -1,4 +1,3 @@
-import io
 from typing import List
 
 from scripts.match2.commons.opponent import Opponent
@@ -8,6 +7,7 @@ from ..commons.match import Match as commonsMatch, STREAMS
 
 from .map import Map, MAP_LINKS
 
+MAX_NUMBER_OF_MAPS = 10
 CS_PARAMS = STREAMS + [
 	'comment',
 	'overturned',
@@ -37,15 +37,15 @@ class Match(commonsMatch):
 		self.indent = '\t'
 
 	def getMaps(self):
-		index = 1
-		while True:
-			strIndex = str(index)
-			mapX = self.template.getValue('map' + strIndex)
-			if mapX:
-				self.maps.append(Map(index, self.template))
+		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
+			mapName = self.template.getValue('map' + str(mapIndex))
+			if mapName:
+				newMap = Map(mapIndex, self.template)
+				newMap.indent = '\t\t'
+				print(newMap.indent)
+				self.maps.append(newMap)
 			else:
 				break
-			index += 1
 
 	def __str__(self) -> str:
 		indent = self.indent
@@ -69,12 +69,7 @@ class Match(commonsMatch):
 
 		for matchMap in self.maps:
 			index = matchMap.index
-			mapsOut = f"{indent}|map{index}={str(matchMap)}\n"
-			for line in io.StringIO(mapsOut):
-				if line.startswith(indent) and ('{{' not in line) and ('}}' not in line):
-					out += indent + line
-				else:
-					out += line
+			out += f"{indent}|map{index}={str(matchMap)}\n"
 
 		out += "}}"
 		return out

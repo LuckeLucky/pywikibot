@@ -8,6 +8,7 @@ from ..commons.mapveto import MapVeto
 
 from .map import Map
 
+MAX_NUMBER_OF_MAPS = 10
 VALORANT_PARAMS = STREAMS + [
 	'bestof'
 	'comment',
@@ -21,19 +22,21 @@ class Match(commonsMatch):
 	def __init__(self, opponents: List[Opponent], template: Template) -> None:
 		super().__init__(opponents, template)
 		mapbans = self.template.getNestedTemplate('mapbans')
+		self.mapveto = None
 		if mapbans:
-			self.mapveto = MapVeto(Template(mapbans))
+			mapVeto = MapVeto(Template(mapbans))
+			mapVeto.indent = self.indent * 2
+			self.mapveto = mapVeto
 
 	def getMaps(self):
-		index = 1
-		while True:
-			strIndex = str(index)
-			mapX = self.template.getValue('map' + strIndex)
-			if mapX:
-				self.maps.append(Map(index, self.template))
+		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
+			mapName = self.template.getValue('map' + str(mapIndex))
+			if mapName:
+				newMap = Map(mapIndex, self.template)
+				newMap.indent = self.indent * 2
+				self.maps.append(newMap)
 			else:
 				break
-			index += 1
 
 	def __str__(self) -> str:
 		indent = self.indent
@@ -54,18 +57,10 @@ class Match(commonsMatch):
 
 		for matchMap in self.maps:
 			index = matchMap.index
-			mapsOut = f"{indent}|map{index}={str(matchMap)}\n"
-			splitLines = mapsOut.splitlines(keepends=True)
-			out += splitLines[0]
-			out += ''.join(indent + line for line in splitLines[1:-1])
-			out += splitLines[-1]
+			out += f"{indent}|map{index}={str(matchMap)}\n"
 
 		if self.mapveto:
-			vetoOut = f'{indent}|mapveto={str(self.mapveto)}\n'
-			splitLines = vetoOut.splitlines(keepends=True)
-			out += splitLines[0]
-			out += ''.join(indent + line for line in splitLines[1:-1])
-			out += splitLines[-1]
+			out += f'{indent}|mapveto={str(self.mapveto)}\n'
 
 		out += "}}"
 		return out

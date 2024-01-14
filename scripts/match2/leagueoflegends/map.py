@@ -8,7 +8,7 @@ class Map(commonsMap):
 		return result
 
 	def __str__(self) -> str:
-		indent = "  "
+		indent = self.indent
 		out = ("{{Map\n" +
 			f"{indent}|team1side={self.template.getValue('team1side')}\n"
 		)
@@ -32,5 +32,5 @@ class Map(commonsMap):
 		out += f"{indent}|length={self.template.getValue('length')}"
 		out += f" |winner={self.template.getValue('win')}\n"
 
-		out += indent + "}}"
+		out += indent[:len(indent)//2] + "}}"
 		return out
