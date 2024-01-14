@@ -55,11 +55,11 @@ class Map(commonsMap):
 
 	def __str__(self) -> str:
 		indent = "  "
-		out = "{{Map\n"
 
 		if self.finished == SKIP:
-			return f"|map={self.template.getValue(self.prefix)} |finished={self.finished}'\n{indent}}}}}"
+			return f"{{{{Map|map={self.template.getValue(self.prefix)} |finished={self.finished}}}}}\n"
 
+		out = "{{Map\n"
 		for oppIndex in range(1, MAX_NUMBER_OF_OPPONENTS+1):
 			teamStatsOut = []
 			hasTeamStats = False
