@@ -3,11 +3,10 @@ from typing import Dict, List
 import mwparserfromhell
 import pywikibot
 from pywikibot import pagegenerators
+from scripts.match2.commons.utils import generateId
 from scripts.match2.commons.template import Template
 from scripts.match2.valorant.bracket import BracketValorant
 from scripts.utils import get_text, put_text, remove_and_squash
-
-from scripts.match2.commons.opponent import Opponent, TeamOpponent
 
 def addStuffToTemplate(keys: Dict[str, str], newTemplate:Template, oldTemplate:Template) -> Opponent:
 	zdetails = Template(oldTemplate.getNestedTemplate(keys['oldDetails']+'_zdetails'))
@@ -33,7 +32,7 @@ def processText(text: str):
 		if name.startswith('#invoke:LosersBracketStructure'):
 			templates.append(t)
 		if name.startswith('#invoke:Bracket'):
-			if t.getValue(index=0) == 'GrandFinals':
+			if t.getValue('1') == 'GrandFinals':
 				templates.append(t)
 		if name.startswith('#invoke:'):
 			shit.append(template)
@@ -63,12 +62,11 @@ def processText(text: str):
 	#gf
 	addStuffToTemplate({'opp1': 'R5W1', 'opp2': 'R5W2', 'details': 'R5G1', 'oldDetails': 'R5G1'}, wtf, templates[5])
 
+	wtf.add('1', 'Bracket/2', showkey=False)
+	wtf.add('2', '2SETeamBracket', showkey=False)
+	wtf.add('id', generateId())
+	wtf.add('type', 'team')
 	bracket = BracketValorant(wtf)
-	bracket.newTemplateId = 'Bracket/8U4H2LL1D'
-	bracket.oldTemplateId = 'WTF'
-	bracket.bracketType = 'team'
-	bracket.mappingKey = bracket.newTemplateId + "$$" + bracket.oldTemplateId
-	bracket.process()
 
 	wikicode.replace(shit[0], str(bracket))
 	shit = shit[1:]

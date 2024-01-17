@@ -16,7 +16,7 @@ class TestBracketLeague(TestCase):
 
 	def testCounterstrikeConvert(self):
 		text = """
-		{{2SETeamBracket
+		{{2SETeamBracket|R1=Ola
 		|R1D1team=saw |R1D1score=1 |R1D1win=
 		|R1D2team=ftw |R1D2score=2 |R1D2win=1
 		|R1G1details={{BracketMatchSummary
@@ -31,15 +31,16 @@ class TestBracketLeague(TestCase):
 		|hltv=2368518}}}}
 		"""
 		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
+		oldTemplate = Template(oldTemplate)
+		oldTemplate.add('1', 'Bracket/2')
+		oldTemplate.add('2', '2SETeamBracket')
+		oldTemplate.add('id', 'TESTID')
+		oldTemplate.add('type', 'team')
 
-		bracket = BracketCounterstrike(Template(oldTemplate))
-		bracket.oldTemplateId = '2SETeamBracket'
-		bracket.newTemplateId = 'Bracket/2'
-		bracket.id = 'TESTID'
-		bracket.bracketType = 'team'
-		bracket.process()
+		bracket = BracketCounterstrike(oldTemplate)
 
 		expected = ("{{Bracket|Bracket/2|id=TESTID\n" +
+			"|R1M1header=Ola\n"
             "\n" +
             "<!-- Grand Final -->\n" +
             "|R1M1={{Match\n" +
@@ -90,13 +91,13 @@ class TestBracketLeague(TestCase):
 		"""
 
 		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
+		oldTemplate = Template(oldTemplate)
+		oldTemplate.add('1', 'Bracket/2')
+		oldTemplate.add('2', '2SETeamBracket')
+		oldTemplate.add('id', 'TESTID')
+		oldTemplate.add('type', 'team')
 
-		bracket = BracketValorant(Template(oldTemplate))
-		bracket.oldTemplateId = '2SETeamBracket'
-		bracket.newTemplateId = 'Bracket/2'
-		bracket.id = 'TESTID'
-		bracket.bracketType = 'team'
-		bracket.process()
+		bracket = BracketValorant(oldTemplate)
 
 		expected = ("{{Bracket|Bracket/2|id=TESTID\n" +
             "\n" +
@@ -125,8 +126,6 @@ class TestBracketLeague(TestCase):
 			"  }}\n" +
 			"}}\n}}"
 		)
-
-		print(expected)
 
 		self.assertEqual(expected, str(bracket))
 

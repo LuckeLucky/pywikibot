@@ -4,7 +4,6 @@ from functools import cmp_to_key
 from pathlib import Path
 from typing import Dict, List
 
-from .utils import generateId
 from .template import Template
 from .match import Match as commonsMatch
 from .opponent import Opponent, SoloOpponent, TeamOpponent
@@ -18,6 +17,8 @@ class Bracket:
 	isLoaded: bool = False
 	bracketData: Dict[str, List] = {}
 	headersData: Dict[str, str] = {}
+
+	defaultMapping: Dict[str, List] = {}
 	customMapping: Dict[str, List] = {}
 	outputOrder: Dict[str, List] = {}
 
@@ -25,14 +26,16 @@ class Bracket:
 		if not self.isLoaded:
 			self.load()
 		self.template: Template = template
-		self.roundData: Dict = {}
-		self.newTemplateId: str = self.template.getValue(index=0)
-		self.oldTemplateId: str = self.template.getValue(index=1)
+		self.data: Dict[str, commonsMatch | str] = {}
+
+		self.newTemplateId: str = self.template.getValue('1')
+		self.oldTemplateId: str = self.template.getValue('2')
 		self.bracketType: str = self.template.getValue('type')
-		self.id: str = self.template.getValue('id')
-		if not self.id:
-			self.id = generateId()
+		self.bracketid: str = self.template.getValue('id')
 		self.mappingKey: str = self.newTemplateId + '$$' + self.oldTemplateId
+
+		if self.newTemplateId not in self.defaultMapping:
+			self.loadDefaultMapping(self.newTemplateId)
 
 	@classmethod
 	def isBracketDataAvailable(cls, newTemplateId: str) -> bool:
@@ -59,6 +62,75 @@ class Bracket:
 		pass
 
 	@classmethod
+	def populateRoundData(cls, defaultMapping: Dict, match, roundData, lastRound, lowerHeaders):
+		roundParam = cls.getSimplifiedId(match['match2id'])
+		roundNumber, _, _ = roundParam[1:].partition('M')
+		if roundNumber.isnumeric():
+			roundNumber = int(roundNumber)
+		reset = False
+		if roundParam == THIRD_PLACE_MATCH:
+			currentRound = lastRound
+		elif roundParam == RESET_MATCH:
+			currentRound = lastRound
+			currentRound['G'] = currentRound['G'] - 2
+			currentRound['W'] = currentRound['W'] - 2
+			currentRound['D'] = currentRound['D'] - 2
+			reset = True
+		else:
+			if roundNumber in roundData:
+				currentRound = roundData[roundNumber]
+			else:
+				currentRound = {'R': roundNumber, 'G': 0, 'D': 1, 'W': 1}
+		currentRound['G'] = currentRound['G'] + 1
+
+		bd = match['match2bracketdata']
+
+		if 'header' in bd:
+			if bd['header'].startswith('!l'):
+				lowerHeaders[roundNumber] = currentRound['G']
+
+		matchParams = {}
+		for opponentIndex in range(MAX_NUMBER_OPPONENTS):
+			param = None
+			if (not reset and
+				(not 'toupper' in bd and opponentIndex == 0 or
+				not 'tolower' in bd and opponentIndex == 1)):
+				param = 'R' + str(currentRound['R']) + 'D' + str(currentRound['D'])
+				currentRound['D'] = currentRound['D'] + 1
+			else:
+				param = 'R' + str(currentRound['R']) + 'W' + str(currentRound['W'])
+				currentRound['W'] = currentRound['W'] + 1
+			matchParams['opp' + str(opponentIndex+1)] = param
+
+		matchParams['details'] = 'R' + str(currentRound['R']) + 'G' + str(currentRound['G'])
+
+		defaultMapping[roundParam] = matchParams
+		roundData[currentRound['R']] = currentRound
+		lastRound = currentRound
+
+		return roundData, lastRound, lowerHeaders
+
+	@classmethod
+	def loadDefaultMapping(cls, newTemplateId: str):
+		defaultMapping = {}
+		roundData = {}
+		lowerHeaders = {}
+		lastRound = None
+		#Mapping via lpdb template data
+		for match in cls.bracketData[newTemplateId]:
+			roundData, lastRound, lowerHeaders = cls.populateRoundData(
+				defaultMapping, match, roundData, lastRound, lowerHeaders)
+
+		for n in range(1, lastRound['R'] + 1):
+			roundParam = f'R{n}M1'
+			defaultMapping[roundParam]['header'] = f'R{n}'
+			if n in lowerHeaders:
+				roundParam = f'R{n}M{lowerHeaders[n]}'
+				defaultMapping[roundParam]['header'] = f'L{n}'
+
+		cls.defaultMapping[newTemplateId] = defaultMapping
+
+	@classmethod
 	def load(cls):
 		'''
 			Load bracket data and custom mappings into memory
@@ -76,14 +148,12 @@ class Bracket:
 			ex. id = 'R01M001' return 'R1M1'
 		'''
 		match2Id = match2Id.split('_')[1] if len(match2Id.split('_')) > 1 else match2Id
-		if match2Id == 'RxMTP':
+		if match2Id in [THIRD_PLACE_MATCH, RESET_MATCH]:
 			return match2Id
-		elif match2Id == 'RxMBR':
-			return match2Id
-		else:
-			match2Id = match2Id.replace('-', '')
-			roundNumber, _, matchNumber = match2Id[1:].partition('M')
-			return 'R' + str(int(roundNumber)) + 'M' + str(int(matchNumber))
+
+		match2Id = match2Id.replace('-', '')
+		roundNumber, _, matchNumber = match2Id[1:].partition('M')
+		return 'R' + str(int(roundNumber)) + 'M' + str(int(matchNumber))
 
 	@classmethod
 	def getHeader(cls, headerCode: str) -> str:
@@ -198,62 +268,8 @@ class Bracket:
 		match = self.Match(opponents, details)
 		return match
 
-	def populateRoundData(self, match, roundData, lastRound, lowerHeaders):
-		roundParam = self.getSimplifiedId(match['match2id'])
-		roundNumber, _, _ = roundParam[1:].partition('M')
-		if roundNumber.isnumeric():
-			roundNumber = int(roundNumber)
-		reset = False
-		if roundParam == THIRD_PLACE_MATCH:
-			currentRound = lastRound
-		elif roundParam == RESET_MATCH:
-			currentRound = lastRound
-			currentRound['G'] = currentRound['G'] - 2
-			currentRound['W'] = currentRound['W'] - 2
-			currentRound['D'] = currentRound['D'] - 2
-			reset = True
-		else:
-			if roundNumber in roundData:
-				currentRound = roundData[roundNumber]
-			else:
-				currentRound = {'R': roundNumber, 'G': 0, 'D': 1, 'W': 1}
-		currentRound['G'] = currentRound['G'] + 1
-
-		bd = match['match2bracketdata']
-
-		if 'header' in bd:
-			if bd['header'].startswith('!l'):
-				lowerHeaders[roundNumber] = currentRound['G']
-
-		opponents: List[Opponent] = []
-		winnerParams: List[str] = []
-
-		for opponentIndex in range(MAX_NUMBER_OPPONENTS):
-			param = None
-			if (not reset and
-				(not 'toupper' in bd and opponentIndex == 0 or
-				not 'tolower' in bd and opponentIndex == 1)):
-				param = 'R' + str(currentRound['R']) + 'D' + str(currentRound['D'])
-				currentRound['D'] = currentRound['D'] + 1
-			else:
-				param = 'R' + str(currentRound['R']) + 'W' + str(currentRound['W'])
-				currentRound['W'] = currentRound['W'] + 1
-
-			opponents.append(self.getOpponent(param, scoreKey= 'score2' if reset else 'score'))
-			winnerParams.append(param)
-
-		details = self.getDetails('R' + str(currentRound['R']) + 'G' + str(currentRound['G']), index = 1 if reset else 0)
-		winner = self.getWinner(winnerParams[0], winnerParams[1])
-		match = self.createMatch(opponents, details, winner)
-		match.isValidResetOrThird = self.isMatchValidResetOrThird(match, reset, roundParam)
-		self.roundData[roundParam] = match
-		roundData[currentRound['R']] = currentRound
-		lastRound = currentRound
-
-		return roundData, lastRound, lowerHeaders
-
-	def handleCustomMapping(self):
-		for roundParam, match1Params in self.customMapping[self.mappingKey].items():
+	def applyMapping(self, mapping: Dict[str, Dict[str, str] | str]):
+		for roundParam, match1Params in mapping.items():
 			reset = False
 			if roundParam == RESET_MATCH:
 				reset = True
@@ -261,7 +277,7 @@ class Bracket:
 			if 'header' in match1Params:
 				header = self.template.getValue(match1Params['header'])
 				if header:
-					self.roundData[roundParam + 'header'] = header
+					self.data[roundParam + 'header'] = header
 
 			opp1param = match1Params['opp1']
 			opp2param = match1Params['opp2']
@@ -272,44 +288,26 @@ class Bracket:
 			winner = self.getWinner(opp1param, opp2param)
 			match = self.createMatch([opponent1, opponent2], details, winner)
 			match.isValidResetOrThird = self.isMatchValidResetOrThird(match, reset, roundParam)
-			self.roundData[roundParam] = match
-
-	def process(self):
-		if self.template is None:
-			return
-
-		roundData = {}
-		lowerHeaders = {}
-		lastRound = None
-		#Mapping via lpdb template data
-		for match in self.bracketData[self.newTemplateId]:
-			roundData, lastRound, lowerHeaders = self.populateRoundData(match, roundData, lastRound, lowerHeaders)
-
-		for n in range(1, lastRound['R'] + 1):
-			headerUp = self.template.getValue('R' + str(n))
-			if headerUp:
-				self.roundData['R' + str(n) + 'M1header'] = headerUp
-			headerLow = self.template.getValue('L' + str(n))
-			if headerLow and (n in lowerHeaders):
-				self.roundData['R' + str(n) + 'M' + str(lowerHeaders[n]) + 'header'] = headerLow
-
-		if self.mappingKey in self.customMapping:
-			self.handleCustomMapping()
+			self.data[roundParam] = match
 
 	def __str__(self) -> str:
-		out = '{{Bracket|'+ self.newTemplateId + '|id=' + self.id
+		self.applyMapping(self.defaultMapping[self.newTemplateId])
+		if self.mappingKey in self.customMapping:
+			self.applyMapping(self.customMapping[self.mappingKey])
+
+		out = '{{Bracket|'+ self.newTemplateId + '|id=' + self.bracketid
 		matchOut = ''
 		roundOutputOrder = self.getRoundOutputOrder(self.newTemplateId)
 		for currentRound in roundOutputOrder:
 			param = currentRound['matchKey']
-			if param + 'header' in self.roundData:
-				out = out + '\n|' + param + 'header=' + self.roundData[param + 'header']
+			if param + 'header' in self.data:
+				out = out + '\n|' + param + 'header=' + self.data[param + 'header']
 
-			if not param in self.roundData:
+			if not param in self.data:
 				if param != THIRD_PLACE_MATCH and param != RESET_MATCH:
 					matchOut = matchOut + '\n|' + param + '=' + '\n'
 				continue
-			match: commonsMatch = self.roundData[param]
+			match: commonsMatch = self.data[param]
 			if param in [THIRD_PLACE_MATCH, RESET_MATCH] and not match.isValidResetOrThird:
 				continue
 			header = ''

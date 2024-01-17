@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Any
 
 import re
 from mwparserfromhell.nodes import Template as mwTemplate
@@ -20,19 +20,20 @@ class Template(mwTemplate):
 
 		super().__init__(template.name.strip(), params)
 
-	def getValue(self, key: str = '', index: int = -1) -> str:
-		param: Parameter = None
-		if key:
-			param = self.get(key, None)
-		elif 0 <= index < len(self.params):
-			param = self.params[index]
+	def addIfNotHas(self, name: str, value: Any):
+		if not self.has(name):
+			self.add(name, value)
 
+	def getValue(self, name: str) -> str:
+		param: Parameter = None
+		if name:
+			param = self.get(name, None)
 		if param:
 			return str(param.value)
 		return ''
 
-	def getNestedTemplate(self, key: str) -> mwTemplate:
-		param: Parameter = self.get(key, None)
+	def getNestedTemplate(self, name: str) -> mwTemplate:
+		param: Parameter = self.get(name, None)
 		if param:
 			return param.value.filter_templates()[0]
 		return None

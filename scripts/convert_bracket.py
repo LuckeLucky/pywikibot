@@ -5,37 +5,31 @@ import mwparserfromhell
 
 import pywikibot
 from pywikibot import pagegenerators
+from scripts.match2.commons.utils import generateId
 from scripts.match2.commons.template import Template
 from scripts.match2.factory import getBracketClassForLanguage
 from scripts.utils import get_text, put_text
 
 
 def processText(bracketClass, text: str, config: Dict[str, str]):
-	while True:
-		wikicode = mwparserfromhell.parse(text)
-		legacyBracket = None
-		for template in wikicode.filter_templates():
-			if (config is None and template.name.matches('LegacyBracket') or
-				(config is not None and template.name.matches(config['oldTemplateId']))):
-				legacyBracket = template
-				break
+	wikicode = mwparserfromhell.parse(text)
+	for template in wikicode.filter_templates():
+		if (template.name.matches('LegacyBracket') or
+			template.name.matches(config['oldTemplateId'])):
+			t = Template(template, removeComments=True)
+			t.addIfNotHas('1', config['newTemplateId'])
+			t.addIfNotHas('2', config['oldTemplateId'])
+			t.addIfNotHas('type', config['bracketType'])
+			t.addIfNotHas('id', generateId())
 
-		if legacyBracket is None:
-			break
-		newBracket = bracketClass(Template(legacyBracket, removeComments=True))
-		if config is not None:
-			newBracket.newTemplateId = config['newTemplateId']
-			newBracket.oldTemplateId = config['oldTemplateId']
-			newBracket.bracketType = config['bracketType']
-			newBracket.mappingKey = newBracket.newTemplateId + "$$" + newBracket.oldTemplateId
+			bracket = bracketClass(t)
 
-		if not bracketClass.isBracketDataAvailable(newBracket.newTemplateId):
-			pywikibot.stdout("<<lightred>>Missing support for template " + newBracket.newTemplateId)
-			sys.exit(1)
-		newBracket.process()
-		wikicode.replace(legacyBracket, str(newBracket))
+			if not bracketClass.isBracketDataAvailable(bracket.newTemplateId):
+				pywikibot.stdout("<<lightred>>Missing support for template " + bracket.newTemplateId)
+				sys.exit(1)
+			wikicode.replace(template, str(bracket))
 
-		text = str(wikicode)
+	text = str(wikicode)
 
 	return text
 
