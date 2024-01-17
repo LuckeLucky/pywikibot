@@ -183,22 +183,30 @@ class Bracket:
 				return Template(templates[index])
 		return None
 
-	def getWinner(self, team1Key: str, team2Key) -> int:
+	def getWinner(self, team1Key: str, team2Key) -> str:
 		if self.template.getValue(team1Key + 'win'):
 			return '1'
 		if self.template.getValue(team2Key + 'win'):
 			return '2'
 		return ''
 
+	def createMatch(self, opponents: List[Opponent], details : Template, winner: str) -> Match:
+		if winner:
+			if not details:
+				details = Template.createFakeTemplate()
+			details.add('winner', winner)
+		match = self.Match(opponents, details)
+		return match
+
 	def populateRoundData(self, match, roundData, lastRound, lowerHeaders):
-		simplifiedId = self.getSimplifiedId(match['match2id'])
-		roundNumber, _, _ = simplifiedId[1:].partition('M')
+		roundParam = self.getSimplifiedId(match['match2id'])
+		roundNumber, _, _ = roundParam[1:].partition('M')
 		if roundNumber.isnumeric():
 			roundNumber = int(roundNumber)
 		reset = False
-		if simplifiedId == THIRD_PLACE_MATCH:
+		if roundParam == THIRD_PLACE_MATCH:
 			currentRound = lastRound
-		elif simplifiedId == RESET_MATCH:
+		elif roundParam == RESET_MATCH:
 			currentRound = lastRound
 			currentRound['G'] = currentRound['G'] - 2
 			currentRound['W'] = currentRound['W'] - 2
@@ -236,13 +244,9 @@ class Bracket:
 
 		details = self.getDetails('R' + str(currentRound['R']) + 'G' + str(currentRound['G']), index = 1 if reset else 0)
 		winner = self.getWinner(winnerParams[0], winnerParams[1])
-		if winner:
-			if not details:
-				details = Template.createFakeTemplate()
-			details.add('winner', winner)
-		match2 = self.Match(opponents, details)
-		match2.isValidResetOrThird = self.isMatchValidResetOrThird(match2, reset, simplifiedId)
-		self.roundData[simplifiedId] = match2
+		match = self.createMatch(opponents, details, winner)
+		match.isValidResetOrThird = self.isMatchValidResetOrThird(match, reset, roundParam)
+		self.roundData[roundParam] = match
 		roundData[currentRound['R']] = currentRound
 		lastRound = currentRound
 
@@ -261,17 +265,14 @@ class Bracket:
 
 			opp1param = match1Params['opp1']
 			opp2param = match1Params['opp2']
-			details = self.getDetails(match1Params['details'], index = 1 if reset else 0)
-			winner = self.getWinner(opp1param, opp2param)
-			if winner:
-				if not details:
-					details = Template.createFakeTemplate()
-				details.add('winner', winner)
+
 			opponent1 = self.getOpponent(opp1param, scoreKey= 'score2' if reset else 'score')
 			opponent2 = self.getOpponent(opp2param, scoreKey= 'score2' if reset else 'score')
-			match2 = self.Match([opponent1, opponent2], details)
-			match2.isValidResetOrThird = self.isMatchValidResetOrThird(match2, reset, roundParam)
-			self.roundData[roundParam] = match2
+			details = self.getDetails(match1Params['details'], index = 1 if reset else 0)
+			winner = self.getWinner(opp1param, opp2param)
+			match = self.createMatch([opponent1, opponent2], details, winner)
+			match.isValidResetOrThird = self.isMatchValidResetOrThird(match, reset, roundParam)
+			self.roundData[roundParam] = match
 
 	def process(self):
 		if self.template is None:
