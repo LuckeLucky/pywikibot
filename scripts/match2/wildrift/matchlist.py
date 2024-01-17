@@ -5,7 +5,7 @@ from .match import Match
 
 MAX_NUM_MAPS = 10
 
-class MatchlistLeagueOfLegends(Matchlist):
+class MatchlistWildRift(Matchlist):
 	Match = Match
 
 	def __init__(self, template: Template, matchTemplates: List[Template]):

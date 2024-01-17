@@ -12,6 +12,9 @@ from .wildrift.showmatch import ShowmatchWildRift
 
 from .commons.matchlist import Matchlist
 from .leagueoflegends.matchlist import MatchlistLeagueOfLegends
+from .wildrift.matchlist import MatchlistWildRift
+from .counterstrike.matchlist import MatchlistCounterStrike
+from .valorant.matchlist import MatchlistValorant
 
 bracketMappings = {
 	'leagueoflegends': BracketLeagueOfLegends,
@@ -38,7 +41,10 @@ def getShowmatchClassForLanguage(language: str, template: Template):
 	return Showmatch
 
 matchlistMappings = {
-	'leagueoflegends': MatchlistLeagueOfLegends
+	'leagueoflegends': MatchlistLeagueOfLegends,
+	'wildrift': MatchlistWildRift,
+	'counterstrike': MatchlistCounterStrike,
+	'valorant': MatchlistValorant
 }
 
 def getMatchlistClassForLanguage(language: str) -> Matchlist:

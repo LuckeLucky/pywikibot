@@ -268,7 +268,7 @@ class Bracket:
 		match = self.Match(opponents, details)
 		return match
 
-	def applyMapping(self, mapping: Dict[str, Dict[str, str] | str]):
+	def _populateData(self, mapping: Dict[str, Dict[str, str] | str]):
 		for roundParam, match1Params in mapping.items():
 			reset = False
 			if roundParam == RESET_MATCH:
@@ -290,10 +290,13 @@ class Bracket:
 			match.isValidResetOrThird = self.isMatchValidResetOrThird(match, reset, roundParam)
 			self.data[roundParam] = match
 
-	def __str__(self) -> str:
-		self.applyMapping(self.defaultMapping[self.newTemplateId])
+	def populateData(self):
+		self._populateData(self.defaultMapping[self.newTemplateId])
 		if self.mappingKey in self.customMapping:
-			self.applyMapping(self.customMapping[self.mappingKey])
+			self._populateData(self.customMapping[self.mappingKey])
+
+	def __str__(self) -> str:
+		self.populateData()
 
 		out = '{{Bracket|'+ self.newTemplateId + '|id=' + self.bracketid
 		matchOut = ''

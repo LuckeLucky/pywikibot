@@ -12,10 +12,10 @@ from scripts.utils import get_text, put_text
 
 
 def processText(bracketClass, text: str, config: Dict[str, str]):
+	templateToFind = config['oldTemplateId'] if 'oldTemplateId' in config else 'LegacyBracket'
 	wikicode = mwparserfromhell.parse(text)
 	for template in wikicode.filter_templates():
-		if (template.name.matches('LegacyBracket') or
-			template.name.matches(config['oldTemplateId'])):
+		if template.name.matches(templateToFind):
 			t = Template(template, removeComments=True)
 			t.addIfNotHas('1', config['newTemplateId'])
 			t.addIfNotHas('2', config['oldTemplateId'])
@@ -29,9 +29,7 @@ def processText(bracketClass, text: str, config: Dict[str, str]):
 				sys.exit(1)
 			wikicode.replace(template, str(bracket))
 
-	text = str(wikicode)
-
-	return text
+	return str(wikicode)
 
 def main(*args):
 	# Read commandline parameters.
@@ -71,7 +69,7 @@ def main(*args):
 		if not config['bracketType']:
 			config['bracketType'] = pywikibot.input('Bracket type:')
 	else:
-		config = None
+		config = {}
 
 	language = genFactory.site.code
 	if not language:

@@ -32,6 +32,20 @@ class Template(mwTemplate):
 			return str(param.value)
 		return ''
 
+	def getBool(self, name: str) -> bool:
+		val = self.getValue(name)
+		if val:
+			if val in ['true', 't', 'yes', 'y', '1']:
+				return True
+		return False
+
+	def getfirstValueFound(self, names: List[str]) -> str:
+		for name in names:
+			val = self.getValue(name)
+			if val:
+				return val
+		return ''
+
 	def getNestedTemplate(self, name: str) -> mwTemplate:
 		param: Parameter = self.get(name, None)
 		if param:
