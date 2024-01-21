@@ -1,77 +1,115 @@
 from typing import Dict, List
 from .template import Template
-from .opponent import TeamOpponent
-from .match import Match
+from .match import Match as commonsMatch
+from .opponent import Opponent, SoloOpponent, TeamOpponent
+from .utils import importClass
 
-MAX_NUM_MAPS = 10
+GSL_GF = 'gf'
+GSL_WINNERS = 'winners'
+GSL_LOSERS = 'losers'
 
 class Matchlist:
-	Match = Match
+	language: str = None
+	matchClass: commonsMatch = None
+
 	def __init__(self, template: Template, matchTemplates: List[Template]):
+		if self.matchClass is None:
+			self.matchClass = importClass(self.language, 'Match')
 		self.template: Template = template
+		self.data: Dict[str, commonsMatch | str] = {}
+		self.bracketType: str = 'team'
+
 		self.matchTemplates: List[Template] = matchTemplates
 		self.args: Dict[str, str] = {}
-		self.headers: Dict[str, str] = {}
-		self.matches: List[Match] = []
-
-	def process(self):
-		if self.template is None:
-			return
-
 		self.args['id'] = self.template.getValue('id')
 		self.args['title'] = self.template.getValue('title')
 		self.args['width'] = self.template.getValue('width')
-		hide = self.template.getValue('hide')
-		if hide in ['true', 't', 'yes', 'y', '1']:
+		if self.template.getBool('hide'):
 			self.args['collapsed'] = 'true'
 			self.args['attached'] = 'true'
 
-		for matchIndex, matchTemplate in enumerate(self.matchTemplates):
-			opp1 = TeamOpponent(matchTemplate.getValue('team1'), matchTemplate.getValue('score1'))
-			opp2 = TeamOpponent(matchTemplate.getValue('team2'), matchTemplate.getValue('score2'))
-			winner = matchTemplate.getValue('winner')
-			details = matchTemplate.getNestedTemplate('details')
+		self.args['gsl'] = self.getGsl(self.template.getValue('gsl'))
 
-			header = matchTemplate.getValue('date')
-			if header:
-				self.headers['M' + str(matchIndex+1) + 'header'] = header
+	def getGsl(self, gsl: str) -> str:
+		if not gsl:
+			return ''
+		if gsl.startswith(GSL_GF):
+			self.data['M6header'] = 'Grand Final'
+		if gsl.endswith(GSL_WINNERS):
+			return 'winnersfirst'
+		if gsl.endswith(GSL_LOSERS):
+			return 'losersfirst'
+		return ''
 
-			if winner:
-				if not details:
-					details = Template.createFakeTemplate()
+	def getTeamOpponent(self, template: Template, key: str, scoreKey: str) -> Opponent:
+		name = template.getValue(key)
+		score = template.getValue(scoreKey)
+		if name:
+			return TeamOpponent(name, score)
+		return TeamOpponent()
+
+	def getSoloOpponent(self, template: Template, key: str, scoreKey: str) -> Opponent:
+		name = template.getValue(key)
+		score = template.getValue(scoreKey)
+		flag = template.getValue(key + 'flag')
+		if name:
+			return SoloOpponent(name, score, '', flag)
+		return SoloOpponent()
+
+	def getOpponent(self, template: Template, key: str, scoreKey) -> Opponent:
+		opponentGet = getattr(self, 'get' + str(self.bracketType).capitalize() + 'Opponent')
+		if not opponentGet:
+			raise ValueError(self.bracketType + 'is not supported')
+		return opponentGet(template, key, scoreKey)
+
+	def getDetails(self, template: Template, key) -> Template:
+		details = template.getNestedTemplate(key)
+		if details:
+			return Template(details)
+		return None
+
+	def createMatch(self, opponents: List[Opponent], details : Template, winner: str) -> commonsMatch:
+		if winner:
+			if not details:
+				details = Template.createFakeTemplate()
 			details.add('winner', winner)
+		match = self.matchClass(opponents, details)
+		return match
 
-			walkover = matchTemplate.getValue('walkover')
-			if walkover:
-				if walkover == '1':
-					opp1.score = 'W'
-					opp2.score = 'FF'
-					details.add('winner', '1')
-				if walkover == '2':
-					opp1.score = 'FF'
-					opp2.score = 'W'
-					details.add('winner', '2')
+	def getMatch(self, matchTemplate: Template) -> commonsMatch:
+		opp1 = self.getOpponent(matchTemplate, 'team1', 'score1')
+		opp2 = self.getOpponent(matchTemplate, 'team2', 'score2')
+		details = self.getDetails(matchTemplate, 'details')
+		winner = matchTemplate.getValue('winner')
 
-			for x in range(MAX_NUM_MAPS):
-				key = 'map' + str(x) + 'win'
-				mapxwin = matchTemplate.getValue(key)
-				if mapxwin:
-					details.add(key, mapxwin)
+		return self.createMatch([opp1, opp2], details, winner)
 
-			self.matches.append(self.Match([opp1, opp2], details))
+	def populateData(self):
+		for matchIndex, matchTemplate in enumerate(self.matchTemplates):
+			matchParam = f'M{matchIndex+1}'
+			header = matchTemplate.getValue('date') or matchTemplate.getValue('header')
+			if header:
+				self.data[f'{matchParam}header'] = header
+			self.data[matchParam] = self.getMatch(matchTemplate)
 
 	def __str__(self) -> str:
+		self.populateData()
+
 		out = '{{Matchlist'
 
 		for key, value in self.args.items():
-			out += f'|{key}={value}'
+			if value:
+				out += f'|{key}={value}'
 		out += '\n'
 
-		for key, value in self.headers.items():
-			out += f'|{key}={value}\n'
+		matchesOut = ''
+		for key, value in self.data.items():
+			if 'header' in key:
+				out += f'|{key}={value}\n'
+			else:
+				matchesOut += '|' + str(value) + '\n'
 
-		for match in self.matches:
-			out += '|' + str(match) + '\n'
+		out += matchesOut
 
 		out += '\n}}'
 

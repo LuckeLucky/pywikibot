@@ -1,8 +1,7 @@
 import mwparserfromhell
 
 from scripts.match2.commons.template import Template
-from scripts.match2.counterstrike.bracket import BracketCounterstrike
-from scripts.match2.valorant.bracket import BracketValorant
+from scripts.match2.commons.utils import importClass
 from scripts.match2.counterstrike.match import Match
 from scripts.match2.commons.opponent import TeamOpponent
 from tests.aspects import TestCase
@@ -16,7 +15,7 @@ class TestBracketLeague(TestCase):
 
 	def testCounterstrikeConvert(self):
 		text = """
-		{{2SETeamBracket
+		{{2SETeamBracket|R1=Ola
 		|R1D1team=saw |R1D1score=1 |R1D1win=
 		|R1D2team=ftw |R1D2score=2 |R1D2win=1
 		|R1G1details={{BracketMatchSummary
@@ -31,15 +30,17 @@ class TestBracketLeague(TestCase):
 		|hltv=2368518}}}}
 		"""
 		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
+		oldTemplate = Template(oldTemplate)
+		oldTemplate.add('1', 'Bracket/2')
+		oldTemplate.add('2', '2SETeamBracket')
+		oldTemplate.add('id', 'TESTID')
+		oldTemplate.add('type', 'team')
 
-		bracket = BracketCounterstrike(Template(oldTemplate))
-		bracket.oldTemplateId = '2SETeamBracket'
-		bracket.newTemplateId = 'Bracket/2'
-		bracket.id = 'TESTID'
-		bracket.bracketType = 'team'
-		bracket.process()
+		csClass = importClass('counterstrike', 'Bracket')
+		bracket = csClass(oldTemplate)
 
 		expected = ("{{Bracket|Bracket/2|id=TESTID\n" +
+			"|R1M1header=Ola\n"
             "\n" +
             "<!-- Grand Final -->\n" +
             "|R1M1={{Match\n" +
@@ -90,13 +91,14 @@ class TestBracketLeague(TestCase):
 		"""
 
 		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
+		oldTemplate = Template(oldTemplate)
+		oldTemplate.add('1', 'Bracket/2')
+		oldTemplate.add('2', '2SETeamBracket')
+		oldTemplate.add('id', 'TESTID')
+		oldTemplate.add('type', 'team')
 
-		bracket = BracketValorant(Template(oldTemplate))
-		bracket.oldTemplateId = '2SETeamBracket'
-		bracket.newTemplateId = 'Bracket/2'
-		bracket.id = 'TESTID'
-		bracket.bracketType = 'team'
-		bracket.process()
+		valorantClass = importClass('valorant', 'Bracket')
+		bracket = valorantClass(oldTemplate)
 
 		expected = ("{{Bracket|Bracket/2|id=TESTID\n" +
             "\n" +
@@ -126,8 +128,6 @@ class TestBracketLeague(TestCase):
 			"}}\n}}"
 		)
 
-		print(expected)
-
 		self.assertEqual(expected, str(bracket))
 
 
@@ -139,7 +139,8 @@ class TestBracketLeague(TestCase):
 
 		match = Match([TeamOpponent('saw', '1'), TeamOpponent('ftw', '0')], fakeTemplate)
 
-		isValidReset = BracketCounterstrike.isMatchValidResetOrThird
+		csClass = importClass('counterstrike', 'Bracket')
+		isValidReset = csClass.isMatchValidResetOrThird
 
 		#Non extra match are always "valid"
 		self.assertEqual(True, isValidReset(match, False, 'R1M1'))
