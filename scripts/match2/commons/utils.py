@@ -22,6 +22,10 @@ def importClass(language: str, attributeName: str):
 	except ModuleNotFoundError:
 		classFound = None
 
+	if classFound is None:
+		module = importlib.import_module(f'scripts.match2.{COMMONS}.{attributeName.lower()}')
+		classFound = getattr(module, attributeName, lambda: None)
+
 	if hasattr(classFound, 'language'):
 		setattr(classFound, 'language', language)
 
