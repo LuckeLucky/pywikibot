@@ -5,7 +5,7 @@ import mwparserfromhell
 
 import pywikibot
 from pywikibot import pagegenerators
-from scripts.match2.commons.utils import generateId, getMatchGroupForLanguage
+from scripts.match2.commons.utils import generateId, importClass
 from scripts.match2.commons.template import Template
 from scripts.utils import get_text, put_text
 
@@ -23,7 +23,7 @@ def processText(bracketClass, text: str, config: Dict[str, str]):
 
 			bracket = bracketClass(t)
 
-			if not bracketClass.isBracketDataAvailable(bracket.newTemplateId):
+			if not bracketClass.bDM.isTemplateSupported(bracket.newTemplateId):
 				pywikibot.stdout("<<lightred>>Missing support for template " + bracket.newTemplateId)
 				sys.exit(1)
 			wikicode.replace(template, str(bracket))
@@ -70,7 +70,7 @@ def main(*args):
 	else:
 		config = {}
 
-	bracketClass = getMatchGroupForLanguage(genFactory.site.code, 'Bracket')
+	bracketClass = importClass(genFactory.site.code, 'Bracket')
 
 	editSummary = 'Convert LegacyBracket to Match2'
 	generator = genFactory.getCombinedGenerator()

@@ -1,8 +1,7 @@
 import mwparserfromhell
 
 from scripts.match2.commons.template import Template
-from scripts.match2.counterstrike.bracket import Bracket as BracketCounterstrike
-from scripts.match2.valorant.bracket import Bracket as BracketValorant
+from scripts.match2.commons.utils import importClass
 from scripts.match2.counterstrike.match import Match
 from scripts.match2.commons.opponent import TeamOpponent
 from tests.aspects import TestCase
@@ -37,7 +36,8 @@ class TestBracketLeague(TestCase):
 		oldTemplate.add('id', 'TESTID')
 		oldTemplate.add('type', 'team')
 
-		bracket = BracketCounterstrike(oldTemplate)
+		csClass = importClass('counterstrike', 'Bracket')
+		bracket = csClass(oldTemplate)
 
 		expected = ("{{Bracket|Bracket/2|id=TESTID\n" +
 			"|R1M1header=Ola\n"
@@ -97,7 +97,8 @@ class TestBracketLeague(TestCase):
 		oldTemplate.add('id', 'TESTID')
 		oldTemplate.add('type', 'team')
 
-		bracket = BracketValorant(oldTemplate)
+		valorantClass = importClass('valorant', 'Bracket')
+		bracket = valorantClass(oldTemplate)
 
 		expected = ("{{Bracket|Bracket/2|id=TESTID\n" +
             "\n" +
@@ -138,7 +139,8 @@ class TestBracketLeague(TestCase):
 
 		match = Match([TeamOpponent('saw', '1'), TeamOpponent('ftw', '0')], fakeTemplate)
 
-		isValidReset = BracketCounterstrike.isMatchValidResetOrThird
+		csClass = importClass('counterstrike', 'Bracket')
+		isValidReset = csClass.isMatchValidResetOrThird
 
 		#Non extra match are always "valid"
 		self.assertEqual(True, isValidReset(match, False, 'R1M1'))

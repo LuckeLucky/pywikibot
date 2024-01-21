@@ -4,7 +4,7 @@ import mwparserfromhell
 
 import pywikibot
 from pywikibot import pagegenerators
-from scripts.match2.commons.utils import generateId, getMatchGroupForLanguage
+from scripts.match2.commons.utils import generateId, importClass
 from scripts.match2.commons.template import Template
 from scripts.match2.commons.matchlist import Matchlist
 from scripts.utils import get_text, put_text, remove_and_squash
@@ -73,7 +73,7 @@ def main(*args):
 				isLegacy = True
 
 
-	matchlistClass: Matchlist = getMatchGroupForLanguage(genFactory.site.code, 'Matchlist')
+	matchlistClass: Matchlist = importClass(genFactory.site.code, 'Matchlist')
 
 	editSummary = 'Convert Matchlist to Match2'
 	generator = genFactory.getCombinedGenerator()
