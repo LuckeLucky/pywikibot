@@ -176,7 +176,6 @@ class MatchGroupConverter:
 			text = str(wikicode)
 		return str(wikicode)
 
-
 	def convertMatchlist(self, text: str) -> str:
 		if self.isMatchListStart:
 			return self._convertMatchliststart(text)
