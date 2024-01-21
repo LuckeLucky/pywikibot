@@ -2,16 +2,13 @@ from typing import List
 from scripts.match2.commons.template import Template
 
 from ..commons.matchlist import Matchlist as commonsMatchlist
-from .match import Match
 
 class Matchlist(commonsMatchlist):
-	Match = Match
-
 	def __init__(self, template: Template, matchTemplates: List[Template]):
 		super().__init__(template, matchTemplates)
 		self.args['matchsection'] = self.template.getValue('matchsection')
 
-	def getMatch(self, matchTemplate: Template) -> Match:
+	def getMatch(self, matchTemplate: Template):
 		opp1 = self.getOpponent(matchTemplate, 'team1', 'games1')
 		opp2 = self.getOpponent(matchTemplate, 'team2', 'games2')
 		details = self.getDetails(matchTemplate, 'details')

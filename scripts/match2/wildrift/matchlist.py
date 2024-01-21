@@ -2,18 +2,15 @@ from typing import List
 from scripts.match2.commons.template import Template
 
 from ..commons.matchlist import Matchlist as commonsMatchlist
-from .match import Match
 
 MAX_NUM_MAPS = 10
 
 class Matchlist(commonsMatchlist):
-	Match = Match
-
 	def __init__(self, template: Template, matchTemplates: List[Template]):
 		super().__init__(template, matchTemplates)
 		self.args['patch'] = self.template.getValue('patch')
 
-	def getMatch(self, matchTemplate: Template) -> Match:
+	def getMatch(self, matchTemplate: Template):
 		opp1 = self.getOpponent(matchTemplate, 'team', 'score1')
 		opp2 = self.getOpponent(matchTemplate, 'team2', 'score2')
 		details = self.getDetails(matchTemplate, 'details')

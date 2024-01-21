@@ -2,14 +2,19 @@ from typing import Dict, List
 from .template import Template
 from .match import Match as commonsMatch
 from .opponent import Opponent, SoloOpponent, TeamOpponent
+from .utils import importClass
 
 GSL_GF = 'gf'
 GSL_WINNERS = 'winners'
 GSL_LOSERS = 'losers'
 
 class Matchlist:
-	Match = commonsMatch
+	language: str = None
+	matchClass: commonsMatch = None
+
 	def __init__(self, template: Template, matchTemplates: List[Template]):
+		if self.matchClass is None:
+			self.matchClass = importClass(self.language, 'Match')
 		self.template: Template = template
 		self.data: Dict[str, commonsMatch | str] = {}
 		self.bracketType: str = 'team'
@@ -68,7 +73,7 @@ class Matchlist:
 			if not details:
 				details = Template.createFakeTemplate()
 			details.add('winner', winner)
-		match = self.Match(opponents, details)
+		match = self.matchClass(opponents, details)
 		return match
 
 	def getMatch(self, matchTemplate: Template) -> commonsMatch:

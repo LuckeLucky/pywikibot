@@ -1,16 +1,21 @@
 from .template import Template
 from .opponent import Opponent, TeamOpponent
-from .match import Match
-from .utils import generateId
+from .match import Match as commonsMatch
+from .utils import generateId, importClass
 
 class Singlematch:
-	Match = Match
+	language: str = None
+	matchClass: commonsMatch = None
+
 	def __init__(self, template: Template) -> None:
+		if self.matchClass is None:
+			self.matchClass = importClass(self.language, 'Match')
+		
 		self.template: Template = template
 		self.id: str = self.template.getValue('id')
 		if not self.id:
 			self.id = generateId()
-		self.match: Match = None
+		self.match: commonsMatch = None
 		self.getMatch()
 
 	def getOpponent(self, key: str, scoreKey: str) -> Opponent:
@@ -27,7 +32,7 @@ class Singlematch:
 			if not details:
 				details = Template.createFakeTemplate()
 			details.add('winner', winner)
-		self.match = self.Match([opponent1, opponent2], Template(details))
+		self.match = self.matchClass([opponent1, opponent2], Template(details))
 
 	def __str__(self) -> str:
 		out = '{{SingleMatch|id=' + self.id

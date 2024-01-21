@@ -13,9 +13,8 @@ THIRD_PLACE_MATCH = 'RxMTP'
 
 class Bracket:
 	language: str = None
+	matchClass: commonsMatch = None
 	bDM: BracketDataManager = None
-	Match: commonsMatch = None
-	isLoaded: bool = False
 
 	@classmethod
 	def isMatchValidResetOrThird(cls, match: commonsMatch, reset: bool, roundParam: str):
@@ -37,8 +36,8 @@ class Bracket:
 	def __init__(self, template: Template) -> None:
 		if self.bDM is None:
 			self.bDM = BracketDataManager(self.language)
-		if self.Match is None:
-			self.Match = importClass(self.language, 'Match')
+		if self.matchClass is None:
+			self.matchClass = importClass(self.language, 'Match')
 		self.template: Template = template
 		self.data: Dict[str, commonsMatch | str] = {}
 
@@ -86,12 +85,12 @@ class Bracket:
 			return '2'
 		return ''
 
-	def createMatch(self, opponents: List[Opponent], details : Template, winner: str) -> Match:
+	def createMatch(self, opponents: List[Opponent], details : Template, winner: str) -> matchClass:
 		if winner:
 			if not details:
 				details = Template.createFakeTemplate()
 			details.add('winner', winner)
-		match = self.Match(opponents, details)
+		match = self.matchClass(opponents, details)
 		return match
 
 	def _populateData(self, mapping: Dict[str, Dict[str, str] | str]):
