@@ -1,5 +1,5 @@
-from ..commons.showmatch import Showmatch
+from ..commons.singlematch import Singlematch as commonsSinglematch
 from .match import Match
 
-class ShowmatchWildRift(Showmatch):
+class Singlematch(commonsSinglematch):
 	Match = Match

@@ -1,8 +1,8 @@
 import mwparserfromhell
 
 from scripts.match2.commons.template import Template
-from scripts.match2.counterstrike.bracket import BracketCounterstrike
-from scripts.match2.valorant.bracket import BracketValorant
+from scripts.match2.counterstrike.bracket import Bracket as BracketCounterstrike
+from scripts.match2.valorant.bracket import Bracket as BracketValorant
 from scripts.match2.counterstrike.match import Match
 from scripts.match2.commons.opponent import TeamOpponent
 from tests.aspects import TestCase

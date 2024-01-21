@@ -5,9 +5,8 @@ import mwparserfromhell
 
 import pywikibot
 from pywikibot import pagegenerators
-from scripts.match2.commons.utils import generateId
+from scripts.match2.commons.utils import generateId, getMatchGroupForLanguage
 from scripts.match2.commons.template import Template
-from scripts.match2.factory import getBracketClassForLanguage
 from scripts.utils import get_text, put_text
 
 
@@ -71,11 +70,7 @@ def main(*args):
 	else:
 		config = {}
 
-	language = genFactory.site.code
-	if not language:
-		return
-
-	bracketClass = getBracketClassForLanguage(language)
+	bracketClass = getMatchGroupForLanguage(genFactory.site.code, 'Bracket')
 
 	editSummary = 'Convert LegacyBracket to Match2'
 	generator = genFactory.getCombinedGenerator()

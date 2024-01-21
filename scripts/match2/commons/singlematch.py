@@ -1,9 +1,9 @@
 from .template import Template
 from .opponent import Opponent, TeamOpponent
 from .match import Match
-from ..commons.utils import generateId
+from .utils import generateId
 
-class Showmatch:
+class Singlematch:
 	Match = Match
 	def __init__(self, template: Template) -> None:
 		self.template: Template = template

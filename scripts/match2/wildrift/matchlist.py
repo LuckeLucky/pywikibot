@@ -1,11 +1,12 @@
 from typing import List
 from scripts.match2.commons.template import Template
-from ..commons.matchlist import Matchlist
+
+from ..commons.matchlist import Matchlist as commonsMatchlist
 from .match import Match
 
 MAX_NUM_MAPS = 10
 
-class MatchlistWildRift(Matchlist):
+class Matchlist(commonsMatchlist):
 	Match = Match
 
 	def __init__(self, template: Template, matchTemplates: List[Template]):

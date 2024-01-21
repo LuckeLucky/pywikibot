@@ -1,11 +1,11 @@
 import json
 from pathlib import Path
 
+from ..commons.bracket import Bracket as commonsBracket
 from ..commons.opponent import Opponent, TeamOpponent
-from ..commons.bracket import Bracket
 from .match import Match
 
-class BracketCounterstrike(Bracket):
+class Bracket(commonsBracket):
 	Match = Match
 
 	@classmethod

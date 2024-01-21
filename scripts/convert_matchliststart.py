@@ -4,10 +4,9 @@ import mwparserfromhell
 
 import pywikibot
 from pywikibot import pagegenerators
-from scripts.match2.commons.utils import generateId
+from scripts.match2.commons.utils import generateId, getMatchGroupForLanguage
 from scripts.match2.commons.template import Template
 from scripts.match2.commons.matchlist import Matchlist
-from scripts.match2.factory import getMatchlistClassForLanguage
 from scripts.utils import get_text, put_text, remove_and_squash
 
 def processText(matchlistClass: Matchlist, text: str, config: Dict[str, str]) -> str:
@@ -73,9 +72,8 @@ def main(*args):
 			if arg == '-legacy':
 				isLegacy = True
 
-	
 
-	matchlistClass: Matchlist = getMatchlistClassForLanguage(genFactory.site.code)
+	matchlistClass: Matchlist = getMatchGroupForLanguage(genFactory.site.code, 'Matchlist')
 
 	editSummary = 'Convert Matchlist to Match2'
 	generator = genFactory.getCombinedGenerator()
