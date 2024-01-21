@@ -1,7 +1,7 @@
 from .template import Template
 from .opponent import Opponent, TeamOpponent
 from .match import Match as commonsMatch
-from .utils import generateId, importClass
+from .utils import importClass
 
 class Singlematch:
 	language: str = None
@@ -13,8 +13,6 @@ class Singlematch:
 		
 		self.template: Template = template
 		self.id: str = self.template.getValue('id')
-		if not self.id:
-			self.id = generateId()
 		self.match: commonsMatch = None
 		self.getMatch()
 
