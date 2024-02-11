@@ -31,7 +31,6 @@ class Match(commonsMatch):
 			if not mapTemplate.getValue('win'):
 				mapTemplate.add('win', mapWinner)
 			newMap = Map(mapIndex, mapTemplate)
-			newMap.indent = self.indent * 2
 			self.maps.append(newMap)
 
 	def __str__(self) -> str:

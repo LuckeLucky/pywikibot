@@ -9,7 +9,7 @@ from scripts.utils import get_text, put_text
 
 def processHeader(row) -> str:
 	eventIndex = 1
-	out = '{{Points start'
+	out = '{{Points start|title=Top 12'
 	for cell in row:
 		if cell in ['#', 'Team', 'Σ']:
 			continue
@@ -32,7 +32,7 @@ def processRow(row) -> str:
 			place += f'|place={cell}'
 		elif cellIndex == 1:
 			teamTemplate = wtp.Template(cell)
-			out += f'|{teamTemplate.arguments[0].value}' + place
+			out += f'|bg=|{teamTemplate.arguments[0].value}' + place
 		elif cellIndex == len(row)-1:
 			out += f'|total={cell}'
 		else:

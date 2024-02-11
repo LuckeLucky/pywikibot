@@ -24,7 +24,6 @@ WILDRIFT_PARAMS = STREAMS + [
 class Match(commonsMatch):
 	def __init__(self, opponents: List[Opponent], template: Template) -> None:
 		super().__init__(opponents, template)
-		self.indent = '    '
 
 	def getMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
@@ -41,7 +40,6 @@ class Match(commonsMatch):
 			if not mapTemplate.getValue('vod'):
 				mapTemplate.add('vod', mapVod)
 			newMap = Map(mapIndex, mapTemplate)
-			newMap.indent = self.indent * 2
 			self.maps.append(newMap)
 
 	def __str__(self) -> str:

@@ -4,7 +4,7 @@ DECIDER = 'decider'
 
 class MapVeto:
 	def __init__(self, template: Template) -> None:
-		self.indent = '  '
+		self.indent = '    '
 		self.template = template
 
 	def __str__(self) -> str:

@@ -110,7 +110,7 @@ class MatchGroupConverter:
 		wikicode = mwparserfromhell.parse(text)
 		for template in wikicode.filter_templates():
 			if template.name.matches(self.oldTemplateId):
-				t = self.addStuffToTemplate(Template(template))
+				t = self.addStuffToTemplate(Template(template, removeComments=True))
 				newBracket = self.matchGroupClass(t)
 				if not newBracket.bDM.isTemplateSupported(newBracket.newTemplateId):
 					pywikibot.stdout("<<lightred>>Missing support for template " + newBracket.newTemplateId)

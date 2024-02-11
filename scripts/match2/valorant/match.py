@@ -26,7 +26,6 @@ class Match(commonsMatch):
 		self.mapveto = None
 		if mapbans:
 			mapVeto = MapVeto(Template(mapbans))
-			mapVeto.indent = self.indent * 2
 			self.mapveto = mapVeto
 
 	def getMaps(self):
@@ -34,7 +33,6 @@ class Match(commonsMatch):
 			mapName = self.template.getValue('map' + str(mapIndex))
 			if mapName:
 				newMap = Map(mapIndex, self.template)
-				newMap.indent = self.indent * 2
 				self.maps.append(newMap)
 			else:
 				break

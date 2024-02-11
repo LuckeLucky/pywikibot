@@ -26,7 +26,7 @@ STREAMS = [
 
 class Match:
 	def __init__(self, opponents: List[Opponent], template: Template) -> None:
-		self.indent = '  '
+		self.indent = '    '
 		self.opponents: List[Opponent] = opponents
 		self.template: Template = template
 		if not self.template:
