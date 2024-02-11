@@ -42,6 +42,7 @@ class Match(commonsMatch):
 				mapTemplate.add('vod', mapVod)
 			newMap = Map(mapIndex, mapTemplate)
 			newMap.indent = self.indent * 2
+			self.maps.append(newMap)
 
 	def __str__(self) -> str:
 		indent = self.indent
