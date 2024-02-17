@@ -10,7 +10,7 @@ These command line parameters can be used to specify which pages to work on:
 
 Furthermore, the following command line parameters are supported:
 
--isMatchList	Is MatchListTemplate?
+-isMatchList	Is MatchListTemplate? Showmatch included
 -oldTemplateId
 -newTemplateId
 -bracketType	Only required for brackets
@@ -93,6 +93,7 @@ def main(*args):
 
 		newText = str(wikicode)
 		if text != newText:
+			pywikibot.showDiff(text, newText, context=1)
 			put_text(page, summary=editSummary, new=newText)
 
 if __name__ == '__main__':
