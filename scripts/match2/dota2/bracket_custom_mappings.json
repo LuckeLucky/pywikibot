@@ -1,0 +1,34 @@
+{
+	"Bracket/2L1DU2U2$$4SE1S2LTeamBracket": {
+		"R1M1": {
+			"details": "R1G1",
+			"opp1": "R1D1",
+			"opp2": "R1D2"
+		},
+		"R2M1": {
+			"details": "R2G1",
+			"opp1": "R2D1",
+			"opp2": "R2W1"
+		},
+		"R1M2": {
+			"details": "R1G2",
+			"opp1": "R1D3",
+			"opp2": "R1D4"
+		},
+		"R1M3": {
+			"details": "R1G3",
+			"opp1": "R1D5",
+			"opp2": "R1D6"
+		},
+		"R2M2": {
+			"details": "R2G2",
+			"opp1": "R2W2",
+			"opp2": "R2W3"
+		},
+		"R3M1": {
+			"details": "R3G1",
+			"opp1": "R3W1",
+			"opp2": "R3W2"
+		}
+	}
+}
