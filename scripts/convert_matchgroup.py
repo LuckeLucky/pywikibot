@@ -182,7 +182,7 @@ class MatchGroupConverter:
 		return self._convertMatchlist(text)
 
 	def convert(self, text: str) -> str:
-		converter =  getattr(self, 'convert' + self.newTemplateId)
+		converter = getattr(self, 'convert' + self.newTemplateId)
 		if not converter:
 			raise ValueError(self.newTemplateId + 'is not supported')
 		return converter(text)

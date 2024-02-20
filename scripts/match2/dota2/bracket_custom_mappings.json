@@ -30,5 +30,145 @@
 			"opp1": "R3W1",
 			"opp2": "R3W2"
 		}
+	},
+	"Bracket/8L4DS-2Q-U-8L2DS-1Q$$3Qual-8DE4STeamBracket": {
+		"R1M5": {
+			"details": "R2G5",
+			"opp1": "R2D5",
+			"opp2": "R2W5",
+			"header": "L2"
+		},
+		"R1M6": {
+			"details": "R2G6",
+			"opp1": "R2D6",
+			"opp2": "R2W6"
+		},
+		"R1M7": {
+			"details": "R2G7",
+			"opp1": "R2D7",
+			"opp2": "R2W7"
+		},
+		"R1M8": {
+			"details": "R2G8",
+			"opp1": "R2D8",
+			"opp2": "R2W8"
+		},
+		"R2M5": {
+			"details": "R3G1",
+			"opp1": "R3W1",
+			"opp2": "R3W2",
+			"header": "L3"
+		},
+		"R2M6": {
+			"details": "R3G2",
+			"opp1": "R3W3",
+			"opp2": "R3W4"
+		},
+		"R3M1": {
+			"details": "R4G3",
+			"opp1": "R4D1",
+			"opp2": "R4W5",
+			"header": "L4"
+		},
+		"R3M2": {
+			"details": "R4G4",
+			"opp1": "R4D2",
+			"opp2": "R4W6"
+		},
+		"R4M3": {
+			"details": "R5G1",
+			"opp1": "R5W1",
+			"opp2": "R5W2",
+			"header": "L5"
+		}
+	},
+	"Bracket/8L8DS-2Q-U-8L4DSL2DS-1Q$$3Qual-8DE8STeamBracket": {
+		"R1M5": {
+			"details": "R2G5",
+			"opp1": "R2D5",
+			"opp2": "R2D6"
+		},
+		"R1M6": {
+			"details": "R2G6",
+			"opp1": "R2D7",
+			"opp2": "R2D8"
+		},
+		"R1M7": {
+			"details": "R2G7",
+			"opp1": "R2D9",
+			"opp2": "R2D10"
+		},
+		"R1M8": {
+			"details": "R2G8",
+			"opp1": "R2D11",
+			"opp2": "R2D12"
+		},
+		"R2M5": {
+			"details": "R3G5",
+			"opp1": "R3D5",
+			"opp2": "R3W5"
+		},
+		"R2M6": {
+			"details": "R3G6",
+			"opp1": "R3D6",
+			"opp2": "R3W6"
+		},
+		"R2M7": {
+			"details": "R3G7",
+			"opp1": "R3D7",
+			"opp2": "R3W7"
+		},
+		"R2M8": {
+			"details": "R3G8",
+			"opp1": "R3D8",
+			"opp2": "R3W8"
+		},
+		"R3M5": {
+			"details": "R4G1",
+			"opp1": "R4W1",
+			"opp2": "R4W2"
+		},
+		"R3M6": {
+			"details": "R4G2",
+			"opp1": "R4W3",
+			"opp2": "R4W4"
+		},
+		"R4M1": {
+			"details": "R5G3",
+			"opp1": "R5D1",
+			"opp2": "R5W5"
+		},
+		"R4M2": {
+			"details": "R5G4",
+			"opp1": "R5D2",
+			"opp2": "R5W6"
+		},
+		"R5M3": {
+			"details": "R6G1",
+			"opp1": "R6W1",
+			"opp2": "R6W2"
+		}
+	},
+	"Bracket/2U2L1D$$32DEFinalTeamBracket": {
+		"R2M1": {
+			"details": "R5G1",
+			"opp1": "R5W1",
+			"opp2": "R5W2"
+		},
+		"R1M1": {
+			"details": "R7G1",
+			"opp1": "R7W1",
+			"opp2": "R7W2"
+		},
+		"R2M2": {
+			"details": "R8G1",
+			"opp1": "R8D1",
+			"opp2": "R8W1"
+		},
+		"R3M1": {
+			"details": "R9G1",
+			"opp1": "R9W1",
+			"opp2": "R9W2"
+		}
 	}
 }

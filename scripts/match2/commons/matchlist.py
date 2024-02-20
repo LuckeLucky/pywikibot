@@ -111,6 +111,6 @@ class Matchlist:
 
 		out += matchesOut
 
-		out += '\n}}'
+		out += '}}'
 
 		return out

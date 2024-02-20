@@ -4,7 +4,7 @@ from scripts.match2.commons.template import Template
 
 from ..commons.matchlist import Matchlist as commonsMatchlist
 
-class MatchList(commonsMatchlist):
+class Matchlist(commonsMatchlist):
 	def __init__(self, template: Template, matchTemplates: List[Template]):
 		super().__init__(template, matchTemplates)
 		self.args['matchsection'] = self.template.getValue('matchsection')

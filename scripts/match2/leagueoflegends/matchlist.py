@@ -11,7 +11,7 @@ class Matchlist(commonsMatchlist):
 		self.args['patch'] = self.template.getValue('patch')
 
 	def getMatch(self, matchTemplate: Template):
-		opp1 = self.getOpponent(matchTemplate, 'team', 'score1')
+		opp1 = self.getOpponent(matchTemplate, 'team1', 'score1')
 		opp2 = self.getOpponent(matchTemplate, 'team2', 'score2')
 		details = self.getDetails(matchTemplate, 'details')
 		winner = matchTemplate.getValue('winner')
