@@ -1,0 +1,83 @@
+{
+	"Bracket/4L2DS-1Q-U-4L1D-1Q$$2Qual-6DETeamBracket": {
+		"R3M1": {
+			"details": "R4G1",
+			"opp1": "R4W1",
+			"opp2": "R4W2"
+		},
+		"R1M3": {
+			"details": "R2G3",
+			"opp1": "R2D3",
+			"opp2": "R2D4"
+		},
+		"R1M4": {
+			"details": "R2G4",
+			"opp1": "R2D5",
+			"opp2": "R2D6"
+		},
+		"R2M3": {
+			"details": "R3G1",
+			"opp1": "R3W1",
+			"opp2": "R3W2"
+		},
+		"R3M2": {
+			"details": "R4G2",
+			"opp1": "R4D1",
+			"opp2": "R4W3"
+		}
+	},
+	"Bracket/8-2Q-U-8L2D-2Q$$4Qual-8DE4LTeamBracket": {
+		"R1M5": {
+			"details": "R1G5",
+			"opp1": "R1D9",
+			"opp2": "R1W1"
+		},
+		"R1M6": {
+			"details": "R1G6",
+			"opp1": "R1D10",
+			"opp2": "R1W2"
+		},
+		"R1M7": {
+			"details": "R1G7",
+			"opp1": "R1D11",
+			"opp2": "R1W3"
+		},
+		"R1M8": {
+			"details": "R1G8",
+			"opp1": "R1D12",
+			"opp2": "R1W4"
+		},
+		"R2M1": {
+			"details": "R2G3",
+			"opp1": "R2W1",
+			"opp2": "R2W2"
+		},
+		"R2M2": {
+			"details": "R2G4",
+			"opp1": "R2W3",
+			"opp2": "R2W4"
+		}
+	},
+	"Bracket/8L4DSS$$8SE4STeamBracket": {
+		"R2M1": {
+			"details": "R2G1",
+			"opp1": "R2W1",
+			"opp2": "R2W2"
+		},
+		"R2M2": {
+			"details": "R2G2",
+			"opp1": "R2W3",
+			"opp2": "R2W4"
+		},
+		"R2M3": {
+			"details": "R2G3",
+			"opp1": "R2W5",
+			"opp2": "R2W6"
+		},
+		"R2M4": {
+			"details": "R2G4",
+			"opp1": "R2W7",
+			"opp2": "R2W8"
+		}
+	}
+}
