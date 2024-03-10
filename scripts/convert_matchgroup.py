@@ -29,7 +29,7 @@ If -bracket and template is not Legacy you need to specify the new bracket id
 Examples
 --------
 
-python pwb.py convert_matchgroup -lang:valorant -page:"User:LuckeLucky/sandbox/2" -matchliststart -oldTemplateId:"LegacyBracket"
+python pwb.py convert_matchgroup -lang:valorant -page:"User:LuckeLucky/sandbox/2" -bracket -oldTemplateId:"LegacyBracket"
 
 """
 import sys
