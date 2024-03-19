@@ -37,3 +37,20 @@ class Match:
 
 	def getMaps(self):
 		pass
+
+	def __str__(self) -> str:
+		opponent1 = self.opponents[0]
+		opponent2 = self.opponents[1]
+		indent = self.indent
+		out = ("{{Match\n" +
+			f"{indent}|opponent1={str(opponent1)}\n" +
+			f"{indent}|opponent2={str(opponent2)}\n" +
+			f"{indent}|date={self.template.getValue('date')}\n"
+			f"{indent}|finished={self.template.getValue('finished')}\n")
+
+		winner = self.template.getValue('winner')
+		if winner:
+			out += f"{indent}|winner={winner}\n"
+
+		out += "}}"
+		return out

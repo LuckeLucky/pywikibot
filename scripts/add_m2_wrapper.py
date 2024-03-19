@@ -17,11 +17,9 @@ Furthermore, the following command line parameters are supported:
 
 Examples
 --------
-python pwb.py add_m2_wrapper -lang:valorant -isMatchList 
-	-oldTemplateId:"MatchListStart" 
-	-newTemplateId:"LegacyMatchListStart" 
-	-transcludes:"MatchListStart" 
-	-ns:0,2
+python pwb.py add_m2_wrapper -lang:valorant -isMatchList -oldTemplateId:"MatchListStart" -newTemplateId:"LegacyMatchListStart" -transcludes:"MatchListStart" -ns:0,2
+
+python pwb.py add_m2_wrapper -lang:valorant -oldTemplateId:"2SETeamBracket" -newTemplateId:"Bracket/2" -bracketType:"team" -ns:0,2 -transcludes:"2SEBracket" -pt:1
 """
 
 import sys
