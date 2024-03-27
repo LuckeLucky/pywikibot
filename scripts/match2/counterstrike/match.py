@@ -1,8 +1,3 @@
-from typing import List
-
-from scripts.match2.commons.opponent import Opponent
-from scripts.match2.commons.template import Template
-
 from ..commons.match import Match as commonsMatch, STREAMS
 
 from .map import Map, MAP_LINKS
@@ -32,9 +27,6 @@ CS_PARAMS = STREAMS + [
 ]
 
 class Match(commonsMatch):
-	def __init__(self, opponents: List[Opponent], template: Template) -> None:
-		super().__init__(opponents, template)
-
 	def getMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
 			mapName = self.template.getValue('map' + str(mapIndex))
