@@ -1,0 +1,883 @@
+{
+	"Bracket/8$$8SEBracket": {
+		"R1M1": {
+			"details": "r1m1",
+			"opp1": "r1m1p1",
+			"opp2": "r1m1p2"
+		},
+		"R1M2": {
+			"details": "r1m2",
+			"opp1": "r1m2p1",
+			"opp2": "r1m2p2"
+		},
+		"R1M3": {
+			"details": "r1m3",
+			"opp1": "r1m3p1",
+			"opp2": "r1m3p2"
+		},
+		"R1M4": {
+			"details": "r1m4",
+			"opp1": "r1m4p1",
+			"opp2": "r1m4p2"
+		},
+		"R2M1": {
+			"details": "r2m1",
+			"opp1": "r2m1p1",
+			"opp2": "r2m1p2"
+		},
+		"R2M2": {
+			"details": "r2m2",
+			"opp1": "r2m2p1",
+			"opp2": "r2m2p2"
+		},
+		"R3M1": {
+			"details": "r3m1",
+			"opp1": "r3m1p1",
+			"opp2": "r3m1p2"
+		},
+		"RxMTP": {
+			"details": "l3m1",
+			"opp1": "l3m1p1",
+			"opp2": "l3m1p2"
+		}
+	},
+	"Bracket/32$$32SEBracket": {
+		"R1M1": {
+			"details": "r1m1",
+			"opp1": "r1m1p1",
+			"opp2": "r1m1p2"
+		},
+		"R1M2": {
+			"details": "r1m2",
+			"opp1": "r1m2p1",
+			"opp2": "r1m2p2"
+		},
+		"R1M3": {
+			"details": "r1m3",
+			"opp1": "r1m3p1",
+			"opp2": "r1m3p2"
+		},
+		"R1M4": {
+			"details": "r1m4",
+			"opp1": "r1m4p1",
+			"opp2": "r1m4p2"
+		},
+		"R1M5": {
+			"details": "r1m5",
+			"opp1": "r1m5p1",
+			"opp2": "r1m5p2"
+		},
+		"R1M6": {
+			"details": "r1m6",
+			"opp1": "r1m6p1",
+			"opp2": "r1m6p2"
+		},
+		"R1M7": {
+			"details": "r1m7",
+			"opp1": "r1m7p1",
+			"opp2": "r1m7p2"
+		},
+		"R1M8": {
+			"details": "r1m8",
+			"opp1": "r1m8p1",
+			"opp2": "r1m8p2"
+		},
+		"R1M9": {
+			"details": "r1m9",
+			"opp1": "r1m9p1",
+			"opp2": "r1m9p2"
+		},
+		"R1M10": {
+			"details": "r1m10",
+			"opp1": "r1m10p1",
+			"opp2": "r1m10p2"
+		},
+		"R1M11": {
+			"details": "r1m11",
+			"opp1": "r1m11p1",
+			"opp2": "r1m11p2"
+		},
+		"R1M12": {
+			"details": "r1m12",
+			"opp1": "r1m12p1",
+			"opp2": "r1m12p2"
+		},
+		"R1M13": {
+			"details": "r1m13",
+			"opp1": "r1m13p1",
+			"opp2": "r1m13p2"
+		},
+		"R1M14": {
+			"details": "r1m14",
+			"opp1": "r1m14p1",
+			"opp2": "r1m14p2"
+		},
+		"R1M15": {
+			"details": "r1m15",
+			"opp1": "r1m15p1",
+			"opp2": "r1m15p2"
+		},
+		"R1M16": {
+			"details": "r1m16",
+			"opp1": "r1m16p1",
+			"opp2": "r1m16p2"
+		},
+		"R2M1": {
+			"details": "r2m1",
+			"opp1": "r2m1p1",
+			"opp2": "r2m1p2"
+		},
+		"R2M2": {
+			"details": "r2m2",
+			"opp1": "r2m2p1",
+			"opp2": "r2m2p2"
+		},
+		"R2M3": {
+			"details": "r2m3",
+			"opp1": "r2m3p1",
+			"opp2": "r2m3p2"
+		},
+		"R2M4": {
+			"details": "r2m4",
+			"opp1": "r2m4p1",
+			"opp2": "r2m4p2"
+		},
+		"R2M5": {
+			"details": "r2m5",
+			"opp1": "r2m5p1",
+			"opp2": "r2m5p2"
+		},
+		"R2M6": {
+			"details": "r2m6",
+			"opp1": "r2m6p1",
+			"opp2": "r2m6p2"
+		},
+		"R2M7": {
+			"details": "r2m7",
+			"opp1": "r2m7p1",
+			"opp2": "r2m7p2"
+		},
+		"R2M8": {
+			"details": "r2m8",
+			"opp1": "r2m8p1",
+			"opp2": "r2m8p2"
+		},
+		"R3M1": {
+			"details": "r3m1",
+			"opp1": "r3m1p1",
+			"opp2": "r3m1p2"
+		},
+		"R3M2": {
+			"details": "r3m2",
+			"opp1": "r3m2p1",
+			"opp2": "r3m2p2"
+		},
+		"R3M3": {
+			"details": "r3m3",
+			"opp1": "r3m3p1",
+			"opp2": "r3m3p2"
+		},
+		"R3M4": {
+			"details": "r3m4",
+			"opp1": "r3m4p1",
+			"opp2": "r3m4p2"
+		},
+		"R4M1": {
+			"details": "r4m1",
+			"opp1": "r4m1p1",
+			"opp2": "r4m1p2"
+		},
+		"R4M2": {
+			"details": "r4m2",
+			"opp1": "r4m2p1",
+			"opp2": "r4m2p2"
+		},
+		"R5M1": {
+			"details": "r5m1",
+			"opp1": "r5m1p1",
+			"opp2": "r5m1p2"
+		},
+		"RxMTP": {
+			"details": "l5m1",
+			"opp1": "l5m1p1",
+			"opp2": "l5m1p2"
+		}
+	},
+	"Bracket/16$$16SEBracket": {
+		"R1M1": {
+			"details": "r1m1",
+			"opp1": "r1m1p1",
+			"opp2": "r1m1p2"
+		},
+		"R1M2": {
+			"details": "r1m2",
+			"opp1": "r1m2p1",
+			"opp2": "r1m2p2"
+		},
+		"R1M3": {
+			"details": "r1m3",
+			"opp1": "r1m3p1",
+			"opp2": "r1m3p2"
+		},
+		"R1M4": {
+			"details": "r1m4",
+			"opp1": "r1m4p1",
+			"opp2": "r1m4p2"
+		},
+		"R1M5": {
+			"details": "r1m5",
+			"opp1": "r1m5p1",
+			"opp2": "r1m5p2"
+		},
+		"R1M6": {
+			"details": "r1m6",
+			"opp1": "r1m6p1",
+			"opp2": "r1m6p2"
+		},
+		"R1M7": {
+			"details": "r1m7",
+			"opp1": "r1m7p1",
+			"opp2": "r1m7p2"
+		},
+		"R1M8": {
+			"details": "r1m8",
+			"opp1": "r1m8p1",
+			"opp2": "r1m8p2"
+		},
+		"R2M1": {
+			"details": "r2m1",
+			"opp1": "r2m1p1",
+			"opp2": "r2m1p2"
+		},
+		"R2M2": {
+			"details": "r2m2",
+			"opp1": "r2m2p1",
+			"opp2": "r2m2p2"
+		},
+		"R2M3": {
+			"details": "r2m3",
+			"opp1": "r2m3p1",
+			"opp2": "r2m3p2"
+		},
+		"R2M4": {
+			"details": "r2m4",
+			"opp1": "r2m4p1",
+			"opp2": "r2m4p2"
+		},
+		"R3M1": {
+			"details": "r3m1",
+			"opp1": "r3m1p1",
+			"opp2": "r3m1p2"
+		},
+		"R3M2": {
+			"details": "r3m2",
+			"opp1": "r3m2p1",
+			"opp2": "r3m2p2"
+		},
+		"R4M1": {
+			"details": "r4m1",
+			"opp1": "r4m1p1",
+			"opp2": "r4m1p2"
+		},
+		"RxMTP": {
+			"details": "l4m1",
+			"opp1": "l4m1p1",
+			"opp2": "l4m1p2"
+		}
+	},
+	"Bracket/32-8Q-U-16L8D-8Q$$16Qual-32DEBracket": {
+		"R1M1": {
+			"details": "r1m1",
+			"opp1": "r1m1p1",
+			"opp2": "r1m1p2"
+		},
+		"R1M2": {
+			"details": "r1m2",
+			"opp1": "r1m2p1",
+			"opp2": "r1m2p2"
+		},
+		"R1M3": {
+			"details": "r1m3",
+			"opp1": "r1m3p1",
+			"opp2": "r1m3p2"
+		},
+		"R1M4": {
+			"details": "r1m4",
+			"opp1": "r1m4p1",
+			"opp2": "r1m4p2"
+		},
+		"R1M5": {
+			"details": "r1m5",
+			"opp1": "r1m5p1",
+			"opp2": "r1m5p2"
+		},
+		"R1M6": {
+			"details": "r1m6",
+			"opp1": "r1m6p1",
+			"opp2": "r1m6p2"
+		},
+		"R1M7": {
+			"details": "r1m7",
+			"opp1": "r1m7p1",
+			"opp2": "r1m7p2"
+		},
+		"R1M8": {
+			"details": "r1m8",
+			"opp1": "r1m8p1",
+			"opp2": "r1m8p2"
+		},
+		"R1M9": {
+			"details": "r1m9",
+			"opp1": "r1m9p1",
+			"opp2": "r1m9p2"
+		},
+		"R1M10": {
+			"details": "r1m10",
+			"opp1": "r1m10p1",
+			"opp2": "r1m10p2"
+		},
+		"R1M11": {
+			"details": "r1m11",
+			"opp1": "r1m11p1",
+			"opp2": "r1m11p2"
+		},
+		"R1M12": {
+			"details": "r1m12",
+			"opp1": "r1m12p1",
+			"opp2": "r1m12p2"
+		},
+		"R1M13": {
+			"details": "r1m13",
+			"opp1": "r1m13p1",
+			"opp2": "r1m13p2"
+		},
+		"R1M14": {
+			"details": "r1m14",
+			"opp1": "r1m14p1",
+			"opp2": "r1m14p2"
+		},
+		"R1M15": {
+			"details": "r1m15",
+			"opp1": "r1m15p1",
+			"opp2": "r1m15p2"
+		},
+		"R1M16": {
+			"details": "r1m16",
+			"opp1": "r1m16p1",
+			"opp2": "r1m16p2"
+		},
+		"R2M1": {
+			"details": "r2m1",
+			"opp1": "r2m1p1",
+			"opp2": "r2m1p2"
+		},
+		"R2M2": {
+			"details": "r2m2",
+			"opp1": "r2m2p1",
+			"opp2": "r2m2p2"
+		},
+		"R2M3": {
+			"details": "r2m3",
+			"opp1": "r2m3p1",
+			"opp2": "r2m3p2"
+		},
+		"R2M4": {
+			"details": "r2m4",
+			"opp1": "r2m4p1",
+			"opp2": "r2m4p2"
+		},
+		"R2M5": {
+			"details": "r2m5",
+			"opp1": "r2m5p1",
+			"opp2": "r2m5p2"
+		},
+		"R2M6": {
+			"details": "r2m6",
+			"opp1": "r2m6p1",
+			"opp2": "r2m6p2"
+		},
+		"R2M7": {
+			"details": "r2m7",
+			"opp1": "r2m7p1",
+			"opp2": "r2m7p2"
+		},
+		"R2M8": {
+			"details": "r2m8",
+			"opp1": "r2m8p1",
+			"opp2": "r2m8p2"
+		},
+		"R1M17": {
+			"details": "l1m1",
+			"opp1": "l1m1p1",
+			"opp2": "l1m1p2"
+		},
+		"R1M18": {
+			"details": "l1m2",
+			"opp1": "l1m2p1",
+			"opp2": "l1m2p2"
+		},
+		"R1M19": {
+			"details": "l1m3",
+			"opp1": "l1m3p1",
+			"opp2": "l1m3p2"
+		},
+		"R1M20": {
+			"details": "l1m4",
+			"opp1": "l1m4p1",
+			"opp2": "l1m4p2"
+		},
+		"R1M21": {
+			"details": "l1m5",
+			"opp1": "l1m5p1",
+			"opp2": "l1m5p2"
+		},
+		"R1M22": {
+			"details": "l1m6",
+			"opp1": "l1m6p1",
+			"opp2": "l1m6p2"
+		},
+		"R1M23": {
+			"details": "l1m7",
+			"opp1": "l1m7p1",
+			"opp2": "l1m7p2"
+		},
+		"R1M24": {
+			"details": "l1m8",
+			"opp1": "l1m8p1",
+			"opp2": "l1m8p2"
+		},
+		"R1M25": {
+			"details": "l1m9",
+			"opp1": "l1m9p1",
+			"opp2": "l1m9p2"
+		},
+		"R1M26": {
+			"details": "l1m10",
+			"opp1": "l1m10p1",
+			"opp2": "l1m10p2"
+		},
+		"R1M27": {
+			"details": "l1m11",
+			"opp1": "l1m11p1",
+			"opp2": "l1m11p2"
+		},
+		"R1M28": {
+			"details": "l1m12",
+			"opp1": "l1m12p1",
+			"opp2": "l1m12p2"
+		},
+		"R1M29": {
+			"details": "l1m13",
+			"opp1": "l1m13p1",
+			"opp2": "l1m13p2"
+		},
+		"R1M30": {
+			"details": "l1m14",
+			"opp1": "l1m14p1",
+			"opp2": "l1m14p2"
+		},
+		"R1M31": {
+			"details": "l1m15",
+			"opp1": "l1m15p1",
+			"opp2": "l1m15p2"
+		},
+		"R1M32": {
+			"details": "l1m16",
+			"opp1": "l1m16p1",
+			"opp2": "l1m16p2"
+		},
+		"R2M9": {
+			"details": "l2m1",
+			"opp1": "l2m1p1",
+			"opp2": "l2m1p2"
+		},
+		"R2M10": {
+			"details": "l2m2",
+			"opp1": "l2m2p1",
+			"opp2": "l2m2p2"
+		},
+		"R2M11": {
+			"details": "l2m3",
+			"opp1": "l2m3p1",
+			"opp2": "l2m3p2"
+		},
+		"R2M12": {
+			"details": "l2m4",
+			"opp1": "l2m4p1",
+			"opp2": "l2m4p2"
+		},
+		"R2M13": {
+			"details": "l2m5",
+			"opp1": "l2m5p1",
+			"opp2": "l2m5p2"
+		},
+		"R2M14": {
+			"details": "l2m6",
+			"opp1": "l2m6p1",
+			"opp2": "l2m6p2"
+		},
+		"R2M15": {
+			"details": "l2m7",
+			"opp1": "l2m7p1",
+			"opp2": "l2m7p2"
+		},
+		"R2M16": {
+			"details": "l2m8",
+			"opp1": "l2m8p1",
+			"opp2": "l2m8p2"
+		}
+	},
+	"Bracket/32U16L8DSL4DSL2DSL1D$$32DEBracket": {
+		"R3M1": {
+			"details": "R3G5",
+			"opp1": "R3W9",
+			"opp2": "R3W10"
+		},
+		"R3M2": {
+			"details": "R3G6",
+			"opp1": "R3W11",
+			"opp2": "R3W12"
+		},
+		"R3M3": {
+			"details": "R3G7",
+			"opp1": "R3W13",
+			"opp2": "R3W14"
+		},
+		"R3M4": {
+			"details": "R3G8",
+			"opp1": "R3W15",
+			"opp2": "R3W16"
+		},
+		"R4M1": {
+			"details": "R3G1",
+			"opp1": "R3W1",
+			"opp2": "R3W2"
+		},
+		"R4M2": {
+			"details": "R3G2",
+			"opp1": "R3W3",
+			"opp2": "R3W4"
+		},
+		"R4M3": {
+			"details": "R3G3",
+			"opp1": "R3W5",
+			"opp2": "R3W6"
+		},
+		"R4M4": {
+			"details": "R3G4",
+			"opp1": "R3W7",
+			"opp2": "R3W8"
+		},
+		"R4M5": {
+			"details": "R4G3",
+			"opp1": "R4D1",
+			"opp2": "R4W5"
+		},
+		"R4M6": {
+			"details": "R4G4",
+			"opp1": "R4D2",
+			"opp2": "R4W6"
+		},
+		"R4M7": {
+			"details": "R4G5",
+			"opp1": "R4D3",
+			"opp2": "R4W7"
+		},
+		"R4M8": {
+			"details": "R4G6",
+			"opp1": "R4D4",
+			"opp2": "R4W8"
+		},
+		"R5M1": {
+			"details": "R5G2",
+			"opp1": "R5W3",
+			"opp2": "R5W4"
+		},
+		"R5M2": {
+			"details": "R5G3",
+			"opp1": "R5W5",
+			"opp2": "R5W6"
+		},
+		"R6M1": {
+			"details": "R4G1",
+			"opp1": "R4W1",
+			"opp2": "R4W2"
+		},
+		"R6M2": {
+			"details": "R4G2",
+			"opp1": "R4W3",
+			"opp2": "R4W4"
+		},
+		"R6M3": {
+			"details": "R6G1",
+			"opp1": "R6D1",
+			"opp2": "R6W1"
+		},
+		"R6M4": {
+			"details": "R6G2",
+			"opp1": "R6D2",
+			"opp2": "R6W2"
+		},
+		"R8M1": {
+			"details": "R5G1",
+			"opp1": "R5W1",
+			"opp2": "R5W2"
+		},
+		"R8M2": {
+			"details": "R8G1",
+			"opp1": "R8D1",
+			"opp2": "R8W1"
+		}
+	},
+	"Bracket/16U8L4DSL2DSL1D$$16DEBracket": {
+		"R1M1": {
+			"details": "r1m1",
+			"opp1": "r1m1p1",
+			"opp2": "r1m1p2"
+		},
+		"R1M2": {
+			"details": "r1m2",
+			"opp1": "r1m2p1",
+			"opp2": "r1m2p2"
+		},
+		"R1M3": {
+			"details": "r1m3",
+			"opp1": "r1m3p1",
+			"opp2": "r1m3p2"
+		},
+		"R1M4": {
+			"details": "r1m4",
+			"opp1": "r1m4p1",
+			"opp2": "r1m4p2"
+		},
+		"R1M5": {
+			"details": "r1m5",
+			"opp1": "r1m5p1",
+			"opp2": "r1m5p2"
+		},
+		"R1M6": {
+			"details": "r1m6",
+			"opp1": "r1m6p1",
+			"opp2": "r1m6p2"
+		},
+		"R1M7": {
+			"details": "r1m7",
+			"opp1": "r1m7p1",
+			"opp2": "r1m7p2"
+		},
+		"R1M8": {
+			"details": "r1m8",
+			"opp1": "r1m8p1",
+			"opp2": "r1m8p2"
+		},
+		"R2M1": {
+			"details": "r2m1",
+			"opp1": "r2m1p1",
+			"opp2": "r2m1p2"
+		},
+		"R2M2": {
+			"details": "r2m2",
+			"opp1": "r2m2p1",
+			"opp2": "r2m2p2"
+		},
+		"R2M3": {
+			"details": "r2m3",
+			"opp1": "r2m3p1",
+			"opp2": "r2m3p2"
+		},
+		"R2M4": {
+			"details": "r2m4",
+			"opp1": "r2m4p1",
+			"opp2": "r2m4p2"
+		},
+		"R4M1": {
+			"details": "r4m1",
+			"opp1": "r4m1p1",
+			"opp2": "r4m1p2"
+		},
+		"R4M2": {
+			"details": "r4m2",
+			"opp1": "r4m2p1",
+			"opp2": "r4m2p2"
+		},
+		"R6M1": {
+			"details": "r6m1",
+			"opp1": "r6m1p1",
+			"opp2": "r6m1p2"
+		},
+		"R1M9": {
+			"details": "l1m1",
+			"opp1": "l1m1p1",
+			"opp2": "l1m1p2"
+		},
+		"R1M10": {
+			"details": "l1m2",
+			"opp1": "l1m2p1",
+			"opp2": "l1m2p2"
+		},
+		"R1M11": {
+			"details": "l1m3",
+			"opp1": "l1m3p1",
+			"opp2": "l1m3p2"
+		},
+		"R1M12": {
+			"details": "l1m4",
+			"opp1": "l1m4p1",
+			"opp2": "l1m4p2"
+		},
+		"R2M5": {
+			"details": "l2m1",
+			"opp1": "l2m1p1",
+			"opp2": "l2m1p2"
+		},
+		"R2M6": {
+			"details": "l2m2",
+			"opp1": "l2m2p1",
+			"opp2": "l2m2p2"
+		},
+		"R2M7": {
+			"details": "l2m3",
+			"opp1": "l2m3p1",
+			"opp2": "l2m3p2"
+		},
+		"R2M8": {
+			"details": "l2m4",
+			"opp1": "l2m4p1",
+			"opp2": "l2m4p2"
+		},
+		"R3M1": {
+			"details": "l3m1",
+			"opp1": "l3m1p1",
+			"opp2": "l3m1p2"
+		},
+		"R3M2": {
+			"details": "l3m2",
+			"opp1": "l3m2p1",
+			"opp2": "l3m2p2"
+		},
+		"R4M3": {
+			"details": "l4m1",
+			"opp1": "l4m1p1",
+			"opp2": "l4m1p2"
+		},
+		"R4M4": {
+			"details": "l4m2",
+			"opp1": "l4m2p1",
+			"opp2": "l4m2p2"
+		},
+		"R5M1": {
+			"details": "l5m1",
+			"opp1": "l5m1p1",
+			"opp2": "l5m1p2"
+		},
+		"R6M2": {
+			"details": "l6m1",
+			"opp1": "l6m1p1",
+			"opp2": "l6m1p2"
+		},
+		"R7M1": {
+			"details": "r7m1",
+			"opp1": "r7m1p1",
+			"opp2": "r7m1p2"
+		}
+	},
+	"Bracket/8U4L2DSL1D$$8DEBracket": {
+		"R1M1": {
+			"details": "r1m1",
+			"opp1": "r1m1p1",
+			"opp2": "r1m1p2"
+		},
+		"R1M2": {
+			"details": "r1m2",
+			"opp1": "r1m2p1",
+			"opp2": "r1m2p2"
+		},
+		"R1M3": {
+			"details": "r1m3",
+			"opp1": "r1m3p1",
+			"opp2": "r1m3p2"
+		},
+		"R1M4": {
+			"details": "r1m4",
+			"opp1": "r1m4p1",
+			"opp2": "r1m4p2"
+		},
+		"R2M1": {
+			"details": "r2m1",
+			"opp1": "r2m1p1",
+			"opp2": "r2m1p2"
+		},
+		"R2M2": {
+			"details": "r2m2",
+			"opp1": "r2m2p1",
+			"opp2": "r2m2p2"
+		},
+		"R4M1": {
+			"details": "r4m1",
+			"opp1": "r4m1p1",
+			"opp2": "r4m1p2"
+		},
+		"R1M5": {
+			"details": "l1m1",
+			"opp1": "l1m1p1",
+			"opp2": "l1m1p2"
+		},
+		"R1M6": {
+			"details": "l1m2",
+			"opp1": "l1m2p1",
+			"opp2": "l1m2p2"
+		},
+		"R2M3": {
+			"details": "l2m1",
+			"opp1": "l2m1p1",
+			"opp2": "l2m1p2"
+		},
+		"R2M4": {
+			"details": "l2m2",
+			"opp1": "l2m2p1",
+			"opp2": "l2m2p2"
+		},
+		"R3M1": {
+			"details": "l3m1",
+			"opp1": "l3m1p1",
+			"opp2": "l3m1p2"
+		},
+		"R4M2": {
+			"details": "l4m1",
+			"opp1": "l4m1p1",
+			"opp2": "l4m1p2"
+		},
+		"R5M1": {
+			"details": "r5m1",
+			"opp1": "r5m1p1",
+			"opp2": "r5m1p2"
+		}
+	},
+	"Bracket/4L2DS-1Q-U-4L1D-1Q$$2Qual-6DETeamBracket": {
+		"R3M1": {
+			"details": "R4G1",
+			"opp1": "R4W1",
+			"opp2": "R4W2"
+		},
+		"R1M3": {
+			"details": "R2G3",
+			"opp1": "R2D3",
+			"opp2": "R2D4"
+		},
+		"R1M4": {
+			"details": "R2G4",
+			"opp1": "R2D5",
+			"opp2": "R2D6"
+		},
+		"R2M3": {
+			"details": "R3G1",
+			"opp1": "R3W1",
+			"opp2": "R3W2"
+		},
+		"R3M2": {
+			"details": "R4G2",
+			"opp1": "R4D1",
+			"opp2": "R4W3"
+		}
+	}
+}

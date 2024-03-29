@@ -56,6 +56,10 @@ class Match(commonsMatch):
 			f"{indent}|opponent2={str(self.opponents[1])}\n"
 		)
 
+		comment = self.template.getValue('comment')
+		if comment:
+			out += f'{indent}|comment={comment}\n'
+
 		for matchMap in self.maps:
 			index = matchMap.index
 			out += f"{indent}|map{index}={str(matchMap)}\n"
