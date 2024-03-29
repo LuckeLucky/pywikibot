@@ -30,6 +30,7 @@ Examples
 --------
 
 python pwb.py convert_matchgroup -lang:valorant -page:"User:LuckeLucky/sandbox/2" -bracket -oldTemplateId:"LegacyBracket"
+python pwb.py convert_matchgroup -lang:fifa -matchlist -page:"EK League/2022/Preseason/Club" -bracketType:"team" -oldTemplateId:"MatchList"
 
 """
 import sys
@@ -45,6 +46,7 @@ from scripts.utils import get_text, put_text, remove_and_squash
 
 
 BRACKET = 'Bracket'
+MATCHLIST = 'Matchlist'
 MATCHGROUPS = ['singlematch', 'matchlist', 'bracket']
 
 class MatchGroupConverter:
@@ -102,7 +104,7 @@ class MatchGroupConverter:
 		if self.newTemplateId == BRACKET:
 			template.addIfNotHas('1', self.newBracketId)
 			template.addIfNotHas('2', self.oldTemplateId)
-			template.addIfNotHas('type', self.bracketType)
+		template.addIfNotHas('type', self.bracketType)
 		template.addIfNotHas('id', generateId())
 		return template
 
@@ -137,7 +139,6 @@ class MatchGroupConverter:
 				matches: List[Template] = []
 				for key, _ in t.iterateByPrefix('match'):
 					matches.append(Template(t.getNestedTemplate(key)))
-					t.remove(key)
 				newMatchList = self.matchGroupClass(t, matches)
 				wikicode.replace(template, str(newMatchList))
 		return str(wikicode)
@@ -147,23 +148,26 @@ class MatchGroupConverter:
 			matchListStart: Template = None
 			matches: List[Template] = []
 			templatesToRemove: List[Template] = []
+			start = False
 			ends = False
 
 			wikicode = mwparserfromhell.parse(text)
 			for template in wikicode.filter_templates():
 				if template.name.matches(self.oldTemplateId):
+					start = True
 					matchListStart = template
 					matches = []
 					templatesToRemove = []
-				if template.name.matches(self.matchTemplateId):
+				elif start and template.name.matches(self.matchTemplateId):
 					matches.append(Template(template))
 					templatesToRemove.append(template)
-				if template.name.matches(self.endTemplateId):
+				elif start and template.name.matches(self.endTemplateId):
 					templatesToRemove.append(template)
+					start = False
 					ends = True
 					break
 
-			if not ends:
+			if not ends or len(matches) == 0:
 				break
 
 			t: Template = self.addStuffToTemplate(Template(matchListStart))
@@ -204,7 +208,7 @@ def main(*args):
 			if arg == '-nosave':
 				save = False
 			if arg == '-matchliststart':
-				converter.newTemplateId = 'Matchlist'
+				converter.newTemplateId = MATCHLIST
 				converter.isMatchListStart = True
 
 	if not converter.newTemplateId:
