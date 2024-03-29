@@ -17,12 +17,12 @@ class Matchlist:
 			self.matchClass = importClass(self.language, 'Match')
 		self.template: Template = template
 		self.data: Dict[str, commonsMatch | str] = {}
-		self.bracketType: str = 'team'
+		self.bracketType: str = self.template.getValue('type')
 
 		self.matchTemplates: List[Template] = matchTemplates
 		self.args: Dict[str, str] = {}
 		self.args['id'] = self.template.getValue('id')
-		self.args['title'] = self.template.getValue('title')
+		self.args['title'] = self.template.getValue('title') or self.template.getValue('1')
 		self.args['width'] = self.template.getValue('width')
 		if self.template.getBool('hide'):
 			self.args['collapsed'] = 'true'
