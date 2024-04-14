@@ -13,10 +13,10 @@ class Matchlist(commonsMatchlist):
 		name = template.getValue(key)
 		score = template.getValue(scoreKey)
 		if name:
-			return TeamOpponent(name, score)
+			return TeamOpponent(name = name, score = score)
 		name = template.getValue(key + 'dota')
 		if name:
-			return Opponent(name, score)
+			return Opponent(name = name, score = score)
 		return TeamOpponent()
 
 	def getMatch(self, matchTemplate: Template):

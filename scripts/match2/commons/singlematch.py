@@ -1,5 +1,5 @@
 from .template import Template
-from .opponent import Opponent, TeamOpponent
+from .opponent import Opponent, TeamOpponent, SoloOpponent
 from .match import Match as commonsMatch
 from .utils import importClass
 
@@ -13,13 +13,25 @@ class Singlematch:
 		
 		self.template: Template = template
 		self.id: str = self.template.getValue('id')
+		self.bracketType = self.template.getValue('type')
 		self.match: commonsMatch = None
 		self.getMatch()
 
-	def getOpponent(self, key: str, scoreKey: str) -> Opponent:
+	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
 		name = self.template.getValue(key)
 		score = self.template.getValue(scoreKey)
-		return TeamOpponent(name, score)
+		return TeamOpponent(name = name, score = score)
+
+	def getSoloOpponent(self, key: str, scoreKey: str) -> Opponent:
+		name = self.template.getValue(key)
+		score = self.template.getValue(scoreKey)
+		return SoloOpponent(name = name, score = score)
+
+	def getOpponent(self, key: str, scoreKey: str) -> Opponent:
+		opponentGet = getattr(self, 'get' + str(self.bracketType).capitalize() + 'Opponent')
+		if not opponentGet:
+			raise ValueError(self.bracketType + 'is not supported')
+		return opponentGet(key, scoreKey)
 
 	def getMatch(self):
 		opponent1 = self.getOpponent('team1', 'score1')

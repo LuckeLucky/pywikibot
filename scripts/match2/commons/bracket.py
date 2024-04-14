@@ -54,7 +54,7 @@ class Bracket:
 		name = self.template.getValue(key + 'team')
 		score = self.template.getValue(key + scoreKey)
 		if name:
-			return TeamOpponent(name, score)
+			return TeamOpponent(name = name, score = score)
 		return TeamOpponent()
 
 	def getSoloOpponent(self, key: str, scoreKey: str) -> Opponent:
@@ -63,7 +63,7 @@ class Bracket:
 		score = self.template.getValue(key + scoreKey)
 		if (name is None) and (score is None) and (flag is None):
 			return SoloOpponent()
-		return SoloOpponent(name, score, '', flag)
+		return SoloOpponent(name = name, score = score, flag = flag)
 
 	def getOpponent(self, key: str, scoreKey: str = 'score') -> Opponent:
 		opponentGet = getattr(self, 'get' + str(self.bracketType).capitalize() + 'Opponent')

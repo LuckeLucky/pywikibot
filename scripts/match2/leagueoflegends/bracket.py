@@ -6,8 +6,8 @@ class Bracket(commonsBracket):
 		name = self.template.getValue(key + 'team')
 		score = self.template.getValue(key + scoreKey)
 		if name:
-			return TeamOpponent(name, score)
+			return TeamOpponent(name = name, score = score)
 		leagueName = self.template.getValue(key + 'league')
 		if leagueName:
-			return Opponent(leagueName, score)
+			return Opponent(name = leagueName, score = score)
 		return TeamOpponent()

@@ -45,7 +45,7 @@ class Matchlist:
 		name = template.getValue(key)
 		score = template.getValue(scoreKey)
 		if name:
-			return TeamOpponent(name, score)
+			return TeamOpponent(name = name, score = score)
 		return TeamOpponent()
 
 	def getSoloOpponent(self, template: Template, key: str, scoreKey: str) -> Opponent:
@@ -53,7 +53,7 @@ class Matchlist:
 		score = template.getValue(scoreKey)
 		flag = template.getValue(key + 'flag')
 		if name:
-			return SoloOpponent(name, score, '', flag)
+			return SoloOpponent(name = name, score = score, flag = flag)
 		return SoloOpponent()
 
 	def getOpponent(self, template: Template, key: str, scoreKey) -> Opponent:

@@ -1,50 +1,24 @@
 class Opponent:
-	def __init__(self, name: str = '', score: str = ''):
-		self.name = name
-		self.score = score
-
-	def type(self):
-		return 'literal'
+	def __init__(self, opponentType = 'literal', **kwargs):
+		self.kwargs = kwargs
+		self.opponentType: str = opponentType
 
 	def __str__(self) -> str:
-		out = '{{LiteralOpponent|'
-		if self.name:
-			out = out + self.name
-		if self.score:
-			out = out + '|score=' + self.score
+		out = '{{' + self.opponentType.capitalize() + 'Opponent|'
+
+		name = self.kwargs.pop('name', '')
+		if name:
+			out += name
+		for key, value in self.kwargs.items():
+			if value:
+				out += f'|{key}={value}'
 
 		return out + '}}'
 
 class TeamOpponent(Opponent):
-	def type(self):
-		return 'team'
-
-	def __str__(self) -> str:
-		out = '{{TeamOpponent|'
-		if self.name:
-			out = out + self.name
-		if self.score:
-			out = out + '|score=' + self.score
-
-		return out + '}}'
+	def __init__(self, opponentType='team', **kwargs):
+		super().__init__(opponentType, **kwargs)
 
 class SoloOpponent(Opponent):
-	def __init__(self, name: str = '', score: str = '', link: str = '', flag: str = '') -> None:
-		self.link = link
-		self.flag = flag
-		super().__init__(name, score)
-
-	def type(self):
-		return 'solo'
-
-	def __str__(self) -> str:
-		out = '{{SoloOpponent|'
-		if self.name:
-			out = out + self.name
-		if self.link:
-			out = out + '|link=' + self.link
-		if self.flag:
-			out = out + '|flag=' + self.flag
-		if self.score:
-			out = out + '|score=' + self.score
-		return out + '}}'
+	def __init__(self, opponentType='solo', **kwargs):
+		super().__init__(opponentType, **kwargs)
