@@ -32,7 +32,6 @@ class Match(commonsMatch):
 			mapName = self.template.getValue('map' + str(mapIndex))
 			if mapName:
 				newMap = Map(mapIndex, self.template)
-				newMap.indent = '\t\t'
 				print(newMap.indent)
 				self.maps.append(newMap)
 			else:

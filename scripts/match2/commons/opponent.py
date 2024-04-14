@@ -2,6 +2,7 @@ class Opponent:
 	def __init__(self, opponentType = 'literal', **kwargs):
 		self.kwargs = kwargs
 		self.opponentType: str = opponentType
+		self.score: str = self.kwargs['score'] if 'score' in self.kwargs else ''
 
 	def __str__(self) -> str:
 		out = '{{' + self.opponentType.capitalize() + 'Opponent|'

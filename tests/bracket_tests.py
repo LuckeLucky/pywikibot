@@ -44,24 +44,24 @@ class TestBracketLeague(TestCase):
             "\n" +
             "<!-- Grand Final -->\n" +
             "|R1M1={{Match\n" +
-            "\t|opponent1={{TeamOpponent|saw|score=1}}\n" +
-            "\t|opponent2={{TeamOpponent|ftw|score=2}}\n" +
-            "\t|date=December 20, 2023 - 11:00 {{Abbr/CEST}} |finished=true\n" +
-            "\t|winner=2\n" +
-            "\t|twitch=\n" +
-            "\t|hltv=2368518\n" +
-            "\t|map1={{Map|map=Overpass|finished=true\n" +
-            "\t\t|t1firstside=ct|t1t=11|t1ct=5|t2t=10|t2ct=0\n" +
-            "\t\t|stats=168110\n" +
-            "\t}}\n" +
-            "\t|map2={{Map|map=Ancient|finished=true\n" +
-            "\t\t|t1firstside=t|t1t=2|t1ct=0|t2t=3|t2ct=13\n" +
-            "\t\t|stats=168105\n" +
-            "\t}}\n" +
-            "\t|map3={{Map|map=Vertigo|finished=true\n" +
-            "\t\t|t1firstside=t|t1t=14|t1ct=0|t2t=15|t2ct=1\n" +
-            "\t\t|stats=168136\n" +
-            "\t}}\n" +
+            "    |opponent1={{TeamOpponent|saw|score=1}}\n" +
+            "    |opponent2={{TeamOpponent|ftw|score=2}}\n" +
+            "    |date=December 20, 2023 - 11:00 {{Abbr/CEST}} |finished=true\n" +
+            "    |winner=2\n" +
+            "    |twitch=\n" +
+            "    |hltv=2368518\n" +
+            "    |map1={{Map|map=Overpass|finished=true\n" +
+            "        |t1firstside=ct|t1t=11|t1ct=5|t2t=10|t2ct=0\n" +
+            "        |stats=168110\n" +
+            "    }}\n" +
+            "    |map2={{Map|map=Ancient|finished=true\n" +
+            "        |t1firstside=t|t1t=2|t1ct=0|t2t=3|t2ct=13\n" +
+            "        |stats=168105\n" +
+            "    }}\n" +
+            "    |map3={{Map|map=Vertigo|finished=true\n" +
+            "        |t1firstside=t|t1t=14|t1ct=0|t2t=15|t2ct=1\n" +
+            "        |stats=168136\n" +
+            "    }}\n" +
             "}}\n}}"
 		)
 		self.assertEqual(expected, str(bracket))
@@ -104,27 +104,27 @@ class TestBracketLeague(TestCase):
             "\n" +
             "<!-- Grand Final -->\n" +
             "|R1M1={{Match\n" +
-			"  |date=November 27, 2021 - 20:30 {{Abbr/IST}} |finished=true\n"
-            "  |opponent1={{TeamOpponent|ROG Academy|score=1}}\n" +
-            "  |opponent2={{TeamOpponent|S8ul Esports|score=2}}\n" +
-            "  |winner=2\n" +
-            "  |youtube=Skyesports\n" +
-            "  |map1={{Map\n" +
-            "    |t1p1={{PSI|player=BotCydex|agent=skye|kills=9|deaths=18|assists=10|acs=77}}\n" +
-			"    |t1p2={{PSI|player=Equinox|agent=cypher|kills=21|deaths=19|assists=7|acs=235}}\n" +
-			"    |t1p3={{PSI|player=LuDraa|agent=astra|kills=21|deaths=16|assists=10|acs=230}}\n" +
-			"    |t1p4={{PSI|player=Kaizen|agent=jett|kills=22|deaths=19|assists=2|acs=268}}\n" +
-			"    |t1p5={{PSI|player=wondRRRR|agent=sova|kills=17|deaths=16|assists=9|acs=207}}\n" +
+			"    |date=November 27, 2021 - 20:30 {{Abbr/IST}} |finished=true\n"
+            "    |opponent1={{TeamOpponent|ROG Academy|score=1}}\n" +
+            "    |opponent2={{TeamOpponent|S8ul Esports|score=2}}\n" +
+            "    |winner=2\n" +
+            "    |youtube=Skyesports\n" +
+            "    |map1={{Map\n" +
+            "        |t1p1={{PSI|player=BotCydex|agent=skye|kills=9|deaths=18|assists=10|acs=77}}\n" +
+			"        |t1p2={{PSI|player=Equinox|agent=cypher|kills=21|deaths=19|assists=7|acs=235}}\n" +
+			"        |t1p3={{PSI|player=LuDraa|agent=astra|kills=21|deaths=16|assists=10|acs=230}}\n" +
+			"        |t1p4={{PSI|player=Kaizen|agent=jett|kills=22|deaths=19|assists=2|acs=268}}\n" +
+			"        |t1p5={{PSI|player=wondRRRR|agent=sova|kills=17|deaths=16|assists=9|acs=207}}\n" +
 			"\n" +
-			"    |t2p1={{PSI|player=BadmaN|agent=breach|kills=13|deaths=17|assists=11|acs=172}}\n" +
-			"    |t2p2={{PSI|player=Binks|agent=killjoy|kills=11|deaths=20|assists=6|acs=147}}\n" +
-			"    |t2p3={{PSI|player=Ezzy|agent=astra|kills=17|deaths=18|assists=9|acs=181}}\n" +
-			"    |t2p4={{PSI|player=godvexy|agent=sova|kills=15|deaths=17|assists=11|acs=189}}\n" +
-			"    |t2p5={{PSI|player=strixx|agent=jett|kills=32|deaths=18|assists=5|acs=357}}\n" +
+			"        |t2p1={{PSI|player=BadmaN|agent=breach|kills=13|deaths=17|assists=11|acs=172}}\n" +
+			"        |t2p2={{PSI|player=Binks|agent=killjoy|kills=11|deaths=20|assists=6|acs=147}}\n" +
+			"        |t2p3={{PSI|player=Ezzy|agent=astra|kills=17|deaths=18|assists=9|acs=181}}\n" +
+			"        |t2p4={{PSI|player=godvexy|agent=sova|kills=15|deaths=17|assists=11|acs=189}}\n" +
+			"        |t2p5={{PSI|player=strixx|agent=jett|kills=32|deaths=18|assists=5|acs=357}}\n" +
 			"\n" +
-			"    |t1firstside=atk|t1atk=10|t1def=3|t2atk=9|t2def=2\n" +
-			"    |map=Haven|finished=true|length=49:24|winner=1\n"
-			"  }}\n" +
+			"        |t1firstside=atk|t1atk=10|t1def=3|t2atk=9|t2def=2\n" +
+			"        |map=Haven|finished=true|length=49:24|winner=1\n"
+			"    }}\n" +
 			"}}\n}}"
 		)
 
@@ -137,7 +137,7 @@ class TestBracketLeague(TestCase):
 		fakeTemplate.add('nested', '{{foo|bar=1}}')
 		fakeTemplate.add('ff', 'olas')
 
-		match = Match([TeamOpponent('saw', '1'), TeamOpponent('ftw', '0')], fakeTemplate)
+		match = Match([TeamOpponent(name = 'saw', score = '1'), TeamOpponent(name = 'ftw', score = '0')], fakeTemplate)
 
 		csClass = importClass('counterstrike', 'Bracket')
 		isValidReset = csClass.isMatchValidResetOrThird
