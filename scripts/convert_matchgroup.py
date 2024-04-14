@@ -82,8 +82,11 @@ class MatchGroupConverter:
 		return f'Convert {self.oldTemplateId} to Match2'
 
 	def check(self):
-		if self.oldTemplateId == '':
+		if not self.oldTemplateId:
 			self.oldTemplateId = pywikibot.input('Old template id:')
+		if not self.bracketType:
+			self.bracketType = self.bracketType or pywikibot.input('Bracket type:')
+
 		if self.oldTemplateId.startswith('Legacy'):
 			self.isLegacy = True
 
@@ -91,7 +94,6 @@ class MatchGroupConverter:
 
 		if self.newTemplateId == BRACKET and not self.isLegacy:
 			self.newBracketId = self.newBracketId or pywikibot.input('New bracket id:')
-			self.bracketType = self.bracketType or pywikibot.input('Bracket type:')
 
 		if self.isMatchListStart:
 			self.matchTemplateId = self.matchTemplateId or pywikibot.input('Match template id:')
@@ -125,7 +127,7 @@ class MatchGroupConverter:
 		wikicode = mwparserfromhell.parse(text)
 		for template in wikicode.filter_templates():
 			if template.name.matches(self.oldTemplateId):
-				t = self.addStuffToTemplate(Template(template))
+				t = self.addStuffToTemplate(Template(template, removeComments=True))
 				newSingleMatch = self.matchGroupClass(t)
 				wikicode.replace(template, str(newSingleMatch))
 
