@@ -10,10 +10,10 @@ class Singlematch:
 	def __init__(self, template: Template) -> None:
 		if self.matchClass is None:
 			self.matchClass = importClass(self.language, 'Match')
-		
+
 		self.template: Template = template
 		self.id: str = self.template.getValue('id')
-		self.bracketType = self.template.getValue('type')
+		self.bracketType: str = self.template.getValue('type')
 		self.match: commonsMatch = None
 		self.getMatch()
 
