@@ -16,7 +16,8 @@ DOTA_PARAMS = STREAMS + [
 	'bestgg',
 	'interview',
 	'review',
-	'recap'
+	'recap',
+	'replay'
 ]
 
 class Match(commonsMatch):
@@ -50,7 +51,7 @@ class Match(commonsMatch):
 		for key, value in self.template.iterateByItemsMatch(DOTA_PARAMS):
 			out += f"|{key}={value}\n"
 
-		for key, value in self.template.iterateByPrefix('vodgame'):
+		for key, value in self.template.iterateByPrefix('vodgame', ignoreEmpty=True):
 			out += f"|{key}={value}\n"
 
 		for key, value in self.template.iterateByPrefix('matchid'):

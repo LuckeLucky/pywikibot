@@ -1,10 +1,10 @@
 from ..commons.match import Match as commonsMatch, STREAMS
+from ..commons.template import Template
 
 from .map import Map
 
 MAX_NUMBER_OF_MAPS = 21
 STARCRAFT_PARAMS = STREAMS + [
-	'bestof',
 	'review',
 	'lrthread',
 	'preview',
@@ -16,20 +16,39 @@ STARCRAFT_PARAMS = STREAMS + [
 
 class Match(commonsMatch):
 	def getMaps(self):
+		lastIndex = 0
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
-			prefix = 'map'
-			mapName = self.template.getValue(prefix + str(mapIndex))
-			winner = self.template.getValue(prefix + 'win')
-			if self.template.name in ['FTeamMatch', 'BracketTeamMatch', 'Proleague06Match', 'Proleague04-05Match']:
-				prefix = 'm'
-				mapName = self.template.getValue('m' + str(mapIndex) + 'map')
-				if mapName:
-					self.template.remove('m' + str(mapIndex) + 'map')
-					self.template.add('m' + str(mapIndex), mapName)
-				winner = self.template.getValue('m' + str(mapIndex) + 'win')
-			if mapName or winner:
+			prefix = 'm' + str(mapIndex)
+			mapName = self.template.getfirstValueFound([prefix + 'map', 'map' + str(mapIndex)])
+			if mapName:
+				self.template.add(prefix, mapName)
+
+			winner = self.template.getfirstValueFound([prefix + 'win', 'win' + str(mapIndex)])
+			if winner:
+				self.template.add(prefix + 'win', winner)
+			score = self.template.getfirstValueFound([prefix + 'p1score', prefix + 'p2score'])
+			player = self.template.getfirstValueFound([prefix + 'p1', prefix + 'p2'])
+			if mapName or winner or score or player:
 				newMap = Map(mapIndex, self.template)
-				newMap.prefix = prefix + str(mapIndex)
+				newMap.prefix = prefix
+				self.maps.append(newMap)
+				lastIndex = mapIndex
+			else:
+				break
+
+		hasHeader = False
+		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
+			lastIndex = lastIndex + 1
+			newKey = f'm{lastIndex}'
+
+			if self.template.getfirstValueFound([f'ace{mapIndex}p1', f'ace{mapIndex}p2']):
+				for key, value in self.template.iterateByPrefix('ace1'):
+					self.template.add(key.replace('ace1', newKey), value)
+				if not hasHeader:
+					self.template.add(f'subgroup{lastIndex}header', 'Ace Match')
+					hasHeader = True
+				newMap = Map(lastIndex, self.template)
+				newMap.prefix = newKey
 				self.maps.append(newMap)
 			else:
 				break
@@ -38,7 +57,7 @@ class Match(commonsMatch):
 		indent = self.indent
 		opponent1 = self.opponents[0]
 		opponent2 = self.opponents[1]
-		out = ('{{Match\n' +
+		out = ('{{Match' + (f'|bestof={self.template.getValue('bestof')}\n' if self.template.getValue('bestof') else '\n') +
 		 	f'{indent}|date={self.template.getValue('date')}' +
 			(f'|finished={self.template.getValue('finished')}\n' if self.template.getValue('finished') else '\n') +
 			f'{indent}|opponent1={str(opponent1)}\n' +
@@ -52,11 +71,18 @@ class Match(commonsMatch):
 		for key, value in self.template.iterateByItemsMatch(STARCRAFT_PARAMS):
 			out += f"{indent}|{key}={value}\n"
 
-		for key, value in self.template.iterateByPrefix('vodgame'):
+		for key, value in self.template.iterateByPrefix('vodgame', ignoreEmpty=True):
 			out += f"{indent}|{key}={value}\n"
+
+		for key, value in self.template.iterateByPrefix('veto', ignoreEmpty=True):
+			num = key[-1]
+			out += f"{indent}|{key}={value}|vetoplayer{num}={num}\n"
 
 		for matchMap in self.maps:
 			index = matchMap.index
+			header = self.template.getValue(f'subgroup{index}header')
+			if header:
+				out += f'{indent}|subgroup{index}header={header}\n'
 			out += f"{indent}|map{index}={str(matchMap)}\n"
 
 		out += "}}"

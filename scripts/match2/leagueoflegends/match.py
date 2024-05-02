@@ -60,7 +60,7 @@ class Match(commonsMatch):
 		if comment:
 			out += f"{indent}|comment={comment}\n"
 
-		for key, value in self.template.iterateByPrefix('vodgame'):
+		for key, value in self.template.iterateByPrefix('vodgame', ignoreEmpty=True):
 			out += f"{indent}|{key}={value}\n"
 
 		for key, value in self.template.iterateByPrefix('matchhistory'):

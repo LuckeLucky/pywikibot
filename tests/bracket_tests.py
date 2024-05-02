@@ -167,3 +167,74 @@ class TestBracketLeague(TestCase):
 
 		match.opponents[0].score = '1'
 		self.assertEqual(True, isValidReset(match, True, RESET_MATCH))
+
+
+	def testMapConversionStarcraftMatchMaps2v2(self):
+		text = """
+		{{MatchMaps/Legacy2v2
+		|player1=Szinkler
+		|player3=Xenoma
+		|player2=Cuervin
+		|player4=Shinovy
+		|winner=1
+		}}
+		"""
+		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
+		oldTemplate = Template(oldTemplate)
+		mapClass = importClass('starcraft', 'Map')
+
+		newMap = mapClass(1, oldTemplate)
+		expected = '{{Map|map=|winner=1|t1p1=Szinkler|t1p2=Xenoma|t2p1=Cuervin|t2p2=Shinovy}}'
+		self.assertEqual(expected, str(newMap))
+
+	def testMapConversionStarcraftMatchMaps(self):
+		text = """
+		{{MatchMaps/Legacy
+		|player1=Szinkler
+		|player2=Cuervin
+		|winner=1
+		}}
+		"""
+
+		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
+		oldTemplate = Template(oldTemplate)
+		mapClass = importClass('starcraft', 'Map')
+
+		newMap = mapClass(1, oldTemplate)
+		expected = '{{Map|map=|winner=1|t1p1=Szinkler|t2p1=Cuervin}}'
+		self.assertEqual(expected, str(newMap))
+
+		
+	def testProLeague(self):
+		text = """
+		{{ProleagueMatch
+		|m1p1=Szinkler
+		|m1p2=Cuervin
+		|m1win=1
+		}}
+		"""
+
+		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
+		oldTemplate = Template(oldTemplate)
+		mapClass = importClass('starcraft', 'Map')
+		newMap = mapClass(1, oldTemplate)
+		newMap.prefix = 'm1'
+		expected = '{{Map|map=|winner=1|t1p1=Szinkler|t2p1=Cuervin}}'
+		self.assertEqual(expected, str(newMap))
+
+	def testProLeague2v2(self):
+		text = """
+		{{Proleague04-05Match
+		|m1p1=Szinkler
+		|m1p3=Cuervin
+		|m1win=1
+		}}
+		"""
+
+		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
+		oldTemplate = Template(oldTemplate)
+		mapClass = importClass('starcraft', 'Map')
+		newMap = mapClass(1, oldTemplate)
+		newMap.prefix = 'm1'
+		expected = '{{Map|map=|winner=1|t1p1=Szinkler|t2p1=Cuervin}}'
+		self.assertEqual(expected, str(newMap))
