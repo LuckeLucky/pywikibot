@@ -84,11 +84,12 @@ class MatchGroupConverter:
 	def check(self):
 		if not self.oldTemplateId:
 			self.oldTemplateId = pywikibot.input('Old template id:')
-		if not self.bracketType:
-			self.bracketType = self.bracketType or pywikibot.input('Bracket type:')
 
 		if self.oldTemplateId.startswith('Legacy'):
 			self.isLegacy = True
+
+		if not self.bracketType and self.oldTemplateId != 'LegacyBracket':
+			self.bracketType = self.bracketType or pywikibot.input('Bracket type:')
 
 		self.matchGroupClass = importClass(self.language, self.newTemplateId)
 
