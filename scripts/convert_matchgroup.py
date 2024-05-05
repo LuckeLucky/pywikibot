@@ -102,7 +102,7 @@ class MatchGroupConverter:
 
 
 	def addStuffToTemplate(self, template):
-		if self.isLegacy:
+		if self.oldTemplateId == 'LegacyBracket':
 			return template
 		if self.newTemplateId == BRACKET:
 			template.addIfNotHas('1', self.newBracketId)
