@@ -56,7 +56,7 @@ class Matchlist:
 			return SoloOpponent(name = name, score = score, flag = flag)
 		return SoloOpponent()
 
-	def getOpponent(self, template: Template, key: str, scoreKey) -> Opponent:
+	def getOpponent(self, template: Template, key: str, scoreKey: str) -> Opponent:
 		opponentGet = getattr(self, 'get' + str(self.bracketType).capitalize() + 'Opponent')
 		if not opponentGet:
 			raise ValueError(self.bracketType + 'is not supported')
