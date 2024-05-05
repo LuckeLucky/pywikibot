@@ -63,7 +63,7 @@ class Map(commonsMap):
 		isDuo = self.template.getValue(self.prefix + 'p3') != ''
 		out += self.getPlayersStr(isDuo, lambda pIndex: f'{self.prefix}p{pIndex}')
 
-		vod = self.template.getfirstValueFound([self.prefix + 'vod', f'vodgame{self.index}', f'vod{self.index}'])
+		vod = self.template.getfirstValueFound([self.prefix + 'vod', f'vod{self.index}'])
 		if vod:
 			out += f'|vod={vod}'
 
