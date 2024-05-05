@@ -1,6 +1,3 @@
-import sys
-from typing import List
-
 import mwparserfromhell
 
 import pywikibot
@@ -8,6 +5,7 @@ from pywikibot import pagegenerators
 from scripts.match2.commons.template import Template
 from scripts.match2.commons.utils import generateId, importClass
 from scripts.utils import get_text, put_text, remove_and_squash
+
 
 MAX_NUMBER_OF_MAPS = 21
 

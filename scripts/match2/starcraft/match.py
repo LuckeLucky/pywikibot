@@ -1,5 +1,4 @@
 from ..commons.match import Match as commonsMatch, STREAMS
-from ..commons.template import Template
 
 from .map import Map
 
