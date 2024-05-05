@@ -26,13 +26,15 @@ class Singlematch(CommonsSinglematch):
 		scoreKey = ''
 		details = None
 		if self.template.name in ['FTeamMatch', 'Proleague06Match', 'Proleague04-05Match',
-							'TeamMatch', 'TeamMatchBo3', 'TeamMatchWith2v2', 'ProleagueMatchBo9', 'ProleagueMatch']:
+							'TeamMatch', 'TeamMatchBo3', 'TeamMatchWith2v2', 'ProleagueMatchBo9', 'ProleagueMatch', 'TeamMatchListHeader']:
 			opponentKey = 'team$'
 			details = self.template
-			if self.template.name in ['TeamMatch', 'TeamMatchBo3', 'TeamMatchWith2v2']:
+			if self.template.name in ['TeamMatch', 'TeamMatchBo3', 'TeamMatchWith2v2', 'TeamMatchListHeader']:
 				self.template.add('team1', self.template.getfirstValueFound(['team1', 'team1short', 'team1literal']))
 				self.template.add('team2', self.template.getfirstValueFound(['team2', 'team2short', 'team2literal']))
 				self.template.add('winner', self.template.getValue('teamwin'))
+			if self.template.name == 'TeamMatchListHeader':
+				scoreKey = 'team$score'
 		elif self.template.name == 'MatchSummary':
 			opponentKey = '$'
 			details = self.template
