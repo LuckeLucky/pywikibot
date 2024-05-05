@@ -5,6 +5,7 @@ from .map import Map
 
 MAX_NUMBER_OF_MAPS = 21
 STARCRAFT_PARAMS = STREAMS + [
+	'walkover',
 	'review',
 	'lrthread',
 	'preview',
@@ -23,7 +24,7 @@ class Match(commonsMatch):
 			if mapName:
 				self.template.add(prefix, mapName)
 
-			winner = self.template.getfirstValueFound([prefix + 'win', 'win' + str(mapIndex)])
+			winner = self.template.getfirstValueFound([prefix + 'win', 'win' + str(mapIndex), f'map{mapIndex}win'])
 			if winner:
 				self.template.add(prefix + 'win', winner)
 			score = self.template.getfirstValueFound([prefix + 'p1score', prefix + 'p2score'])
