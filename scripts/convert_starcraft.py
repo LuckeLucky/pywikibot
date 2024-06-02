@@ -21,9 +21,9 @@ def getSingleMatch(template) -> object:
 	return singleMatchClass(t)
 
 def copyDateAndVod(singleMatch, t):
-	if t.getValue('date'):
+	if t.getValue('date') and not singleMatch.match.template.getValue('date'):
 		singleMatch.match.template.add('date', t.getValue('date'))
-	if t.getValue('vod'):
+	if t.getValue('vod') and not singleMatch.match.template.getValue('vod'):
 		singleMatch.match.template.add('vod', t.getValue('vod'))
 
 def handleMatchLegacy(singleMatch, nested):
@@ -102,6 +102,7 @@ def convert(text: str) -> str:
 					nested = Template(t.getNestedTemplate(key))
 					if first:
 						copyDateAndVod(singleMatch, nested)
+						copyDateAndVod(singleMatch, t)
 						first = False
 
 					handleMatchLegacy(singleMatch, nested)

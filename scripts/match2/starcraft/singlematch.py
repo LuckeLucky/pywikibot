@@ -26,7 +26,8 @@ class Singlematch(CommonsSinglematch):
 		scoreKey = ''
 		details = None
 		if self.template.name in ['FTeamMatch', 'Proleague06Match', 'Proleague04-05Match',
-							'TeamMatch', 'TeamMatchBo3', 'TeamMatchWith2v2', 'ProleagueMatchBo9', 'ProleagueMatch', 'TeamMatchListHeader']:
+							'TeamMatch', 'TeamMatchBo3', 'TeamMatchWith2v2', 'ProleagueMatchBo9', 'ProleagueMatch',
+							'TeamMatchListHeader', 'ProleagueMatchNL']:
 			opponentKey = 'team$'
 			details = self.template
 			if self.template.name in ['TeamMatch', 'TeamMatchBo3', 'TeamMatchWith2v2', 'TeamMatchListHeader']:
