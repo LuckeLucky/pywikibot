@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from .template import Template
+from .templateutils import TemplateUtils
 from .match import Match as commonsMatch
 from .opponent import Opponent, SoloOpponent, TeamOpponent
 
@@ -11,7 +12,7 @@ MAX_NUMBER_OPPONENTS = 2
 RESET_MATCH = 'RxMBR'
 THIRD_PLACE_MATCH = 'RxMTP'
 
-class Bracket:
+class Bracket(TemplateUtils):
 	language: str = None
 	matchClass: commonsMatch = None
 	bDM: BracketDataManager = None
@@ -38,29 +39,29 @@ class Bracket:
 			self.bDM = BracketDataManager(self.language)
 		if self.matchClass is None:
 			self.matchClass = importClass(self.language, 'Match')
-		self.template: Template = template
+		super().__init__(template)
 		self.data: Dict[str, commonsMatch | str] = {}
 
-		self.newTemplateId: str = self.template.getValue('1')
-		self.oldTemplateId: str = self.template.getValue('2')
-		self.bracketType: str = self.template.getValue('type')
-		self.bracketid: str = self.template.getValue('id')
+		self.newTemplateId: str = self.getValue('1')
+		self.oldTemplateId: str = self.getValue('2')
+		self.bracketType: str = self.getValue('type')
+		self.bracketid: str = self.getValue('id')
 		self.mappingKey: str = self.newTemplateId + '$$' + self.oldTemplateId
 
 		if self.newTemplateId not in self.bDM.defaultMapping:
 			self.bDM.loadDefaultMapping(self.newTemplateId)
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = self.template.getValue(key + 'team')
-		score = self.template.getValue(key + scoreKey)
+		name = self.getValue(key + 'team')
+		score = self.getValue(key + scoreKey)
 		if name:
 			return TeamOpponent(name = name, score = score)
 		return TeamOpponent()
 
 	def getSoloOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = self.template.getValue(key)
-		flag = self.template.getValue(key + 'flag')
-		score = self.template.getValue(key + scoreKey)
+		name = self.getValue(key)
+		flag = self.getValue(key + 'flag')
+		score = self.getValue(key + scoreKey)
 		if (name is None) and (score is None) and (flag is None):
 			return SoloOpponent()
 		return SoloOpponent(name = name, score = score, flag = flag)
@@ -79,9 +80,9 @@ class Bracket:
 		return None
 
 	def getWinner(self, team1Key: str, team2Key) -> str:
-		if self.template.getValue(team1Key + 'win'):
+		if self.getValue(team1Key + 'win'):
 			return '1'
-		if self.template.getValue(team2Key + 'win'):
+		if self.getValue(team2Key + 'win'):
 			return '2'
 		return ''
 
@@ -100,7 +101,7 @@ class Bracket:
 				reset = True
 
 			if 'header' in match1Params:
-				header = self.template.getValue(match1Params['header'])
+				header = self.getValue(match1Params['header'])
 				if header:
 					self.data[roundParam + 'header'] = header
 

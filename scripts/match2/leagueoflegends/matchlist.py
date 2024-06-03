@@ -8,7 +8,7 @@ MAX_NUM_MAPS = 10
 class Matchlist(commonsMatchlist):
 	def __init__(self, template: Template, matchTemplates: List[Template]):
 		super().__init__(template, matchTemplates)
-		self.args['patch'] = self.template.getValue('patch')
+		self.args['patch'] = self.getValue('patch')
 
 	def getMatch(self, matchTemplate: Template):
 		opp1 = self.getOpponent(matchTemplate, 'team1', 'score1')

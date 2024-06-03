@@ -32,16 +32,16 @@ class Match(commonsMatch):
 		indent = self.indent
 		out = (
 			'{{Match' +
-			f'|finished={self.template.getValue('finished')}\n'
+			f'|finished={self.getValue('finished')}\n'
 		)
 
-		if self.template.getValue('hasSubmatches'):
+		if self.getValue('hasSubmatches'):
 			out += f'{indent}|hasSubmatches=1\n'
 
 		out = (
 			out +
-			f"{indent}|winner={self.template.getValue('winner')}\n" +
-			f"{indent}|date={self.template.getValue('date')}\n"
+			f"{indent}|winner={self.getValue('winner')}\n" +
+			f"{indent}|date={self.getValue('date')}\n"
 		)
 
 		streams = ''
@@ -56,7 +56,7 @@ class Match(commonsMatch):
 			f"{indent}|opponent2={str(self.opponents[1])}\n"
 		)
 
-		comment = self.template.getValue('comment')
+		comment = self.getValue('comment')
 		if comment:
 			out += f'{indent}|comment={comment}\n'
 

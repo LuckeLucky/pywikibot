@@ -10,7 +10,7 @@ class Map(commonsMap):
 	def __str__(self) -> str:
 		indent = self.indent
 		out = ("{{Map\n" +
-			f"{indent}|team1side={self.template.getValue('team1side')}\n"
+			f"{indent}|team1side={self.getValue('team1side')}\n"
 		)
 
 		team1picks = self.getPrefixedParams('t1c')
@@ -20,7 +20,7 @@ class Map(commonsMap):
 		if team1bans:
 			out += f"{indent}{team1bans}\n"
 
-		out = out + f"{indent}|team2side={self.template.getValue('team2side')}\n"
+		out = out + f"{indent}|team2side={self.getValue('team2side')}\n"
 
 		team2picks = self.getPrefixedParams('t2c')
 		if team2picks:
@@ -29,8 +29,8 @@ class Map(commonsMap):
 		if team2bans:
 			out += f"{indent}{team2bans}\n"
 
-		out += f"{indent}|length={self.template.getValue('length')}"
-		out += f" |winner={self.template.getValue('win')}\n"
+		out += f"{indent}|length={self.getValue('length')}"
+		out += f" |winner={self.getValue('win')}\n"
 
 		out += indent[:len(indent)//2] + "}}"
 		return out

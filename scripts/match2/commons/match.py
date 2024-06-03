@@ -2,6 +2,7 @@ from typing import List
 
 from .template import Template
 from .opponent import Opponent
+from .templateutils import TemplateUtils
 
 STREAMS = [
 	'stream',
@@ -24,13 +25,11 @@ STREAMS = [
 	'youtube',
 ]
 
-class Match:
+class Match(TemplateUtils):
 	def __init__(self, opponents: List[Opponent], template: Template) -> None:
 		self.indent = '    '
 		self.opponents: List[Opponent] = opponents
-		self.template: Template = template
-		if not self.template:
-			self.template = Template.createFakeTemplate()
+		super().__init__(template)
 		self.maps: List = []
 
 		self.getMaps()
@@ -45,10 +44,10 @@ class Match:
 		out = ("{{Match\n" +
 			f"{indent}|opponent1={str(opponent1)}\n" +
 			f"{indent}|opponent2={str(opponent2)}\n" +
-			f"{indent}|date={self.template.getValue('date')}\n"
-			f"{indent}|finished={self.template.getValue('finished')}\n")
+			f"{indent}|date={self.getValue('date')}\n"
+			f"{indent}|finished={self.getValue('finished')}\n")
 
-		winner = self.template.getValue('winner')
+		winner = self.getValue('winner')
 		if winner:
 			out += f"{indent}|winner={winner}\n"
 

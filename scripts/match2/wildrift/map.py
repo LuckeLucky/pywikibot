@@ -10,14 +10,14 @@ class Map(commonsMap):
 	def __str__(self) -> str:
 		indent = self.indent
 		out = "{{Map\n"
-		vod = self.template.getValue('vod')
+		vod = self.getValue('vod')
 		if vod:
 			out += f"|vod={vod}\n"
 		out += (
-			f"{indent}|team1side={self.template.getValue('team1side')}" +
-			f"|team2side={self.template.getValue('team2side')}" +
-			f"|length={self.template.getValue('length')}"
-			f"|winner={self.template.getValue('win')}\n"
+			f"{indent}|team1side={self.getValue('team1side')}" +
+			f"|team2side={self.getValue('team2side')}" +
+			f"|length={self.getValue('length')}"
+			f"|winner={self.getValue('win')}\n"
 		)
 
 		team1picks = self.getPrefixedParams('t1c')

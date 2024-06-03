@@ -56,23 +56,23 @@ class Map(commonsMap):
 	def __str__(self) -> str:
 		mapValue, winner = None, None
 		if self.template.name.matches('Match/old'):
-			mapValue = self.template.getValue('map')
-			winner = self.template.getValue('win')
+			mapValue = self.getValue('map')
+			winner = self.getValue('win')
 		else:
-			mapValue = self.template.getValue(self.prefix)
-			winner = self.template.getValue(self.prefix + 'win')
+			mapValue = self.getValue(self.prefix)
+			winner = self.getValue(self.prefix + 'win')
 
 		out = ("{{Map" +
 		 	f'|map={mapValue}'
 			f'|mode={self.getMode(mapValue)}'
 		)
 
-		score = self.template.getValue(self.prefix + 'score')
+		score = self.getValue(self.prefix + 'score')
 		if score and '-' in score:
 			splitScore = score.split('-', 1)
 			out += f'|score1={splitScore[0]}|score2={splitScore[1]}'
 
-		vod = self.template.getValue('vodgame' + str(self.index))
+		vod = self.getValue('vodgame' + str(self.index))
 		if vod:
 			out += f'|vod={vod}'
 

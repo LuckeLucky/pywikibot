@@ -1,9 +1,10 @@
 from .template import Template
+from .templateutils import TemplateUtils
 from .opponent import Opponent, TeamOpponent, SoloOpponent
 from .match import Match as commonsMatch
 from .utils import importClass
 
-class Singlematch:
+class Singlematch(TemplateUtils):
 	language: str = None
 	matchClass: commonsMatch = None
 
@@ -11,20 +12,20 @@ class Singlematch:
 		if self.matchClass is None:
 			self.matchClass = importClass(self.language, 'Match')
 
-		self.template: Template = template
-		self.id: str = self.template.getValue('id')
-		self.bracketType: str = self.template.getValue('type')
+		super().__init__(template)
+		self.id: str = self.getValue('id')
+		self.bracketType: str = self.getValue('type')
 		self.match: commonsMatch = None
 		self.getMatch()
 
 	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = self.template.getValue(key)
-		score = self.template.getValue(scoreKey)
+		name = self.getValue(key)
+		score = self.getValue(scoreKey)
 		return TeamOpponent(name = name, score = score)
 
 	def getSoloOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = self.template.getValue(key)
-		score = self.template.getValue(scoreKey)
+		name = self.getValue(key)
+		score = self.getValue(scoreKey)
 		return SoloOpponent(name = name, score = score)
 
 	def getOpponent(self, key: str, scoreKey: str) -> Opponent:
@@ -36,7 +37,7 @@ class Singlematch:
 	def getMatch(self):
 		opponent1 = self.getOpponent('team1', 'score1')
 		opponent2 = self.getOpponent('team2', 'score2')
-		winner = self.template.getValue('win')
+		winner = self.getValue('win')
 		details = self.template.getNestedTemplate('details')
 		if winner:
 			if not details:

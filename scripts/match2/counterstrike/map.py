@@ -28,7 +28,7 @@ SKIP = 'skip'
 class Map(commonsMap):
 	def __init__(self, index: int, template: Template) -> None:
 		super().__init__(index, template)
-		winner = self.template.getValue(self.prefix + 'win')
+		winner = self.getValue(self.prefix + 'win')
 		if winner in ['1', '2', '0']:
 			self.winner = int(winner)
 			self.finished = 'true'
@@ -41,7 +41,7 @@ class Map(commonsMap):
 		else:
 			self.winner = ''
 			self.finished = ''
-		score = self.template.getValue(self.prefix + 'score')
+		score = self.getValue(self.prefix + 'score')
 		self.score = score.split('-', 1)
 		strIndex = str(self.index)
 		self.links = [x + strIndex for x in MAP_LINKS]
@@ -50,17 +50,17 @@ class Map(commonsMap):
 		result = ""
 		halfKey = self.prefix + halfKey
 		for key in [halfKey + 't1firstside', halfKey + 't1t', halfKey + 't1ct', halfKey + 't2t', halfKey + 't2ct']:
-			val = self.template.getValue(key)
+			val = self.getValue(key)
 			if val:
 				result += f"|{key.replace(self.prefix, '')}={val}"
 		return result
 
 	def __str__(self) -> str:
 		if self.finished == SKIP:
-			return f"{{{{Map|map={self.template.getValue(self.prefix)} |finished={self.finished}}}}}\n"
+			return f"{{{{Map|map={self.getValue(self.prefix)} |finished={self.finished}}}}}\n"
 
 		indent = self.indent
-		out = f"{{{{Map|map={self.template.getValue(self.prefix)}"
+		out = f"{{{{Map|map={self.getValue(self.prefix)}"
 
 		if len(self.score) == 2:
 			out += f"|score1={self.score[0]}|score2={self.score[1]}"
@@ -85,10 +85,10 @@ class Map(commonsMap):
 			suffix = key.removesuffix(str(self.index))
 			links += f"|{suffix}={value}"
 
-		vod = self.template.getValue('vodgame' + str(self.index))
+		vod = self.getValue('vodgame' + str(self.index))
 		if vod:
 			links += f"|vod={vod}"
-		vod2 = self.template.getValue('2vodgame' + str(self.index))
+		vod2 = self.getValue('2vodgame' + str(self.index))
 		if vod2:
 			links += f"|vod2={vod2}"
 

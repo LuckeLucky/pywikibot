@@ -6,7 +6,7 @@ from ..commons.matchlist import Matchlist as commonsMatchlist
 class Matchlist(commonsMatchlist):
 	def __init__(self, template: Template, matchTemplates: List[Template]):
 		super().__init__(template, matchTemplates)
-		self.args['matchsection'] = self.template.getValue('matchsection')
+		self.args['matchsection'] = self.getValue('matchsection')
 
 	def getMatch(self, matchTemplate: Template):
 		opp1 = self.getOpponent(matchTemplate, 'team1', 'games1')

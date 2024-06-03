@@ -10,11 +10,11 @@ class Singlematch(CommonsSinglematch):
 		if self.template.name == 'MatchSummary':
 			keyMaker = lambda key, prefix: prefix + key
 
-		name = self.template.getValue(keyMaker(key, ''))
-		link = self.template.getValue(keyMaker(key, 'link'))
-		flag = self.template.getValue(keyMaker(key, 'flag'))
-		race = self.template.getValue(keyMaker(key, 'race'))
-		score = self.template.getValue(scoreKey)
+		name = self.getValue(keyMaker(key, ''))
+		link = self.getValue(keyMaker(key, 'link'))
+		flag = self.getValue(keyMaker(key, 'flag'))
+		race = self.getValue(keyMaker(key, 'race'))
+		score = self.getValue(scoreKey)
 
 		if link == 'false':
 			link = ''
@@ -33,7 +33,7 @@ class Singlematch(CommonsSinglematch):
 			if self.template.name in ['TeamMatch', 'TeamMatchBo3', 'TeamMatchWith2v2', 'TeamMatchListHeader']:
 				self.template.add('team1', self.template.getfirstValueFound(['team1', 'team1short', 'team1literal']))
 				self.template.add('team2', self.template.getfirstValueFound(['team2', 'team2short', 'team2literal']))
-				self.template.add('winner', self.template.getValue('teamwin'))
+				self.template.add('winner', self.getValue('teamwin'))
 			if self.template.name == 'TeamMatchListHeader':
 				scoreKey = 'team$score'
 		elif self.template.name == 'MatchSummary':
@@ -42,7 +42,7 @@ class Singlematch(CommonsSinglematch):
 		elif self.template.name == 'Showmatch':
 			opponentKey = 'p$'
 			scoreKey = 'score'
-			winner = self.template.getValue('win')
+			winner = self.getValue('win')
 			details = self.template.getNestedTemplate('details')
 			if winner:
 				if not details:
@@ -52,7 +52,7 @@ class Singlematch(CommonsSinglematch):
 		elif self.template.name == 'TeamMatchListHeader':
 			opponentKey = 'team$'
 			scoreKey = 'team$score'
-			winner = self.template.getValue('teamwin')
+			winner = self.getValue('teamwin')
 			if winner:
 				self.template.add('winner', winner)
 			details = self.template

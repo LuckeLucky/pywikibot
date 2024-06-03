@@ -28,8 +28,8 @@ class Match(commonsMatch):
 	def getMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
 			mapTemplate = self.template.getNestedTemplate('match' + str(mapIndex))
-			mapWinner = self.template.getValue('map' + str(mapIndex) + 'win')
-			mapVod = self.template.getValue('vodgame' + str(mapIndex))
+			mapWinner = self.getValue('map' + str(mapIndex) + 'win')
+			mapVod = self.getValue('vodgame' + str(mapIndex))
 			if mapTemplate is None and (mapWinner or mapVod):
 				mapTemplate = Template.createFakeTemplate()
 			if not mapTemplate:
@@ -47,11 +47,11 @@ class Match(commonsMatch):
 		opponent1 = self.opponents[0]
 		opponent2 = self.opponents[1]
 		out = ("{{Match\n" +
-		 	f"{indent}|bestof={self.template.getValue('bestof')}\n" +
-			f"{indent}|date={self.template.getValue('date')}" +
-			f" |finished={self.template.getValue('finished')}\n"
+		 	f"{indent}|bestof={self.getValue('bestof')}\n" +
+			f"{indent}|date={self.getValue('date')}" +
+			f" |finished={self.getValue('finished')}\n"
 		)
-		winner = self.template.getValue('winner')
+		winner = self.getValue('winner')
 		if winner:
 			out += f"{indent}|winner={winner}\n"
 
@@ -71,8 +71,8 @@ class Match(commonsMatch):
 			index = matchMap.index
 			out += f"{indent}|map{index}={str(matchMap)}\n"
 
-		location = self.template.getValue('location')
-		comment = self.template.getValue('comment')
+		location = self.getValue('location')
+		comment = self.getValue('comment')
 		if location:
 			if comment:
 				comment = comment + '<br/>' + location

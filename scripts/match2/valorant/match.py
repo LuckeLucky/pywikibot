@@ -30,7 +30,7 @@ class Match(commonsMatch):
 
 	def getMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
-			mapName = self.template.getValue('map' + str(mapIndex))
+			mapName = self.getValue('map' + str(mapIndex))
 			if mapName:
 				newMap = Map(mapIndex, self.template)
 				self.maps.append(newMap)
@@ -42,12 +42,12 @@ class Match(commonsMatch):
 		opponent1 = self.opponents[0]
 		opponent2 = self.opponents[1]
 		out = ("{{Match\n" +
-		 	f"{indent}|date={self.template.getValue('date')}" +
-			f" |finished={self.template.getValue('finished')}\n"
+		 	f"{indent}|date={self.getValue('date')}" +
+			f" |finished={self.getValue('finished')}\n"
 			f"{indent}|opponent1={str(opponent1)}\n" +
 			f"{indent}|opponent2={str(opponent2)}\n"
 		)
-		winner = self.template.getValue('winner')
+		winner = self.getValue('winner')
 		if winner:
 			out += f"{indent}|winner={winner}\n"
 

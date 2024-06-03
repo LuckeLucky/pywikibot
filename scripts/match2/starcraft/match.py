@@ -57,15 +57,15 @@ class Match(commonsMatch):
 		indent = self.indent
 		opponent1 = self.opponents[0]
 		opponent2 = self.opponents[1]
-		out = ('{{Match' + (f'|bestof={self.template.getValue('bestof')}\n' if self.template.getValue('bestof') else '\n') +
-		 	f'{indent}|date={self.template.getValue('date')}' +
-			(f'|finished={self.template.getValue('finished')}\n' if self.template.getValue('finished') else '\n') +
+		out = ('{{Match' + (f'|bestof={self.getValue('bestof')}\n' if self.getValue('bestof') else '\n') +
+		 	f'{indent}|date={self.getValue('date')}' +
+			(f'|finished={self.getValue('finished')}\n' if self.getValue('finished') else '\n') +
 			f'{indent}|opponent1={str(opponent1)}\n' +
 			f'{indent}|opponent2={str(opponent2)}\n'
 		)
 
-		winner = self.template.getValue('winner')
-		if winner and not self.template.getValue('bestof'):
+		winner = self.getValue('winner')
+		if winner and not self.getValue('bestof'):
 			out += f'{indent}|winner={winner}\n'
 
 		for key, value in self.template.iterateByItemsMatch(STARCRAFT_PARAMS):
@@ -80,7 +80,7 @@ class Match(commonsMatch):
 
 		for matchMap in self.maps:
 			index = matchMap.index
-			header = self.template.getValue(f'subgroup{index}header')
+			header = self.getValue(f'subgroup{index}header')
 			if header:
 				out += f'{indent}|subgroup{index}header={header}\n'
 			out += f"{indent}|map{index}={str(matchMap)}\n"

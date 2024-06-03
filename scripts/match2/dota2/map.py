@@ -9,7 +9,7 @@ class Map(commonsMap):
 
 	def __str__(self) -> str:
 		out = ("{{Map\n" +
-			f"|team1side={self.template.getValue('team1side')}\n"
+			f"|team1side={self.getValue('team1side')}\n"
 		)
 
 		team1picks = self.getPrefixedParams('t1h')
@@ -19,7 +19,7 @@ class Map(commonsMap):
 		if team1bans:
 			out += f"{team1bans}\n"
 
-		out = out + f"|team2side={self.template.getValue('team2side')}\n"
+		out = out + f"|team2side={self.getValue('team2side')}\n"
 
 		team2picks = self.getPrefixedParams('t2h')
 		if team2picks:
@@ -28,8 +28,8 @@ class Map(commonsMap):
 		if team2bans:
 			out += f"{team2bans}\n"
 
-		out += f"|length={self.template.getValue('length')}"
-		out += f"|winner={self.template.getValue('win')}\n"
+		out += f"|length={self.getValue('length')}"
+		out += f"|winner={self.getValue('win')}\n"
 
 		out += "}}"
 		return out

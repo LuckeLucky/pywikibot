@@ -22,7 +22,7 @@ class Match(commonsMatch):
 	def getMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
 			mapTemplate = self.template.getNestedTemplate('match' + str(mapIndex))
-			mapWinner = self.template.getValue('map' + str(mapIndex) + 'win')
+			mapWinner = self.getValue('map' + str(mapIndex) + 'win')
 			if mapTemplate is None and mapWinner:
 				mapTemplate = Template.createFakeTemplate()
 			if not mapTemplate:
@@ -40,18 +40,18 @@ class Match(commonsMatch):
 		out = ("{{Match2\n" +
 			f"{indent}|opponent1={str(opponent1)}\n" +
 			f"{indent}|opponent2={str(opponent2)}\n" +
-			f"{indent}|date={self.template.getValue('date')}"
-			f" |finished={self.template.getValue('finished')}\n"
+			f"{indent}|date={self.getValue('date')}"
+			f" |finished={self.getValue('finished')}\n"
 		)
-		winner = self.template.getValue('winner')
+		winner = self.getValue('winner')
 		if winner:
 			out += f"{indent}|winner={winner}\n"
 
 		for key, value in self.template.iterateByItemsMatch(LEAGUE_PARAMS):
 			out += f"{indent}|{key}={value}\n"
 
-		location = self.template.getValue('location')
-		comment = self.template.getValue('comment')
+		location = self.getValue('location')
+		comment = self.getValue('comment')
 		if location:
 			if comment:
 				comment = comment + '<br/>' + location

@@ -1,5 +1,6 @@
 from typing import Dict, List
 from .template import Template
+from .templateutils import TemplateUtils
 from .match import Match as commonsMatch
 from .opponent import Opponent, SoloOpponent, TeamOpponent
 from .utils import importClass
@@ -8,27 +9,27 @@ GSL_GF = 'gf'
 GSL_WINNERS = 'winners'
 GSL_LOSERS = 'losers'
 
-class Matchlist:
+class Matchlist(TemplateUtils):
 	language: str = None
 	matchClass: commonsMatch = None
 
 	def __init__(self, template: Template, matchTemplates: List[Template]):
 		if self.matchClass is None:
 			self.matchClass = importClass(self.language, 'Match')
-		self.template: Template = template
+		super().__init__(template)
 		self.data: Dict[str, commonsMatch | str] = {}
-		self.bracketType: str = self.template.getValue('type')
+		self.bracketType: str = self.getValue('type')
 
 		self.matchTemplates: List[Template] = matchTemplates
 		self.args: Dict[str, str] = {}
-		self.args['id'] = self.template.getValue('id')
-		self.args['title'] = self.template.getValue('title') or self.template.getValue('1')
-		self.args['width'] = self.template.getValue('width')
+		self.args['id'] = self.getValue('id')
+		self.args['title'] = self.getValue('title') or self.getValue('1')
+		self.args['width'] = self.getValue('width')
 		if self.template.getBool('hide'):
 			self.args['collapsed'] = 'true'
 			self.args['attached'] = 'true'
 
-		self.args['gsl'] = self.getGsl(self.template.getValue('gsl'))
+		self.args['gsl'] = self.getGsl(self.getValue('gsl'))
 
 	def getGsl(self, gsl: str) -> str:
 		if not gsl:
