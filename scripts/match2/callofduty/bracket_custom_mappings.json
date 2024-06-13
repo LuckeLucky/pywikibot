@@ -1,0 +1,275 @@
+{
+	"Bracket/8L2D-2Q$$2Qual-8SE2STeamBracket": {
+		"R3M1": {
+			"details": "R3G1",
+			"opp1": "R3W1",
+			"opp2": "R3W2"
+		},
+		"R3M2": {
+			"details": "R3G2",
+			"opp1": "R3W3",
+			"opp2": "R3W4"
+		}
+	},
+	"Bracket/4L2DS-U-2-U-2L1D$$6SE-ICTeamBracket": {
+		"R3M2": {
+			"details": "R2G3",
+			"opp1": "R2D3",
+			"opp2": "R2D4"
+		},
+		"R2M3": {
+			"details": "R1G3",
+			"opp1": "R1D5",
+			"opp2": "R1D6"
+		},
+		"R3M3": {
+			"details": "R2G4",
+			"opp1": "R2D5",
+			"opp2": "R3W3"
+		}
+	},
+	"Bracket/4L2DSU4L4DSL1D$$4DE2SW4SLTeamBracket": {
+		"R2M1": {
+			"details": "R2G1",
+			"opp1": "R2W1",
+			"opp2": "R2W2"
+		},
+		"R2M2": {
+			"details": "R2G2",
+			"opp1": "R2W3",
+			"opp2": "R2W4"
+		},
+		"R2M3": {
+			"details": "R2G3",
+			"opp1": "R2D1",
+			"opp2": "R2W5"
+		},
+		"R2M4": {
+			"details": "R2G4",
+			"opp1": "R2D2",
+			"opp2": "R2W6"
+		}
+	},
+	"Bracket/2U2L2D$$2DE3STeamBracket": {
+		"R3M1": {
+			"details": "R3G1",
+			"opp1": "R3W1",
+			"opp2": "R3W2"
+		},
+		"R2M1": {
+			"details": "R2G1",
+			"opp1": "R2W1",
+			"opp2": "R2W2"
+		},
+		"R3M2": {
+			"details": "R3G2",
+			"opp1": "R3D1",
+			"opp2": "R3W3"
+		}
+	},
+	"Bracket/4L4DSU4L6DSL1D$$12DE4STeamBracket": {
+		"R2M1": {
+			"details": "R1G1",
+			"opp1": "R1D1",
+			"opp2": "R1D2"
+		},
+		"R2M2": {
+			"details": "R1G2",
+			"opp1": "R1D3",
+			"opp2": "R1D4"
+		},
+		"R3M1": {
+			"details": "R2G1",
+			"opp1": "R2D1",
+			"opp2": "R2W1"
+		},
+		"R3M2": {
+			"details": "R2G2",
+			"opp1": "R2D2",
+			"opp2": "R2W2"
+		},
+		"R4M1": {
+			"details": "R3G1",
+			"opp1": "R3D1",
+			"opp2": "R3W1"
+		},
+		"R4M2": {
+			"details": "R3G2",
+			"opp1": "R3D2",
+			"opp2": "R3W2"
+		},
+		"R1M1": {
+			"details": "R1G3",
+			"opp1": "R1D5",
+			"opp2": "R1D6"
+		},
+		"R1M2": {
+			"details": "R1G4",
+			"opp1": "R1D7",
+			"opp2": "R1D8"
+		},
+		"R2M3": {
+			"details": "R2G3",
+			"opp1": "R2D3",
+			"opp2": "R2W3"
+		},
+		"R2M4": {
+			"details": "R2G4",
+			"opp1": "R2D4",
+			"opp2": "R2W4"
+		},
+		"R4M3": {
+			"details": "R4G1",
+			"opp1": "R4D1",
+			"opp2": "R4W1"
+		},
+		"R4M4": {
+			"details": "R4G2",
+			"opp1": "R4D2",
+			"opp2": "R4W2"
+		}
+	},
+	"Bracket/8U2L1D$$8SE4DETeamBracket": {
+		"R2M1": {
+			"details": "R2G1",
+			"opp1": "R2D1",
+			"opp2": "R2D2"
+		},
+		"R2M2": {
+			"details": "R2G2",
+			"opp1": "R2D3",
+			"opp2": "R2D4"
+		},
+		"R2M3": {
+			"details": "R2G3",
+			"opp1": "R2D5",
+			"opp2": "R2D6"
+		}
+	},
+	"Bracket/4L2DSU4L1D$$4DE2WTeamBracket": {
+		"R2M3": {
+			"details": "R1G3",
+			"opp1": "R1D5",
+			"opp2": "R1D6",
+			"header": "L1"
+		},
+		"R2M4": {
+			"details": "R1G4",
+			"opp1": "R1D7",
+			"opp2": "R1D8"
+		},
+		"R3M1": {
+			"details": "R2G3",
+			"opp1": "R2W3",
+			"opp2": "R2W4",
+			"header": "L2"
+		},
+		"R4M1": {
+			"details": "R3G1",
+			"opp1": "R3W1",
+			"opp2": "R3W2",
+			"header": "R3"
+		},
+		"R4M2": {
+			"details": "R3G2",
+			"opp1": "R3D1",
+			"opp2": "R3W3",
+			"header": "L3"
+		},
+		"R5M1": {
+			"details": "R4G1",
+			"opp1": "R4W1",
+			"opp2": "R4W2",
+			"header": "R4"
+		},
+		"RxMBR": {
+			"details": "R4G1",
+			"opp1": "R4W1",
+			"opp2": "R4W2"
+		}
+	},
+	"Bracket/16L8DSSS$$16SE8STeamBracket": {
+		"R2M1": {
+			"details": "R2G1",
+			"opp1": "R2W1",
+			"opp2": "R2W2"
+		},
+		"R2M2": {
+			"details": "R2G2",
+			"opp1": "R2W3",
+			"opp2": "R2W4"
+		},
+		"R2M3": {
+			"details": "R2G3",
+			"opp1": "R2W5",
+			"opp2": "R2W6"
+		},
+		"R2M4": {
+			"details": "R2G4",
+			"opp1": "R2W7",
+			"opp2": "R2W8"
+		},
+		"R2M5": {
+			"details": "R2G5",
+			"opp1": "R2W9",
+			"opp2": "R2W10"
+		},
+		"R2M6": {
+			"details": "R2G6",
+			"opp1": "R2W11",
+			"opp2": "R2W12"
+		},
+		"R2M7": {
+			"details": "R2G7",
+			"opp1": "R2W13",
+			"opp2": "R2W14"
+		},
+		"R2M8": {
+			"details": "R2G8",
+			"opp1": "R2W15",
+			"opp2": "R2W16"
+		}
+	},
+	"Bracket/8L4DSSU8L8DSL2DSL1D$$12DE8STeamBracket": {
+		"R2M1": {
+			"details": "R2G1",
+			"opp1": "R2W1",
+			"opp2": "R2W2"
+		},
+		"R2M2": {
+			"details": "R2G2",
+			"opp1": "R2W3",
+			"opp2": "R2W4"
+		},
+		"R2M3": {
+			"details": "R2G3",
+			"opp1": "R2W5",
+			"opp2": "R2W6"
+		},
+		"R2M4": {
+			"details": "R2G4",
+			"opp1": "R2W7",
+			"opp2": "R2W8"
+		},
+		"R2M5": {
+			"details": "R2G5",
+			"opp1": "R2D1",
+			"opp2": "R2W9"
+		},
+		"R2M6": {
+			"details": "R2G6",
+			"opp1": "R2D2",
+			"opp2": "R2W10"
+		},
+		"R2M7": {
+			"details": "R2G7",
+			"opp1": "R2D3",
+			"opp2": "R2W11"
+		},
+		"R2M8": {
+			"details": "R2G8",
+			"opp1": "R2D4",
+			"opp2": "R2W12"
+		}
+	}
+}

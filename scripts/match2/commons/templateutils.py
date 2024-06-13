@@ -9,8 +9,10 @@ class TemplateUtils:
 	def getValue(self, name: str) -> str:
 		return self.template.getValue(name)
 
-	def printParam(self, paramName: str, newParamName: str = '') -> str:
+	def printParam(self, paramName: str, newParamName: str = '', ignoreIfEmpty: bool = False) -> str:
 		value = self.template.getValue(paramName)
+		if ignoreIfEmpty and not value:
+			return ''
 		if newParamName:
 			paramName = newParamName
 		return f'|{paramName}={value}'
