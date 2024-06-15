@@ -22,9 +22,6 @@ WILDRIFT_PARAMS = STREAMS + [
 ]
 
 class Match(commonsMatch):
-	def __init__(self, opponents: List[Opponent], template: Template) -> None:
-		super().__init__(opponents, template)
-
 	def getMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
 			mapTemplate = self.template.getNestedTemplate('match' + str(mapIndex))
