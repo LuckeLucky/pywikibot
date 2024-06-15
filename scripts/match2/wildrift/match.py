@@ -1,6 +1,3 @@
-from typing import List
-
-from scripts.match2.commons.opponent import Opponent
 from ..commons.template import Template
 from ..commons.match import Match as commonsMatch, STREAMS
 
