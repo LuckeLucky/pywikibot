@@ -1,3 +1,4 @@
+from typing import List
 from .template import Template
 from .templateutils import TemplateUtils
 class Map(TemplateUtils):
@@ -6,3 +7,6 @@ class Map(TemplateUtils):
 		self.index = index
 		self.prefix = 'map' + str(self.index)
 		super().__init__(template)
+
+	def print(self, params: List[str]) -> str:
+		return super().printTemplate(params, templateId = 'Map', indent = '        ', end = '    }}', ignoreEmptyParams = True)

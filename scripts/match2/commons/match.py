@@ -37,6 +37,9 @@ class Match(TemplateUtils):
 	def getMaps(self):
 		pass
 
+	def print(self, params: List[str]) -> str:
+		return super().printTemplate(params, templateId = 'Match', indent = '    ', end = '}}', ignoreEmptyParams = True)
+
 	def __str__(self) -> str:
 		opponent1 = self.opponents[0]
 		opponent2 = self.opponents[1]
