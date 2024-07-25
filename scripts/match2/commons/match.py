@@ -41,18 +41,12 @@ class Match(TemplateUtils):
 		return super().printTemplate(params, templateId = 'Match', indent = '    ', end = '}}', ignoreEmptyParams = True)
 
 	def __str__(self) -> str:
-		opponent1 = self.opponents[0]
-		opponent2 = self.opponents[1]
-		indent = self.indent
-		out = ("{{Match\n" +
-			f"{indent}|opponent1={str(opponent1)}\n" +
-			f"{indent}|opponent2={str(opponent2)}\n" +
-			f"{indent}|date={self.getValue('date')}\n"
-			f"{indent}|finished={self.getValue('finished')}\n")
+		out = [
+			f'|opponent1={str(self.opponents[0])}' + '\n',
+			f'|opponent2={str(self.opponents[1])}' + '\n',
+			self.printParam('date', end = self.printParam('finished', end = '\n')),
+			self.printParam('winner', ignoreIfEmpty=True, end = '\n'),
+			self.printParam('vod', end='\n', ignoreIfEmpty=True)
+		]
 
-		winner = self.getValue('winner')
-		if winner:
-			out += f"{indent}|winner={winner}\n"
-
-		out += "}}"
-		return out
+		return self.print(out)

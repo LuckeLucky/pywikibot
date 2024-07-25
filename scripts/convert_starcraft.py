@@ -71,56 +71,47 @@ def handleMatchLegacy(singleMatch, nested):
 
 def fixSubGroups(singleMatch):
 	hasSubgroups = False
-	for map in singleMatch.match.maps:
-		if map.template.getValue('validSubgroup'):
+	for matchMap in singleMatch.match.maps:
+		if matchMap.template.getValue('validSubgroup'):
 			hasSubgroups = True
 			break
 
 	if hasSubgroups:
 		return
 
-	for map in singleMatch.match.maps:
-		if map.template.has('subgroup'):
-			map.template.remove('subgroup')
+	for matchMap in singleMatch.match.maps:
+		if matchMap.template.has('subgroup'):
+			matchMap.template.remove('subgroup')
 
 
 def convert(text: str) -> str:
-	while True:
-		wikicode = mwparserfromhell.parse(text)
-		singleMatch = None
-		replace = None
-		remove = None
-		for template in wikicode.filter_templates():
-			if template.name.matches('TeamMatchListHeader'):
-				replace = template
-				singleMatch = getSingleMatch(template)
-			if template.name.matches('LegacyMatchList') and replace is not None:
-				remove = template
-				t = Template(template)
-				first = True
-				for key, _ in t.iterateByPrefix('match'):
-					nested = Template(t.getNestedTemplate(key))
-					if first:
-						copyDateAndVod(singleMatch, nested)
-						copyDateAndVod(singleMatch, t)
-						first = False
+	wikicode = mwparserfromhell.parse(text)
+	teamMatchListHeader = wikicode.filter_templates(matches = lambda t: str(t.name).strip() == 'TeamMatchListHeader')
+	legacyMatchList = wikicode.filter_templates(matches = lambda t: str(t.name).strip() == 'LegacyMatchList')
 
-					handleMatchLegacy(singleMatch, nested)
-				break
+	if len(teamMatchListHeader) != len(legacyMatchList):
+		return text
 
-		if replace is None:
-			break
+	for i, template in enumerate(teamMatchListHeader):
+		singleMatch = getSingleMatch(template)
+		legacy = Template(legacyMatchList[i])
+		singleMatch.template.add('id', legacy.getValue('id'))
+		firstMatchLegacy = True
+		for key, _ in legacy.iterateByPrefix('match'):
+			nested = Template(legacy.getNestedTemplate(key))
+			if firstMatchLegacy:
+				copyDateAndVod(singleMatch, nested)
+				copyDateAndVod(singleMatch, legacy)
+				firstMatchLegacy = False
+
+			handleMatchLegacy(singleMatch, nested)
 
 		fixSubGroups(singleMatch)
-		wikicode.replace(replace, str(singleMatch))
-		if remove:
-			remove_and_squash(wikicode, remove)
-
-		text = str(wikicode)
+		wikicode.replace(template, str(singleMatch))
+		if not singleMatch.template.getNestedTemplate('matches'):
+			remove_and_squash(wikicode, legacyMatchList[i])
 
 	return str(wikicode)
-			
-
 
 def main(*args):
 	# Read commandline parameters.
