@@ -93,6 +93,8 @@ def main(*args):
 		if text != newText:
 			pywikibot.showDiff(text, newText, context=1)
 			put_text(page, summary=editSummary, new=newText)
+		else:
+			pywikibot.info(f'No changes were needed on {page}')
 
 if __name__ == '__main__':
 	main()

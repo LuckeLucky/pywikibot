@@ -49,7 +49,8 @@ class Template(mwTemplate):
 	def getNestedTemplate(self, name: str) -> mwTemplate:
 		param: Parameter = self.get(name, None)
 		if param:
-			return param.value.filter_templates()[0]
+			templates = param.value.filter_templates()
+			return templates[0] if len(templates) > 0 else None
 		return None
 
 	def iterateParams(self, nested: bool = False):
