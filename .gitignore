@@ -10,7 +10,6 @@ user-*.py
 /*.egg
 /data*
 /category*
-families/
 logs*
 *apicache*
 *pycache*
@@ -25,5 +24,6 @@ docs/_build/
 /scripts/userscripts/*
 !/scripts/userscripts/__init__.py
 .vscode/
+log_*.txt
 **/.DS_Store
 venv/
