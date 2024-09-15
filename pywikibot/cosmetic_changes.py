@@ -28,7 +28,7 @@ all of them, but be careful if you do.
 
 You may disable cosmetic changes by adding the all unwanted languages to
 the `dictionary cosmetic_changes_disable` in your user config file
-(`user_config.py`). It should contain a tuple of languages for each site
+(`user-config.py`). It should contain a tuple of languages for each site
 where you wish to disable cosmetic changes. You may use it with
 `cosmetic_changes_mylang_only` is False, but you can also disable your
 own language. This also overrides the settings in the dictionary
@@ -51,20 +51,22 @@ or by adding a list to the given one::
                                      'your_script_name_2']
 """
 #
-# (C) Pywikibot team, 2006-2023
+# (C) Pywikibot team, 2006-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import re
 from contextlib import suppress
 from enum import IntEnum
-from typing import Any, Union
+from typing import Any
 from urllib.parse import urlparse, urlunparse
 
 import pywikibot
-from pywikibot import textlib
-from pywikibot.backports import Callable, Dict, List, Match, Pattern
-from pywikibot.exceptions import InvalidTitleError
+from pywikibot import exceptions, i18n, textlib
+from pywikibot.backports import Callable, Match, Pattern
+from pywikibot.site import Namespace
 from pywikibot.textlib import (
     FILE_LINK_REGEX,
     MultiTemplateMatchBuilder,
@@ -171,6 +173,20 @@ deprecatedTemplates = {
     }
 }
 
+main_sortkey = {
+    '_default': ' ',
+    'ar': '*',
+}
+"""Sort key to specify the main article within a category.
+
+The sort key must be one of ``' '``, ``'!'``, ``'*'``, ``'#'`` and is
+used like a pipe link but sorts the page in front of the alphabetical
+order. This dict is used in
+:meth:`CosmeticChangesToolkit.standardizePageFooter`.
+
+.. versionadded:: 9.3
+"""
+
 
 class CANCEL(IntEnum):
 
@@ -223,7 +239,7 @@ class CosmeticChangesToolkit:
        `from_page()` method was removed
     """
 
-    def __init__(self, page: 'pywikibot.page.BasePage', *,
+    def __init__(self, page: pywikibot.page.BasePage, *,
                  show_diff: bool = False,
                  ignore: IntEnum = CANCEL.ALL) -> None:
         """Initializer.
@@ -246,7 +262,7 @@ class CosmeticChangesToolkit:
         self.namespace = page.namespace()
 
         self.show_diff = show_diff
-        self.template = (self.namespace == 10)
+        self.template = self.namespace == Namespace.TEMPLATE
         self.talkpage = self.namespace >= 0 and self.namespace % 2 == 1
         self.ignore = ignore
 
@@ -296,7 +312,7 @@ class CosmeticChangesToolkit:
             text = self.safe_execute(method, text)
         return text
 
-    def change(self, text: str) -> Union[bool, str]:
+    def change(self, text: str) -> bool | str:
         """Execute all clean up methods and catch errors if activated."""
         try:
             new_text = self._change(text)
@@ -307,10 +323,10 @@ class CosmeticChangesToolkit:
                 pywikibot.error(e)
                 return False
             raise
-        else:
-            if self.show_diff:
-                pywikibot.showDiff(text, new_text)
-            return new_text
+
+        if self.show_diff:
+            pywikibot.showDiff(text, new_text)
+        return new_text
 
     def fixSelfInterwiki(self, text: str) -> str:
         """
@@ -325,22 +341,27 @@ class CosmeticChangesToolkit:
         return text
 
     def standardizePageFooter(self, text: str) -> str:
-        """
-        Standardize page footer.
+        """Standardize page footer.
 
-        Makes sure that interwiki links and categories are put
-        into the correct position and into the right order. This
-        combines the old instances of standardizeInterwiki
-        and standardizeCategories.
+        Makes sure that interwiki links and categories are put into the
+        correct position and into the right order.
 
-        The page footer consists of the following parts
-        in that sequence:
+        The page footer consists of the following parts in that sequence:
+
         1. categories
         2. additional information depending on the local site policy
         3. interwiki
-        """
-        assert self.title is not None
 
+        .. versionchanged:: 9.3
+           uses :attr:`main_sortkey` to determine the sort key for the
+           main article within a category. If the main article has a
+           sort key already, it will not be changed any longer.
+
+        :param text: text to be modified
+        :return: the modified *text*
+        :raises ValueError: wrong value of sortkey in
+            :attr:`main_sortkey` for the given site
+        """
         categories = []
         interwiki_links = {}
 
@@ -371,11 +392,21 @@ class CosmeticChangesToolkit:
             # TODO: Sort categories in alphabetic order, e.g. using
             # categories.sort()? (T100265)
             # TODO: Get main categories from Wikidata?
-            main = pywikibot.Category(self.site, 'Category:' + self.title,
-                                      sort_key=' ')
+            main = pywikibot.Category(self.site, 'Category:' + self.title)
             if main in categories:
-                categories.pop(categories.index(main))
+                main = categories.pop(categories.index(main))
+                if main.sortKey:
+                    sortkey = main.sortKey
+                else:
+                    sortkey = i18n.translate(self.site, main_sortkey,
+                                             fallback=['_default'])
+                    if sortkey not in [' ', '*', '!', '#']:
+                        raise ValueError(
+                            f'sort key for {self.site} is {sortkey} but must'
+                            "be one of ' ', '*', '!', '#'")
+                main = pywikibot.Category(main, sort_key=sortkey)
                 categories.insert(0, main)
+
             text = textlib.replaceCategoryLinks(text, categories,
                                                 site=self.site)
 
@@ -401,12 +432,13 @@ class CosmeticChangesToolkit:
         exceptions = ['nowiki', 'comment', 'math', 'pre']
 
         for namespace in self.site.namespaces.values():
-            if namespace == 0:
+            if namespace == Namespace.MAIN:
                 # skip main (article) namespace
                 continue
             # a clone is needed. Won't change the namespace dict
             namespaces = list(namespace)
-            if namespace == 6 and self.site.family.name == 'wikipedia':
+            if (namespace == Namespace.FILE
+                    and self.site.family.name == 'wikipedia'):
                 if self.site.code in ('en', 'fr'):
                     # do not change "Image" on en-wiki and fr-wiki
                     with suppress(ValueError):
@@ -422,9 +454,11 @@ class CosmeticChangesToolkit:
                             0, namespaces.pop(namespaces.index('Imagem')))
             # final namespace variant
             final_ns = namespaces.pop(0)
-            if namespace in (2, 3):
+            if namespace in (Namespace.USER, Namespace.USER_TALK):
                 # skip localized user namespace, maybe gender is used
-                namespaces = ['User' if namespace == 2 else 'User talk']
+                namespaces = ['User'
+                              if namespace == Namespace.USER
+                              else 'User talk']
             # lowerspaced and underscored namespaces
             for i, item in enumerate(namespaces):
                 item = item.replace(' ', '[ _]')
@@ -432,7 +466,8 @@ class CosmeticChangesToolkit:
                 namespaces[i] = item
             namespaces.append(first_lower(final_ns))
             if final_ns and namespaces:
-                if self.site.sitename == 'wikipedia:pt' and namespace == 6:
+                if (self.site.sitename == 'wikipedia:pt'
+                        and namespace == Namespace.FILE):
                     # only change on these file extensions (per T57242)
                     extensions = ('png', 'gif', 'jpg', 'jpeg', 'svg', 'tiff',
                                   'tif')
@@ -489,7 +524,7 @@ class CosmeticChangesToolkit:
             return '{}|{}]]'.format(
                 split[0], '|'.join(cache.get(x.strip(), x) for x in split[1:]))
 
-        cache: Dict[Union[bool, str], Any] = {}
+        cache: dict[bool | str, Any] = {}
         exceptions = ['comment', 'nowiki', 'pre', 'syntaxhighlight']
         regex = re.compile(
             FILE_LINK_REGEX % '|'.join(self.site.namespaces[6]),
@@ -530,8 +565,10 @@ class CosmeticChangesToolkit:
             oldlink = url2string(match.group(),
                                  encodings=self.site.encodings())
 
-            is_interwiki = self.site.isInterwikiLink(titleWithSection)
-            if is_interwiki:
+            is_interwiki = None
+            with suppress(exceptions.ServerError):
+                is_interwiki = self.site.isInterwikiLink(titleWithSection)
+            if is_interwiki is not False:
                 return oldlink
 
             # The link looks like this:
@@ -539,10 +576,9 @@ class CosmeticChangesToolkit:
             # We only work on namespace 0 because pipes and linktrails work
             # differently for images and categories.
             page = pywikibot.Page(pywikibot.Link(titleWithSection, self.site))
-            try:
-                in_main_namespace = page.namespace() == 0
-            except InvalidTitleError:
-                in_main_namespace = False
+            in_main_namespace = None
+            with suppress(exceptions.InvalidTitleError):
+                in_main_namespace = page.namespace() == Namespace.MAIN
             if not in_main_namespace:
                 return oldlink
 
@@ -680,7 +716,7 @@ class CosmeticChangesToolkit:
     def removeEmptySections(self, text: str) -> str:
         """Cleanup empty sections."""
         # userspace contains article stubs without nobots/in use templates
-        if self.namespace == 2:
+        if self.namespace == Namespace.USER:
             return text
 
         skippings = ['comment', 'category']
@@ -707,7 +743,7 @@ class CosmeticChangesToolkit:
         header, sections, footer = textlib.extract_sections(text, self.site)
 
         # iterate stripped sections and create a new page body
-        new_body: List[textlib.Section] = []
+        new_body: list[textlib.Section] = []
         for i, strip_section in enumerate(strip_sections):
             current_dep = sections[i].level
             try:
@@ -798,10 +834,7 @@ class CosmeticChangesToolkit:
             for template in deprecatedTemplates[
                     self.site.family.name][self.site.code]:
                 old, new = template
-                if new is None:
-                    new = ''
-                else:
-                    new = '{{%s}}' % new
+                new = '{{%s}}' % new if new else ''
 
                 text = textlib.replaceExcept(
                     text,
@@ -816,10 +849,11 @@ class CosmeticChangesToolkit:
         def replace_link(match: Match[str]) -> str:
             """Create a string to replace a single link."""
             replacement = '[['
-            if re.match(r'(?:{}):'
-                        .format('|'.join((*self.site.namespaces[6],
-                                          *self.site.namespaces[14]))),
-                        match['link']):
+            if re.match(
+                    r'(?:{}):'.format('|'.join(
+                        (*self.site.namespaces[Namespace.FILE],
+                         *self.site.namespaces[Namespace.CATEGORY]))),
+                    match['link']):
                 replacement += ':'
 
             replacement += match['link']
@@ -958,7 +992,7 @@ class CosmeticChangesToolkit:
 
     def fixTypo(self, text: str) -> str:
         """Fix units."""
-        exceptions: List[Union[str, Pattern[str]]] = [
+        exceptions: list[str | Pattern[str]] = [
             'comment',
             'gallery',
             'hyperlink',
@@ -992,7 +1026,7 @@ class CosmeticChangesToolkit:
         if self.site.code not in ['ckb', 'fa']:
             return text
 
-        exceptions: List[Union[str, Pattern[str]]] = [
+        exceptions: list[str | Pattern[str]] = [
             'file',
             'gallery',
             'hyperlink',
@@ -1043,7 +1077,8 @@ class CosmeticChangesToolkit:
         [1]:
         https://commons.wikimedia.org/wiki/Commons:Tools/pywiki_file_description_cleanup
         """
-        if self.site.sitename != 'commons:commons' or self.namespace == 6:
+        if (self.site.sitename != 'commons:commons'
+                or self.namespace == Namespace.FILE):
             return text
 
         # section headers to {{int:}} versions

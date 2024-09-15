@@ -12,66 +12,56 @@ concurrency:
 env:
   PYWIKIBOT_TEST_RUNNING: 1
   PYWIKIBOT_USERNAME: Pywikibot-oauth
-  PYWIKIBOT_LOGIN_LOGOUT: 1
 
 jobs:
   build:
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    continue-on-error: ${{ matrix.experimental || false }}
     timeout-minutes: 5
 
     strategy:
       fail-fast: false
-      max-parallel: 7
+      max-parallel: 8
 
       matrix:
-        python-version: ["pypy3.7", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
-        family: ['wikipedia']
-        code: ['test']
-        domain:  ['test.wikipedia.org']
+        python-version: [ "pypy3.7", "pypy3.10", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13.0-alpha - 3.13.0", "3.14-dev" ]
+        family: [ wikipedia ]
+        code: [ test ]
+        domain: [ "test.wikipedia.org" ]
         include:
-          # ubuntu-20.04 required for Python 3.6
-          - python-version: 3.6
+          - python-version: "3.7"
             family: wpbeta
             code: en
             domain: en.wikipedia.beta.wmflabs.org
-            os: ubuntu-20.04
-          - python-version: 3.7
+          - python-version: "3.7"
             family: wpbeta
             code: zh
             domain: zh.wikipedia.beta.wmflabs.org
-          - python-version: 3.6
-            family: wikipedia
-            code: test
-            domain: test.wikipedia.org
-            os: ubuntu-20.04
-          - python-version: "3.13-dev"
-            family: wikipedia
-            code: test
-            domain: test.wikipedia.org
+            experimental: true
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: true
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      if: ${{ matrix.python-version != '3.13-dev' }}
+      uses: actions/setup-python@v5
+      if: "!endsWith(matrix.python-version, '-dev')"
       with:
         python-version: ${{ matrix.python-version }}
 
-    # use deadsnakes/action until actions/setup-python supports Python 3.13
+    # use deadsnakes/action for development releases
     - name: Set up development Python ${{ matrix.python-version }}
-      uses: deadsnakes/action@v3.0.1
-      if: ${{ matrix.python-version == '3.13-dev' }}
+      uses: deadsnakes/action@v3.1.0
+      if: "endsWith(matrix.python-version, '-dev')"
       with:
         python-version: ${{ matrix.python-version }}
 
     - name: Get token name
       env:
         _oauth_token: OAUTH_TOKEN_${{ matrix.family }}_${{ matrix.code }}
-      uses: ASzc/change-string-case-action@v5
+      uses: ASzc/change-string-case-action@v6
       id: token
       with:
         string: ${{ env._oauth_token }}
@@ -87,12 +77,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip --version
-        pip install -U setuptools
-        pip install requests
-        pip install mwparserfromhell
-        pip install mwoauth
         pip install coverage
-        python -c "import setuptools; print('setuptools:', setuptools.__version__)"
+        pip install "importlib_metadata ; python_version < '3.8'"
+        pip install "mwparserfromhell ; python_version != '3.13'"
+        pip install "wikitextparser ; python_version == '3.13'"
+        pip install mwoauth
+        pip install packaging
+        pip install requests
 
     - name: Generate family files
       if:  ${{ matrix.family == 'wpbeta' }}
@@ -102,8 +93,8 @@ jobs:
     - name: Generate user files
       run: |
         python -Werror::UserWarning -m pwb generate_user_files -family:${{matrix.family}} -lang:${{matrix.code}} -user:${{ env.PYWIKIBOT_USERNAME }} -v -debug;
+        echo "usernames['commons']['beta'] = '${{ env.PYWIKIBOT_USERNAME }}'" >> user-config.py
         echo "authenticate['${{ matrix.domain }}'] = ('${{ steps.split.outputs._0 }}', '${{ steps.split.outputs._1 }}', '${{ steps.split.outputs._2 }}', '${{ steps.split.outputs._3 }}')" >> user-config.py
-        echo "max_retries = 3" >> user-config.py
         echo "noisysleep = float('inf')" >> user-config.py
         echo "maximum_GET_length = 5000" >> user-config.py
         echo "console_encoding = 'utf8'" >> user-config.py
@@ -111,14 +102,18 @@ jobs:
     - name: Oauth tests with unittest
       timeout-minutes: 2
       env:
+        PYWIKIBOT_TEST_WRITE: 1
         PYWIKIBOT_TEST_OAUTH: ${{ secrets[format('{0}', steps.token.outputs.uppercase)] }}
+        PYWIKIBOT_TEST_MODULES: file,oauth
       run: |
         python pwb.py version
-        coverage run -m unittest -vv tests/oauth_tests.py
+        coverage run -m unittest -vv
 
     - name: Show coverage statistics
       run: |
         coverage report
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

@@ -20,16 +20,17 @@ This script understands various command-line arguments:
 
 """
 #
-# (C) Pywikibot team, 2014-2023
+# (C) Pywikibot team, 2014-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 from datetime import timedelta
 from textwrap import fill
 
 import pywikibot
 from pywikibot import pagegenerators
-from pywikibot.backports import Set
 from pywikibot.bot import WikidataBot
 from pywikibot.exceptions import (
     LockedPageError,
@@ -69,14 +70,13 @@ class NewItemRobot(WikidataBot):
             days=self.opt.pageage)
         self.lastEditBefore = self.repo.server_time() - timedelta(
             days=self.opt.lastedit)
-        pywikibot.info('Page age is set to {} days so only pages created'
-                       '\nbefore {} will be considered.\n'
-                       .format(self.opt.pageage,
-                               self.pageAgeBefore.isoformat()))
         pywikibot.info(
-            'Last edit is set to {} days so only pages last edited'
-            '\nbefore {} will be considered.\n'
-            .format(self.opt.lastedit, self.lastEditBefore.isoformat()))
+            f'Page age is set to {self.opt.pageage} days so only pages created'
+            f'\nbefore {self.pageAgeBefore.isoformat()} will be considered.\n'
+            f'\nLast edit is set to {self.opt.lastedit} days so only pages '
+            f'last edited\nbefore {self.lastEditBefore.isoformat()} will be'
+            ' considered.\n'
+        )
 
     @staticmethod
     def _touch_page(page) -> None:
@@ -94,7 +94,7 @@ class NewItemRobot(WikidataBot):
         if exc is None and self.opt.touch:
             self._touch_page(page)
 
-    def get_skipping_templates(self, site) -> Set[pywikibot.Page]:
+    def get_skipping_templates(self, site) -> set[pywikibot.Page]:
         """Get templates which leads the page to be skipped.
 
         If the script is used for multiple sites, hold the skipping templates

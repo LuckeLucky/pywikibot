@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 """Tests against a fake Site object."""
 #
-# (C) Pywikibot team, 2012-2023
+# (C) Pywikibot team, 2012-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import unittest
 
 from pywikibot.exceptions import UserRightsError
 from pywikibot.site._decorators import must_be, need_right, need_version
 from pywikibot.tools import deprecated
-from tests.aspects import TestCase, DeprecationTestCase
+from tests.aspects import DeprecationTestCase, TestCase
 
 
-class TestMustBe(TestCase):
+class DecoratorTestsBase(TestCase):
 
-    """Test cases for the must_be decorator."""
+    """Base class for decorator tests."""
 
     net = False
 
@@ -28,19 +30,28 @@ class TestMustBe(TestCase):
         self.family.name = 'test'
         self.sitename = self.family.name + ':' + self.code
         self._logged_in_as = None
-        self._userinfo = []
         self.obsolete = False
         super().setUp()
-        self.version = lambda: '1.23'  # lowest supported release
+        self.version = lambda: '1.27'  # lowest supported release
+
+    def user(self):
+        """Fake the logged in user."""
+        return self._logged_in_as
+
+
+class TestMustBe(DecoratorTestsBase):
+
+    """Test cases for the must_be decorator."""
+
+    def setUp(self):
+        """Creating fake variables to appear as a site."""
+        self._userinfo = []
+        super().setUp()
 
     def login(self, group):
         """Fake the log in as required user group."""
         self._logged_in_as = group
         self._userinfo = [group]
-
-    def user(self):
-        """Fake the logged in user."""
-        return self._logged_in_as
 
     def has_group(self, group):
         """Fake the groups user belongs to."""
@@ -125,38 +136,25 @@ class TestMustBe(TestCase):
             self.call_this_user_req_function(args, kwargs)
 
 
-class TestNeedRight(TestCase):
+class TestNeedRight(DecoratorTestsBase):
 
     """Test cases for the must_be decorator."""
-
-    net = False
 
     # Implemented without setUpClass(cls) and global variables as objects
     # were not completely disposed and recreated but retained 'memory'
     def setUp(self):
         """Creating fake variables to appear as a site."""
-        self.code = 'test'
-        self.family = lambda: None
-        self.family.name = 'test'
-        self.sitename = self.family.name + ':' + self.code
-        self._logged_in_as = None
-        self._userinfo = []
-        self.obsolete = False
+        self.userinfo = {'rights': []}
         super().setUp()
-        self.version = lambda: '1.23'  # lowest supported release
 
     def login(self, group, right):
         """Fake the log in as required user group."""
         self._logged_in_as = group
-        self._userinfo = [right]
-
-    def user(self):
-        """Fake the logged in user."""
-        return self._logged_in_as
+        self.userinfo['rights'] = [right]
 
     def has_right(self, right):
         """Fake the groups user belongs to."""
-        return right in self._userinfo
+        return right in self.userinfo['rights']
 
     @need_right('edit')
     def call_this_edit_req_function(self, *args, **kwargs):
@@ -281,5 +279,5 @@ class TestNeedVersion(DeprecationTestCase):
             __name__ + '.TestNeedVersion.deprecated_available_method2')
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     unittest.main()

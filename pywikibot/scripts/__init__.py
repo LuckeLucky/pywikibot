@@ -1,15 +1,14 @@
 """Folder which holds framework scripts.
 
-When uploading pywikibot to pypi the pwb.py (wrapper script) and
-pywikibot i18n package are copied here.
-
 .. versionadded:: 7.0
 """
 #
 # (C) Pywikibot team, 2021-2022
 #
-# Distributed under the terms of the MIT license
+# Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 from os import environ, getenv
 
 

@@ -6,10 +6,12 @@ in paralled CI test tasks. Any logout could lead other parallel tests
 to fail.
 """
 #
-# (C) Pywikibot team, 2022-2023
+# (C) Pywikibot team, 2022-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import os
 import unittest
 from contextlib import suppress
@@ -80,11 +82,11 @@ class TestClearCookies(TestCase):
 
 
 def setUpModule():
-    """Skip tests if PYWIKIBOT_LOGIN_LOGOUT variable is not set."""
-    if os.environ.get('PYWIKIBOT_LOGIN_LOGOUT', '0') != '1':
+    """Skip tests if PYWIKIBOT_TEST_LOGOUT variable is not set."""
+    if os.environ.get('PYWIKIBOT_TEST_LOGOUT', '0') != '1':
         raise unittest.SkipTest('login/logout tests are disabled')
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

@@ -156,10 +156,12 @@ Some words, like "Administrator" or "Dio" (God in italian) or "Jimbo" aren't
 badwords at all but can be used for some bad-nickname.
 """
 #
-# (C) Pywikibot team, 2006-2023
+# (C) Pywikibot team, 2006-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import codecs
 import locale
 import pickle
@@ -173,7 +175,7 @@ from textwrap import fill
 
 import pywikibot
 from pywikibot import config, i18n
-from pywikibot.backports import Dict, Generator, List  # skipcq: PY-W2000
+from pywikibot.backports import Generator  # skipcq: PY-W2000
 from pywikibot.bot import SingleSiteBot
 from pywikibot.exceptions import EditConflictError, Error, HiddenKeyError
 
@@ -493,9 +495,9 @@ class WelcomeBot(SingleSiteBot):
         """Initializer."""
         super().__init__(**kwargs)
         self.welcome_text = get_welcome_text(self.site)
-        self.bname: Dict[str, str] = {}
+        self.bname: dict[str, str] = {}
 
-        self.welcomed_users: List[str] = []
+        self.welcomed_users: list[str] = []
         self.log_name = i18n.translate(self.site, LOGBOOK)
 
         if not self.log_name:
@@ -600,9 +602,8 @@ class WelcomeBot(SingleSiteBot):
         """Add bad account to queue."""
         if globalvar.confirm:
             answer = pywikibot.input_choice(
-                '{} may have an unwanted username, do you want to report '
-                'this user?'
-                .format(name), [('Yes', 'y'), ('No', 'n'), ('All', 'a')],
+                f'{name} may have an unwanted username, do you want to report '
+                'this user?', [('Yes', 'y'), ('No', 'n'), ('All', 'a')],
                 'n', automatic_quit=False)
             if answer in ['a', 'all']:
                 answer = 'y'
@@ -662,10 +663,7 @@ class WelcomeBot(SingleSiteBot):
         if not globalvar.make_welcome_log or not self.welcomed_users:
             return
 
-        if self.site.code == 'it':
-            pattern = '%d/%m/%Y'
-        else:
-            pattern = '%Y/%m/%d'
+        pattern = '%d/%m/%Y' if self.site.code == 'it' else '%Y/%m/%d'
         target = self.log_name + '/' + time.strftime(
             pattern, time.localtime(time.time()))
 
@@ -735,7 +733,7 @@ class WelcomeBot(SingleSiteBot):
                            f'rerun. {strfstr}')
             pywikibot.sleep(globalvar.time_recur)
 
-    def define_sign(self, force: bool = False) -> List[str]:
+    def define_sign(self, force: bool = False) -> list[str]:
         """Setup signature."""
         if hasattr(self, '_random_signature') and not force:
             return self._random_signature
@@ -798,8 +796,8 @@ class WelcomeBot(SingleSiteBot):
         elif user.editCount() < globalvar.attach_edit_count:
             if user.editCount() != 0:
                 self.show_status(Msg.IGNORE)
-                pywikibot.info('{} has only {} contributions.'
-                               .format(user.username, user.editCount()))
+                pywikibot.info(f'{user.username} has only {user.editCount()}'
+                               ' contributions.')
             elif not globalvar.quiet:
                 self.show_status(Msg.IGNORE)
                 pywikibot.info(f'{user.username} has no contributions.')
@@ -901,7 +899,7 @@ class WelcomeBot(SingleSiteBot):
                             protocol=config.pickle_protocol)
 
 
-def load_word_function(raw) -> List[str]:
+def load_word_function(raw) -> list[str]:
     """Load the badword list and the whitelist."""
     page = re.compile(r'(?:\"|\')(.*?)(?:\"|\')(?:, |\))')
     list_loaded = page.findall(raw)
@@ -924,7 +922,7 @@ def _handle_offset(val) -> None:
     except ValueError:
         # upon request, we could check for software version here
         raise ValueError(fill(
-            'Mediawiki has changed, -offset:# is not supported anymore, but '
+            'MediaWiki has changed, -offset:# is not supported anymore, but '
             '-offset:TIMESTAMP is, assuming TIMESTAMP is yyyymmddhhmmss or '
             'yyyymmdd. -timeoffset is now also supported. Please read this '
             'script source header for documentation.'))

@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
-"""
-Tests for edit failures.
+"""Tests for edit failures.
 
-These tests should never write to the wiki,
-unless something has broken badly.
-
-These tests use special code 'write = -1' for edit failures.
+These tests should never write to the wiki, unless something has broken
+badly.
 """
 #
-# (C) Pywikibot team, 2014-2023
+# (C) Pywikibot team, 2014-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import unittest
 from contextlib import suppress
 from unittest.mock import patch
@@ -37,9 +36,7 @@ class TestSaveFailure(TestCase):
 
     """Test cases for edits which should fail to save."""
 
-    login = True
-    write = -1
-
+    write = True
     family = 'wikipedia'
     code = 'test'
 
@@ -62,6 +59,10 @@ class TestSaveFailure(TestCase):
 
     def test_titleblacklist(self):
         """Test that title blacklist raise the appropriate exception."""
+        user = pywikibot.User(self.site, self.site.user())
+        if 'sysop' in user.groups():
+            self.skipTest(f'{user} is member of the sysop group')
+
         page = pywikibot.Page(self.site, 'User:UpsandDowns1234/Blacklisttest')
         with self.assertRaises(TitleblacklistError):
             page.save()
@@ -70,7 +71,7 @@ class TestSaveFailure(TestCase):
         """Test that {{nobots}} raise the appropriate exception."""
         page = pywikibot.Page(self.site, 'User:John Vandenberg/nobots')
         with patch.object(config, 'ignore_bot_templates', False), \
-             self.assertRaisesRegex(OtherPageSaveError, 'nobots'):
+                self.assertRaisesRegex(OtherPageSaveError, 'nobots'):
             page.save()
 
     def test_touch(self):
@@ -107,9 +108,7 @@ class TestActionFailure(TestCase):
 
     """Test cases for actions which should fail to save."""
 
-    login = True
-    write = -1
-
+    write = True
     family = 'wikipedia'
     code = 'test'
 
@@ -117,10 +116,6 @@ class TestActionFailure(TestCase):
         """Test that site.movepage raises the appropriate exceptions."""
         mysite = self.get_site()
         mainpage = self.get_mainpage()
-        if 'move' not in mysite.tokens:
-            self.skipTest(
-                "movepage test requires 'move' token not given to user on {}"
-                .format(self.site))
 
         with self.assertRaises(Error):
             mysite.movepage(mainpage, mainpage.title(), 'test')
@@ -137,9 +132,7 @@ class TestWikibaseSaveTest(WikibaseTestCase):
 
     family = 'wikidata'
     code = 'test'
-
-    login = True
-    write = -1
+    write = True
 
     def test_itempage_save(self):
         """Test ItemPage save method inherited from superclass Page."""
@@ -218,6 +211,6 @@ class TestWikibaseSaveTest(WikibaseTestCase):
             item.addClaim(claim)
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Tests for the date module."""
 #
-# (C) Pywikibot team, 2012-2022
+# (C) Pywikibot team, 2012-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import unittest
 from contextlib import suppress
 from datetime import datetime
@@ -28,22 +30,23 @@ class DateTestMeta(MetaTestCaseClass):
                     step = 10
                 try:
                     predicate, start, stop = date.formatLimits[formatname]
-                except KeyError:
+                except KeyError:  # pragma: no cover
                     return
 
                 for code, convert in date.formats[formatname].items():
                     for value in range(start, stop, step):
                         self.assertTrue(
                             predicate(value),
-                            "date.formats['{}']['{}']:\ninvalid value {}"
-                            .format(formatname, code, value))
+                            f"date.formats['{formatname}']['{code}']:\n"
+                            f'invalid value {value}'
+                        )
 
                         new_value = convert(convert(value))
                         self.assertEqual(
                             new_value, value,
-                            "date.formats['{}']['{}']:\n"
-                            'value {} does not match {}'
-                            .format(formatname, code, new_value, value))
+                            f"date.formats['{formatname}']['{code}']:\n"
+                            f'value {new_value} does not match {value}'
+                        )
             return testMapEntry
 
         for formatname in date.formats:
@@ -76,15 +79,16 @@ class TestMonthName(TestCase):
                 with self.subTest(code=code, month=value):
                     self.assertTrue(
                         predicate(value),
-                        "date.formats['{}']['{}']:\ninvalid value {}"
-                        .format(formatname, code, value))
+                        f"date.formats['{formatname}']['{code}']:\n"
+                        f'invalid value {value}'
+                    )
 
                     new_value = convert(convert(value))
                     self.assertEqual(
                         new_value, value,
-                        "date.formats['{}']['{}']:\n"
-                        'value {} does not match {}'
-                        .format(formatname, code, new_value, value))
+                        f"date.formats['{formatname}']['{code}']:\n"
+                        f'value {new_value} does not match {value}'
+                    )
 
     def test_month_name(self):
         """Test some MonthName results."""
@@ -135,6 +139,6 @@ class TestMonthDelta(TestCase):
                          datetime(2013, 3, 31)), -12)
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

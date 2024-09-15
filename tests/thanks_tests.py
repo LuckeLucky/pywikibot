@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Tests for thanks-related code."""
 #
-# (C) Pywikibot team, 2016-2022
+# (C) Pywikibot team, 2016-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import unittest
 from contextlib import suppress
 
@@ -21,16 +23,14 @@ class TestThankRevision(TestCase):
 
     family = 'wikipedia'
     code = 'test'
-
-    login = True
     write = True
 
+    @unittest.expectedFailure  # T367311
     def test_thank_revision(self):
         """Test thanks for normal revisions.
 
-        .. note:: This test relies on activity in recentchanges, and
-           there must make edits made before reruns of this test.
-        .. seealso:: :phab:`T137836`.
+        This test relies on activity in recentchanges, and there must
+        make edits made before reruns of this test; see :phab:`T137836`.
         """
         site = self.get_site()
         data = site.recentchanges(total=20)
@@ -76,8 +76,7 @@ class TestThankRevisionErrors(TestCase):
 
     family = 'wikipedia'
     code = 'test'
-
-    write = -1
+    write = True
 
     def test_bad_recipient(self):
         """Test that thanking a bad recipient causes an error."""
@@ -97,7 +96,7 @@ class TestThankRevisionErrors(TestCase):
     def test_invalid_revision(self):
         """Test that passing an invalid revision ID causes an error."""
         site = self.get_site()
-        invalid_revids = (0.99, (0, -1), (0, -1, 0.99,), [0, -1, 0.99], 'zero',
+        invalid_revids = (0.99, (0, -1), (0, -1, 0.99), [0, -1, 0.99], 'zero',
                           'minus one, and point nine nine')
         code = 'invalidrevision' if site.mw_version < '1.35' else 'badinteger'
         for invalid_revid in invalid_revids:
@@ -111,6 +110,6 @@ class TestThankRevisionErrors(TestCase):
                                     source='pywikibot test')
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

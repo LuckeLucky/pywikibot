@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Tests for the proofreadpage module."""
 #
-# (C) Pywikibot team, 2015-2023
+# (C) Pywikibot team, 2015-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import difflib
 import json
 import unittest
@@ -19,14 +21,11 @@ from pywikibot.proofreadpage import (
     ProofreadPage,
     TagAttr,
 )
-from pywikibot.tools import has_module
-from tests import unittest_print
 from tests.aspects import TestCase, require_modules
 from tests.basepage import (
     BasePageLoadRevisionsCachingTestBase,
     BasePageMethodsTestBase,
 )
-from tests.utils import skipping
 
 
 class TestPagesTagParser(TestCase):
@@ -250,7 +249,7 @@ class TestProofreadPageValidSite(TestCase):
         'footer': '\n{{smallrefs}}',
         'url_image': ('https://upload.wikimedia.org/wikipedia/commons/'
                       'thumb/a/ac/Popular_Science_Monthly_Volume_1.djvu/'
-                      'page12-1024px-Popular_Science_Monthly_Volume_1.djvu'
+                      'page12-2012px-Popular_Science_Monthly_Volume_1.djvu'
                       '.jpg'),
     }
 
@@ -412,8 +411,7 @@ class TestProofreadPageValidSite(TestCase):
             page.url_image
 
         page = ProofreadPage(self.site, self.valid_redlink['title'])
-        with skipping(ValueError, msg='T181913, T114318'):
-            self.assertEqual(page.url_image, self.valid_redlink['url_image'])
+        self.assertEqual(page.url_image, self.valid_redlink['url_image'])
 
 
 class TestPageQuality(TestCase):
@@ -439,14 +437,9 @@ class BS4TestCase(TestCase):
     """Run tests which needs bs4 beeing installed."""
 
     @classmethod
+    @require_modules('bs4')
     def setUpClass(cls):
         """Check whether bs4 module is installed already."""
-        if not has_module('bs4'):
-            unittest_print(
-                'all tests ({module}.{name})\n{doc}.. '
-                .format(module=__name__, doc=cls.__doc__, name=cls.__name__),
-                end='\n')
-            cls.skipTest(cls, 'bs4 not installed')
         super().setUpClass()
 
 
@@ -456,28 +449,21 @@ class TestPageOCR(BS4TestCase):
 
     family = 'wikisource'
     code = 'en'
-
     cached = True
 
-    data = {'title': 'Page:Popular Science Monthly Volume 1.djvu/10',
-            'hocr': (False, 'ENTERED, according to Act of Congress, in the '
-                            'year 1872,\nBY D. APPLETON & CO.,\nIn the Ofﬁce '
-                            'of the Librarian of Congress, at '
-                            'Washington.\n\n'),
-            'ocr': (False, 'EsTEnen, according to Act of Congress, in the '
-                           'year 1872,\nBy D. APPLETON & CO.,\nIn the '
-                           'Office of the Librarian of Congress, at '
-                           'Washington.\n\u000c'),
-            'wmfOCR': (False, 'Estee, according to Act of Congress, in the '
-                              'year 1872,\n'
-                              'By D. APPLETON & CO.,\n'
-                              'In the Office of the Librarian of Congress, '
-                              'at Washington.'),
-            'googleOCR': (False, 'ENTERED, according to Act of Congress, in '
-                                 'the year 1572,\nBY D. APPLETON & CO.\n'
-                                 'In the Office of the Librarian of '
-                                 'Congress, at Washington.\n4 334\n'),
-            }
+    data = {
+        'title':
+            'Page:Popular Science Monthly Volume 1.djvu/10',
+        'wmfOCR':
+            'Estee, according to Act of Congress, in the year 1872,\n'
+            'By D. APPLETON & CO.,\n'
+            'In the Office of the Librarian of Congress, at Washington.',
+        'googleOCR':
+            'ENTERED, according to Act of Congress, in the year 1572,\n'
+            'BY D. APPLETON & CO.\n'
+            'In the Office of the Librarian of Congress, at Washington.\n'
+            '4 334\n',
+    }
 
     def setUp(self):
         """Test setUp."""
@@ -491,33 +477,12 @@ class TestPageOCR(BS4TestCase):
         with self.assertRaises(TypeError):
             self.page.ocr(ocr_tool='dummy')
 
-    def test_do_hocr(self):
-        """Test page._do_hocr()."""
-        error, text = self.page._do_hocr()
-        if error:
-            self.skipTest(text)
-        ref_error, ref_text = self.data['hocr']
-        self.assertEqual(error, ref_error)
-        s = difflib.SequenceMatcher(None, text, ref_text)
-        self.assertGreater(s.ratio(), 0.9)
-
-    def test_do_ocr_phetools(self):
-        """Test page._do_ocr(ocr_tool='phetools')."""
-        error, text = self.page._do_ocr(ocr_tool='phetools')
-        ref_error, ref_text = self.data['ocr']
-        if error:
-            self.skipTest(text)
-        self.assertEqual(error, ref_error)
-        s = difflib.SequenceMatcher(None, text, ref_text)
-        self.assertGreater(s.ratio(), 0.9)
-
     def test_do_ocr_wmfocr(self):
         """Test page._do_ocr(ocr_tool='wmfOCR')."""
         error, text = self.page._do_ocr(ocr_tool='wmfOCR')
         if error:
             self.skipTest(text)
-        ref_error, ref_text = self.data['wmfOCR']
-        self.assertEqual(error, ref_error)
+        ref_text = self.data['wmfOCR']
         s = difflib.SequenceMatcher(None, text, ref_text)
         self.assertGreater(s.ratio(), 0.9)
 
@@ -526,8 +491,7 @@ class TestPageOCR(BS4TestCase):
         error, text = self.page._do_ocr(ocr_tool='googleOCR')
         if error:
             self.skipTest(text)
-        ref_error, ref_text = self.data['googleOCR']
-        self.assertEqual(error, ref_error)
+        ref_text = self.data['googleOCR']
         s = difflib.SequenceMatcher(None, text, ref_text)
         self.assertGreater(s.ratio(), 0.9)
 
@@ -538,7 +502,7 @@ class TestPageOCR(BS4TestCase):
         except Exception as exc:
             self.assertIsInstance(exc, ValueError)
         else:
-            _error, ref_text = self.data['wmfOCR']
+            ref_text = self.data['wmfOCR']
             s = difflib.SequenceMatcher(None, text, ref_text)
             self.assertGreater(s.ratio(), 0.9)
 
@@ -1001,6 +965,6 @@ class TestIndexPageHasValidContent(BS4TestCase):
         self.assertFalse(self.index.has_valid_content())
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

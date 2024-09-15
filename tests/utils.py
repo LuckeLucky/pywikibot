@@ -1,29 +1,29 @@
 """Test utilities."""
 #
-# (C) Pywikibot team, 2013-2023
+# (C) Pywikibot team, 2013-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import inspect
 import os
 import sys
 import unittest
 import warnings
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from subprocess import PIPE, Popen, TimeoutExpired
-from typing import Any, Optional, Union
+from typing import Any
 
 import pywikibot
 from pywikibot import config
-from pywikibot.backports import Dict, List, Sequence
+from pywikibot.backports import Sequence
 from pywikibot.data.api import CachedRequest
 from pywikibot.data.api import Request as _original_Request
 from pywikibot.exceptions import APIError
 from pywikibot.login import LoginStatus
-from pywikibot.tools.collections import EMPTY_DEFAULT
 from pywikibot.site import Namespace
-from pywikibot.tools import PYTHON_VERSION
-
+from pywikibot.tools.collections import EMPTY_DEFAULT
 from tests import _pwb_py
 
 
@@ -239,10 +239,15 @@ class DryParamInfo(dict):
 
     def __getitem__(self, name):
         """Return dry data or a dummy parameter block."""
-        try:
+        with suppress(KeyError):
             return super().__getitem__(name)
-        except KeyError:
-            return {'name': name, 'limit': None}
+
+        result = {'name': name, 'prefix': '', 'limit': {}}
+
+        if name == 'query+templates':
+            result['limit'] = {'max': 1}
+
+        return result
 
 
 class DummySiteinfo:
@@ -322,14 +327,12 @@ class DryRequest(CachedRequest):
         """Never invalidate cached data."""
         return False
 
-    def _write_cache(self, data):
-        """Never write data."""
-        return
+    def _write_cache(self, data) -> None:
+        """Never write data but just do nothing."""
 
     def submit(self):
         """Prevented method."""
-        raise Exception('DryRequest rejecting request: {!r}'
-                        .format(self._params))
+        raise Exception(f'DryRequest rejecting request: {self._params!r}')
 
 
 class DrySite(pywikibot.site.APISite):
@@ -355,11 +358,10 @@ class DrySite(pywikibot.site.APISite):
         if self.family.name == 'wikisource':
             extensions.append({'name': 'ProofreadPage'})
         self._siteinfo._cache['extensions'] = (extensions, True)
-        aliases = []
-        for alias in ('PrefixIndex', ):
-            # TODO: Not all follow that scheme (e.g. "BrokenRedirects")
-            aliases.append(
-                {'realname': alias.capitalize(), 'aliases': [alias]})
+
+        # TODO: Not all follow that scheme (e.g. "BrokenRedirects")
+        aliases = [{'realname': alias.capitalize(), 'aliases': [alias]}
+                   for alias in ('PrefixIndex', )]
         self._siteinfo._cache['specialpagealiases'] = (aliases, True)
         self._msgcache = {'*': 'dummy entry', 'hello': 'world'}
 
@@ -390,7 +392,7 @@ class DrySite(pywikibot.site.APISite):
     def image_repository(self):
         """Return Site object for image repository e.g. commons."""
         code, fam = self.shared_image_repository()
-        if bool(code or fam):
+        if code or fam:
             return pywikibot.Site(code, fam, self.username(),
                                   interface=self.__class__)
         return None
@@ -411,7 +413,7 @@ class DrySite(pywikibot.site.APISite):
                             'wikivoyage'):
             code, fam = None, None
 
-        if bool(code or fam):
+        if code or fam:
             return pywikibot.Site(code, fam, self.username(),
                                   interface=DryDataSite)
         return None
@@ -419,7 +421,7 @@ class DrySite(pywikibot.site.APISite):
     def login(self, *args, cookie_only=False, **kwargs):
         """Overwrite login which is called when a site is initialized.
 
-        .. versionadded: 8.0.4
+        .. versionadded:: 8.0.4
         """
         if cookie_only:
             return
@@ -467,17 +469,16 @@ class FakeLoginManager(pywikibot.login.ClientLoginManager):
         """Ignore password changes."""
 
 
-def execute(command: List[str], data_in=None, timeout=None):
+def execute(command: list[str], *, data_in=None, timeout=None):
     """Execute a command and capture outputs.
 
-    .. versionchanged:: 8.2.0
+    .. versionchanged:: 8.2
        *error* parameter was removed.
+    .. versionchanged:: 9.1
+       parameters except *command* are keyword only.
 
     :param command: executable to run and arguments to use
     """
-    if PYTHON_VERSION < (3, 7):
-        command.insert(1, '-W ignore::FutureWarning:pywikibot:110')
-
     env = os.environ.copy()
 
     # Prevent output by test package; e.g. 'max_retries reduced from x to y'
@@ -516,14 +517,16 @@ def execute(command: List[str], data_in=None, timeout=None):
             'stderr': stderr_data.decode(config.console_encoding)}
 
 
-def execute_pwb(args: List[str],
-                data_in: Optional[Sequence[str]] = None,
-                timeout: Union[int, float, None] = None,
-                overrides: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+def execute_pwb(args: list[str], *,
+                data_in: Sequence[str] | None = None,
+                timeout: int | float | None = None,
+                overrides: dict[str, str] | None = None) -> dict[str, Any]:
     """Execute the pwb.py script and capture outputs.
 
-    .. versionchanged:: 8.2.0
+    .. versionchanged:: 8.2
        the *error* parameter was removed.
+    .. versionchanged:: 9.1
+       parameters except *args* are keyword only.
 
     :param args: list of arguments for pwb.py
     :param overrides: mapping of pywikibot symbols to test replacements
@@ -551,7 +554,9 @@ def empty_sites():
 
 
 @contextmanager
-def skipping(*exceptions: BaseException, msg: Optional[str] = None):
+def skipping(*exceptions: BaseException,
+             msg: str | None = None,
+             code: str | None = None):
     """Context manager to skip test on specified exceptions.
 
     For example Eventstreams raises ``NotImplementedError`` if no
@@ -579,13 +584,25 @@ def skipping(*exceptions: BaseException, msg: Optional[str] = None):
     .. note:: The last sample uses Python 3.10 syntax.
 
     .. versionadded:: 6.2
+    .. versionchanged:: 9.3
+       *code* parameter was added
 
-    :param msg: Optional skipping reason
     :param exceptions: Exceptions to let test skip
+    :param msg: Optional skipping reason
+    :param code: if *exceptions* is a single :exc:`APIError` you can
+        specify the :attr:`APIError.code` for the right match to be
+        skipped.
     """
     try:
         yield
     except exceptions as e:
+        if code:
+            if len(exceptions) != 1 \
+               or not hasattr(e, 'code') \
+               or e.code != code:
+                raise
+            msg = e.info
+
         if msg is None:
             msg = e
         raise unittest.SkipTest(msg)

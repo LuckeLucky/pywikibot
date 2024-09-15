@@ -48,11 +48,7 @@ functions will be listed.
 #
 # Distributed under the terms of the MIT license.
 #
-# Todo:
-# * Using xml and xmlstart
-# * Using categories
-# * Error handling for uploading (anyway, that's the last action, it's only
-#   for the beauty of the program, does not effect anything).
+from __future__ import annotations
 
 import codecs
 import re
@@ -61,6 +57,13 @@ from collections import Counter
 import pywikibot
 from pywikibot import pagegenerators
 from pywikibot.bot import ExistingPageBot, SingleSiteBot
+
+
+# Todo:
+# * Using xml and xmlstart
+# * Using categories
+# * Error handling for uploading (anyway, that's the last action, it's only
+#   for the beauty of the program, does not effect anything).
 
 
 class ParserFunctionCountBot(SingleSiteBot, ExistingPageBot):
@@ -153,8 +156,8 @@ class ParserFunctionCountBot(SingleSiteBot, ExistingPageBot):
     def teardown(self) -> None:
         """Final processing."""
         resultlist = '\n'.join(
-            '# [[{result[0]}]] ({result[1]})'
-            .format(result=result)
+            f'# [[{result[0]}]] ({result[1]})'
+
             for result in self.results.most_common(self.opt.first))
         pywikibot.info(resultlist)
         pywikibot.info(f'{len(self.results)} templates were found.')

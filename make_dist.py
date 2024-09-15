@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Script to create a new distribution. Requires Python 3.7+.
+"""Script to create a new distribution.
 
 The following options are supported:
 
@@ -37,7 +37,6 @@ Usage::
    - *nodist* option was added
 
 .. versionchanged:: 8.1
-   Python 3.7+ required because *dataclasses* module is used.
    *nodist* option was removed, *clear* option does not create a
    distribution. *local* and *remote* option clears old distributions
    first.
@@ -46,10 +45,12 @@ Usage::
    option also installs packages if necessary.
 """
 #
-# (C) Pywikibot team, 2022-2023
+# (C) Pywikibot team, 2022-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import abc
 import shutil
 import sys
@@ -59,7 +60,6 @@ from pathlib import Path
 from subprocess import check_call, run
 
 from pywikibot import __version__, error, info, input_yn, warning
-from pywikibot.backports import Tuple
 
 
 @dataclass
@@ -109,7 +109,7 @@ class SetupBase(abc.ABC):
         if self.local or self.remote or self.clear:
             self.clear_old_dist()
             if self.clear:
-                return True  # pragma: no cover
+                return True
 
         if self.upgrade:  # pragma: no cover
             check_call('python -m pip install --upgrade pip', shell=True)
@@ -125,16 +125,22 @@ class SetupBase(abc.ABC):
             for module in ('build', 'twine'):
                 try:
                     import_module(module)
-                except ModuleNotFoundError as e:  # pragma: no cover
+                except ModuleNotFoundError as e:
                     error(f'<<lightred>>{e}')
                     info('<<lightblue>>You may use -upgrade option to install')
                     return False
+        return self.build()  # pragma: no cover
 
+    def build(self) -> bool:  # pragma: no cover
+        """Build the packages.
+
+        .. versionadded:: 9.3
+        """
         self.copy_files()
         info('<<lightyellow>>Build package')
         try:
             check_call('python -m build')
-        except Exception as e:  # pragma: no cover
+        except Exception as e:
             error(e)
             return False
         finally:
@@ -142,7 +148,7 @@ class SetupBase(abc.ABC):
 
         info('<<lightyellow>>Check package and description')
         if run('twine check dist/*', shell=True).returncode:
-            return False  # pragma: no cover
+            return False
 
         if self.local:
             info('<<lightyellow>>Install locally')
@@ -153,7 +159,7 @@ class SetupBase(abc.ABC):
 
         if self.remote and input_yn(
                 '<<lightblue>>Upload dist to pypi', automatic_quit=False):
-            check_call('twine upload dist/*', shell=True)  # pragma: no cover
+            check_call('twine upload dist/*', shell=True)
         return True
 
 
@@ -172,7 +178,7 @@ class SetupPywikibot(SetupBase):
         self.target = target
         self.source = source
 
-    def copy_files(self) -> None:
+    def copy_files(self) -> None:  # pragma: no cover
         """Copy i18n files to pywikibot.scripts folder.
 
         Pywikibot i18n files are used for some translations. They are copied
@@ -186,7 +192,7 @@ class SetupPywikibot(SetupBase):
         shutil.copytree(self.source, self.target)
         info('done')
 
-    def cleanup(self) -> None:
+    def cleanup(self) -> None:  # pragma: no cover
         """Remove all copied files from pywikibot scripts folder."""
         info('<<lightyellow>>Remove copied files... ', newline=False)
         shutil.rmtree(self.target)
@@ -197,18 +203,19 @@ class SetupPywikibot(SetupBase):
         info('<<lightyellow>>done')
 
 
-def handle_args() -> Tuple[bool, bool, bool, bool]:
+def handle_args() -> tuple[bool, bool, bool, bool]:
     """Handle arguments and print documentation if requested.
-
-    Read arguments from `sys.argv` and adjust it passing `sdist` to
-    `setuptools.setup`.
 
     :return: Return whether dist is to be installed locally or to be
         uploaded
     """
     if '-help' in sys.argv:
+        import re
+
         import setup
-        info(__doc__)
+        help_text = re.sub(r'^\.\. version(added|changed)::.+', '',
+                           __doc__, flags=re.MULTILINE | re.DOTALL)
+        info(help_text)
         info(setup.__doc__)
         sys.exit()
 

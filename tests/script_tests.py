@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Test that each script can be compiled and executed."""
 #
-# (C) Pywikibot team, 2014-2023
+# (C) Pywikibot team, 2014-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import os
 import sys
 import unittest
@@ -36,9 +38,8 @@ def check_script_deps(script_name):
     if script_name in script_deps:
         for package_name in script_deps[script_name]:
             if not has_module(package_name):
-                unittest_print(
-                    "{} depends on {}, which isn't available"
-                    .format(script_name, package_name))
+                unittest_print(f'{script_name} depends on {package_name},'
+                               " which isn't available")
                 return False
     return True
 
@@ -63,6 +64,7 @@ script_list = framework_scripts + list_scripts(scripts_path)
 
 script_input = {
     'create_isbn_edition': '\n',
+    'category_redirect': 'q\nn\n',
     'interwiki': 'Test page that should not exist\n',
     'misspelling': 'q\n',
     'pagefromfile': 'q\n',
@@ -83,6 +85,7 @@ auto_run_script_set = {
     'category_redirect',
     'checkimages',
     'clean_sandbox',
+    'commons_information',
     'create_isbn_edition',
     'delinker',
     'login',
@@ -144,8 +147,8 @@ def collector(loader=unittest.loader.defaultTestLoader):
        to fallback to its own discover() ordering of unit tests.
     """
     if unrunnable_script_set:  # pragma: no cover
-        unittest_print('Skipping execution of unrunnable scripts:\n  {!r}'
-                       .format(unrunnable_script_set))
+        unittest_print('Skipping execution of unrunnable scripts:\n'
+                       f'{unrunnable_script_set!r}')
 
     test_pattern = 'tests.script_tests.TestScript{}.test_{}'
 
@@ -200,7 +203,7 @@ class ScriptTestMeta(MetaTestCaseClass):
                     'For global options use -help:global or run pwb'
                 global_args = ['-pwb_close_matches:1']
 
-                cmd = global_args + [script_name] + args
+                cmd = [*global_args, script_name, *args]
                 data_in = script_input.get(script_name)
                 if isinstance(self._timeout, bool):
                     do_timeout = self._timeout
@@ -222,7 +225,7 @@ class ScriptTestMeta(MetaTestCaseClass):
                     test_overrides['pywikibot.Site'] = 'lambda *a, **k: None'
 
                 # run the script
-                result = execute_pwb(cmd, data_in, timeout=timeout,
+                result = execute_pwb(cmd, data_in=data_in, timeout=timeout,
                                      overrides=test_overrides)
 
                 err_result = result['stderr']
@@ -255,16 +258,16 @@ class ScriptTestMeta(MetaTestCaseClass):
                     exit_codes = [0, 1, -9]
                     if not out_result and not err_result:
                         unittest_print(' auto-run script unresponsive after '
-                                       '{} seconds'.format(timeout), end=' ')
+                                       f'{timeout} seconds', end=' ')
                     elif 'SIMULATION: edit action blocked' in err_result:
                         unittest_print(' auto-run script simulated edit '
                                        'blocked', end=' ')
                     else:
-                        unittest_print(
-                            ' auto-run script stderr within {} seconds: {!r}'
-                            .format(timeout, err_result), end='  ')
-                    unittest_print(' exit code: {}'
-                                   .format(result['exit_code']), end=' ')
+                        unittest_print(' auto-run script stderr within '
+                                       f'{timeout} seconds: {err_result!r}',
+                                       end='  ')
+                    unittest_print(f" exit code: {result['exit_code']}",
+                                   end=' ')
 
                 self.assertNotIn('Traceback (most recent call last)',
                                  err_result)
@@ -302,26 +305,19 @@ class ScriptTestMeta(MetaTestCaseClass):
 
             cls.add_method(dct, test_name,
                            test_execution(script_name, arguments.split()),
-                           'Test running {} {}.'
-                           .format(script_name, arguments))
+                           f'Test running {script_name} {arguments}.')
 
             if script_name in dct['_expected_failures']:
                 dct[test_name] = unittest.expectedFailure(dct[test_name])
             elif script_name in dct['_allowed_failures']:
                 dct[test_name] = unittest.skip(
-                    '{} is in _allowed_failures set'
-                    .format(script_name))(dct[test_name])
+                    f'{script_name} is in _allowed_failures set'
+                )(dct[test_name])
             elif script_name in failed_dep_script_set \
                     and arguments == '-simulate':
                 dct[test_name] = unittest.skip(
-                    '{} has dependencies; skipping'
-                    .format(script_name))(dct[test_name])
-
-            # Disable test by default in pytest
-            if script_name in unrunnable_script_set:
-                # flag them as an expectedFailure due to py.test (T135594)
-                dct[test_name] = unittest.expectedFailure(dct[test_name])
-                dct[test_name].__test__ = False
+                    f'{script_name} has dependencies; skipping'
+                )(dct[test_name])
 
         return super().__new__(cls, name, bases, dct)
 
@@ -362,20 +358,26 @@ class TestScriptSimulate(DefaultSiteTestCase, PwbTestCase,
     _expected_failures = {
         'catall',          # stdout user interaction
         'checkimages',
+        'commons_information',  # no empty out_result
         'revertbot',
         'transwikiimport',
     }
 
     _allowed_failures = {
         'blockpageschecker',  # not localized for some test sites
+        'category_redirect',
+        'claimit',
         'clean_sandbox',
+        'coordinate_import',
         'delinker',
         'disambredir',
+        'illustrate_wikidata',
         'misspelling',  # T94681
         'noreferences',
         'nowcommons',
         'patrol',
         'shell',
+        'speedy_delete',
         'unusedfiles',  # not localized for default sites
         'upload',  # raises custom ValueError
         'watchlist',  # not logged in
@@ -409,13 +411,11 @@ class TestScriptGenerator(DefaultSiteTestCase, PwbTestCase,
         'create_isbn_edition',
         'dataextend',
         'data_ingestion',
-        'delete',
         'delinker',
         'djvutext',
         'download_dump',
         'harvest_template',
         'image',  # Foobar has no valid extension
-        'imagetransfer',
         'interwiki',
         'listpages',
         'login',
@@ -445,6 +445,8 @@ class TestScriptGenerator(DefaultSiteTestCase, PwbTestCase,
 
     _allowed_failures = {
         'basic',
+        'delete',  # T368859
+        'imagetransfer',  # T368859
         'newitem',
         'nowcommons',
     }
@@ -454,6 +456,6 @@ class TestScriptGenerator(DefaultSiteTestCase, PwbTestCase,
     _timeout = True
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

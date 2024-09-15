@@ -15,10 +15,12 @@ __init__.py, and a message bundle called 'pywikibot' containing messages.
 See :py:obj:`twtranslate` for more information on the messages.
 """
 #
-# (C) Pywikibot team, 2004-2023
+# (C) Pywikibot team, 2004-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import json
 import os
 import pkgutil
@@ -27,16 +29,13 @@ from collections import abc, defaultdict
 from contextlib import suppress
 from pathlib import Path
 from textwrap import fill
-from typing import Optional, Union
 
 import pywikibot
 from pywikibot import __url__, config
 from pywikibot.backports import (
-    Dict,
     Generator,
     Iterable,
     Iterator,
-    List,
     Mapping,
     Match,
     Sequence,
@@ -45,8 +44,6 @@ from pywikibot.backports import (
 )
 from pywikibot.plural import plural_rule
 
-
-STR_OR_SITE_TYPE = Union[str, 'pywikibot.site.BaseSite']
 
 PLURAL_PATTERN = r'{{PLURAL:(?:%\()?([^\)]*?)(?:\)d)?\|(.*?)}}'
 
@@ -276,7 +273,7 @@ _LANG_TO_GROUP_NAME = defaultdict(str, {
     'zh-tw': 'zh-classical',
     'zh-yue': 'cdo'})
 
-_GROUP_NAME_TO_FALLBACKS: Dict[str, List[str]] = {
+_GROUP_NAME_TO_FALLBACKS: dict[str, list[str]] = {
     '': [],
     'aa': ['am'],
     'ab': ['ru'],
@@ -403,7 +400,7 @@ def messages_available() -> bool:
     return _messages_available
 
 
-def _altlang(lang: str) -> List[str]:
+def _altlang(lang: str) -> list[str]:
     """Define fallback languages for particular languages.
 
     If no translation is available to a specified language, translate() will
@@ -422,7 +419,7 @@ def _altlang(lang: str) -> List[str]:
 
 
 @cache
-def _get_bundle(lang: str, dirname: str) -> Dict[str, str]:
+def _get_bundle(lang: str, dirname: str) -> dict[str, str]:
     """Return json data of certain bundle if exists.
 
     For internal use, don't use it directly.
@@ -440,7 +437,7 @@ def _get_bundle(lang: str, dirname: str) -> Dict[str, str]:
     return json.loads(trans_text)
 
 
-def _get_translation(lang: str, twtitle: str) -> Optional[str]:
+def _get_translation(lang: str, twtitle: str) -> str | None:
     """
     Return message of certain twtitle if exists.
 
@@ -524,8 +521,10 @@ class _PluralMappingAlias(abc.Mapping):
     That function only uses __getitem__ so this is only implemented here.
     """
 
-    def __init__(self, source: Union[int, str, Sequence[int],
-                 Mapping[str, int]]) -> None:
+    def __init__(
+        self,
+        source: int | str | Sequence[int] | Mapping[str, int],
+    ) -> None:
         self.source = source
         if isinstance(source, str):
             self.source = int(source)
@@ -556,10 +555,10 @@ class _PluralMappingAlias(abc.Mapping):
 DEFAULT_FALLBACK = ('_default', )
 
 
-def translate(code: STR_OR_SITE_TYPE,
-              xdict: Union[str, Mapping[str, str]],
-              parameters: Optional[Mapping[str, int]] = None,
-              fallback: Union[bool, Iterable[str]] = False) -> Optional[str]:
+def translate(code: str | pywikibot.site.BaseSite,
+              xdict: str | Mapping[str, str],
+              parameters: Mapping[str, int] | None = None,
+              fallback: bool | Iterable[str] = False) -> str | None:
     """Return the most appropriate localization from a localization dict.
 
     Given a site code and a dictionary, returns the dictionary's value for
@@ -614,7 +613,7 @@ def translate(code: STR_OR_SITE_TYPE,
     else:
         codes = [code]
         if fallback is True:
-            codes += _altlang(code) + ['_default', 'en']
+            codes += [*_altlang(code), '_default', 'en']
         elif fallback is not False:
             assert not isinstance(fallback, bool)
             codes.extend(fallback)
@@ -652,10 +651,13 @@ def translate(code: STR_OR_SITE_TYPE,
     return trans
 
 
-def get_bot_prefix(source: STR_OR_SITE_TYPE, use_prefix: bool) -> str:
+def get_bot_prefix(
+    source: str | pywikibot.site.BaseSite,
+    use_prefix: bool
+) -> str:
     """Get the bot prefix string like 'Bot: ' including space delimiter.
 
-    .. note: If *source* is a str and ``config.bot_prefix`` is set to
+    .. note:: If *source* is a str and ``config.bot_prefix`` is set to
        None, it cannot be determined whether the current user is a bot
        account. In this cas the prefix will be returned.
     .. versionadded:: 8.1
@@ -688,15 +690,15 @@ def get_bot_prefix(source: STR_OR_SITE_TYPE, use_prefix: bool) -> str:
 
 
 def twtranslate(
-    source: STR_OR_SITE_TYPE,
+    source: str | pywikibot.site.BaseSite,
     twtitle: str,
-    parameters: Union[Sequence[str], Mapping[str, int], None] = None,
+    parameters: Sequence[str] | Mapping[str, int] | None = None,
     *,
     fallback: bool = True,
-    fallback_prompt: Optional[str] = None,
+    fallback_prompt: str | None = None,
     only_plural: bool = False,
     bot_prefix: bool = False
-) -> Optional[str]:
+) -> str | None:
     r"""
     Translate a message using JSON files in messages_package_name.
 
@@ -791,7 +793,7 @@ def twtranslate(
     # modes are caught with the KeyError.
     langs = [lang]
     if fallback:
-        langs += _altlang(lang) + ['en']
+        langs += [*_altlang(lang), 'en']
     for alt in langs:
         trans = _get_translation(alt, twtitle)
         if trans:
@@ -820,7 +822,7 @@ def twtranslate(
     return prefix + trans
 
 
-def twhas_key(source: STR_OR_SITE_TYPE, twtitle: str) -> bool:
+def twhas_key(source: str | pywikibot.site.BaseSite, twtitle: str) -> bool:
     """
     Check if a message has a translation in the specified language code.
 
@@ -839,7 +841,7 @@ def twhas_key(source: STR_OR_SITE_TYPE, twtitle: str) -> bool:
     return transdict is not None
 
 
-def twget_keys(twtitle: str) -> List[str]:
+def twget_keys(twtitle: str) -> list[str]:
     """
     Return all language codes for a special message.
 
@@ -863,7 +865,7 @@ def twget_keys(twtitle: str) -> List[str]:
             if lang != 'qqq' and _get_translation(lang, twtitle)]
 
 
-def bundles(stem: bool = False) -> Generator[Union[Path, str], None, None]:
+def bundles(stem: bool = False) -> Generator[Path | str, None, None]:
     """A generator which yields message bundle names or its path objects.
 
     The bundle name usually corresponds with the script name which is
@@ -874,11 +876,11 @@ def bundles(stem: bool = False) -> Generator[Union[Path, str], None, None]:
     >>> from pywikibot import i18n
     >>> bundles = sorted(i18n.bundles(stem=True))
     >>> len(bundles)
-    38
+    39
     >>> bundles[:4]
     ['add_text', 'archivebot', 'basic', 'blockpageschecker']
     >>> bundles[-5:]
-    ['undelete', 'unprotect', 'unusedfiles', 'weblinkchecker', 'welcome']
+    ['unlink', 'unprotect', 'unusedfiles', 'weblinkchecker', 'welcome']
     >>> 'pywikibot' in bundles
     True
 
@@ -902,7 +904,7 @@ def bundles(stem: bool = False) -> Generator[Union[Path, str], None, None]:
                 yield dirpath
 
 
-def known_languages() -> List[str]:
+def known_languages() -> list[str]:
     """All languages we have localizations for.
 
     >>> from pywikibot import i18n
@@ -911,7 +913,7 @@ def known_languages() -> List[str]:
     >>> i18n.known_languages()[-10:]
     ['vo', 'vro', 'wa', 'war', 'xal', 'xmf', 'yi', 'yo', 'yue', 'zh']
     >>> len(i18n.known_languages())
-    254
+    255
 
     The implementation is roughly equivalent to:
 
@@ -933,9 +935,9 @@ def known_languages() -> List[str]:
 
 
 def input(twtitle: str,
-          parameters: Optional[Mapping[str, int]] = None,
+          parameters: Mapping[str, int] | None = None,
           password: bool = False,
-          fallback_prompt: Optional[str] = None) -> str:
+          fallback_prompt: str | None = None) -> str:
     """
     Ask the user a question, return the user's answer.
 

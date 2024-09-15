@@ -42,10 +42,12 @@ Commandline parameters:
 
 """
 #
-# (C) Pywikibot team, 2011-2023
+# (C) Pywikibot team, 2011-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import time
 from collections import defaultdict
 from contextlib import suppress
@@ -56,6 +58,7 @@ import pywikibot
 from pywikibot import pagegenerators
 from pywikibot.backports import Container, removeprefix
 from pywikibot.bot import BaseBot, suggest_help
+from pywikibot.site import Namespace
 
 
 def verbose_output(string) -> None:
@@ -97,9 +100,10 @@ class PatrolBot(BaseBot):
         else:
             local_whitelist_subpage_name = pywikibot.translate(
                 self.site, self.whitelist_subpage_name, fallback=True)
-            self.whitelist_pagename = '{}:{}/{}'.format(
-                self.site.namespace(2), self.site.username(),
-                local_whitelist_subpage_name)
+            self.whitelist_pagename = (
+                f'{self.site.namespace(2)}:{self.site.username()}/'
+                f'{local_whitelist_subpage_name}'
+            )
         self.whitelist = None
         self.whitelist_ts = 0
         self.whitelist_load_ts = 0
@@ -214,7 +218,7 @@ class PatrolBot(BaseBot):
                 continue
 
             obj = pywikibot.Link(node.title, self.site)
-            if obj.namespace == -1:
+            if obj.namespace == Namespace.SPECIAL:
                 # the parser accepts 'special:prefixindex/' as a wildcard
                 # this allows a prefix that doesn't match an existing page
                 # to be a blue link, and can be clicked to see what pages
@@ -229,7 +233,7 @@ class PatrolBot(BaseBot):
                         verbose_output('Whitelist prefixindex hack for: '
                                        + page)
 
-            elif obj.namespace == 2 and not current_user:
+            elif obj.namespace == Namespace.USER and not current_user:
                 # if a target user hasn't been found yet, and the link is
                 # 'user:'
                 # the user will be the target of subsequent rules
@@ -350,9 +354,8 @@ class LinkedPagesRule:
         if not self.linkedpages:
             verbose_output('loading page links on ' + self.page_title)
             p = pywikibot.Page(self.site, self.page_title)
-            linkedpages = []
-            for linkedpage in p.linkedPages():
-                linkedpages.append(linkedpage.title())
+            linkedpages = [linkedpage.title()
+                           for linkedpage in p.linkedPages()]
 
             self.linkedpages = linkedpages
             verbose_output(f'Loaded {len(linkedpages)} page links')

@@ -23,10 +23,12 @@ Purge mode:
 &params;
 """
 #
-# (C) Pywikibot team, 2009-2023
+# (C) Pywikibot team, 2009-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 from collections import defaultdict
 from contextlib import suppress
 
@@ -55,7 +57,7 @@ class TouchBot(MultipleSitesBot):
     def treat(self, page) -> None:
         """Touch the given page."""
         try:
-            page.touch(botflag=self.opt.botflag)
+            page.touch(bot=self.opt.botflag)
         except (NoCreateError, NoPageError):
             pywikibot.error(f'Page {page.title(as_link=True)} does not exist.')
         except LockedPageError:
@@ -81,6 +83,7 @@ class PurgeBot(MultipleSitesBot):
         """Initializer."""
         super().__init__(*args, **kwargs)
         self.pages = defaultdict(list)
+        self.limit = {}
 
     def treat(self, page) -> None:
         """Purge the given page.
@@ -91,6 +94,7 @@ class PurgeBot(MultipleSitesBot):
         """
         # We can have mutiple sites, save pages and cache rate limit
         self.pages[page.site].append(page)
+        self.limit.setdefault(page.site, page.site.ratelimit('purge'))
         self.purgepages()
 
     def teardown(self):
@@ -108,13 +112,15 @@ class PurgeBot(MultipleSitesBot):
     def purgepages(self, flush=False):
         """Purge a bulk of page if rate limit exceeded.
 
-        Use default rate limit for purging pages which is 30/60.
-
         .. versionadded:: 8.0
+        .. versionchanged:: 9.0
+           :meth:`site.APISite.ratelimit()
+           <pywikibot.site._apisite.APISite.ratelimit>` method is used
+           to determine bulk length and delay.
         """
         for site, pagelist in self.pages.items():
             length = len(pagelist)
-            if flush or length >= 30:
+            if flush or length >= self.limit[site].hits:
                 done = site.purgepages(pagelist, **self.opt)
                 if done:
                     self.counter['purge'] += length
@@ -122,9 +128,12 @@ class PurgeBot(MultipleSitesBot):
 
                 pywikibot.info(
                     f"{length} pages{'' if done else ' not'} purged")
-                if not flush and not config.simulate:
-                    pywikibot.info('Waiting due to purge rate limit')
-                    pywikibot.sleep(62)
+                if not flush and config.simulate is False:
+                    delay = self.limit[site].delay * (length + 1)
+                    if delay:
+                        pywikibot.info(
+                            f'Waiting {delay} seconds due to purge rate limit')
+                        pywikibot.sleep(delay)
 
 
 def main(*args: str) -> None:
@@ -145,7 +154,7 @@ def main(*args: str) -> None:
 
     bot_class = TouchBot
     for arg in local_args:
-        option, _, value = arg[1:].partition(':')
+        option = arg[1:]
         if arg == '-purge':
             bot_class = PurgeBot
         elif arg.startswith('-'):

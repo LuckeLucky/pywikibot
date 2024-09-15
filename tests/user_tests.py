@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Tests for the User page."""
 #
-# (C) Pywikibot team, 2016-2023
+# (C) Pywikibot team, 2016-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 from contextlib import suppress
 from unittest.mock import patch
 
@@ -95,7 +97,7 @@ class TestUserClass(TestCase):
         self.assertIsNone(user.registration())
         self.assertIsNone(user.getprops()['registration'])
         self.assertGreater(user.editCount(), 0)
-        self.assertEqual(user.gender(), 'male')
+        self.assertEqual(user.gender(), 'unknown')
         self.assertIn('userid', user.getprops())
         self.assertTrue(user.is_thankable)
 
@@ -179,8 +181,8 @@ class TestUserMethods(DefaultSiteTestCase):
         user = User(mysite, mysite.user())
         uc = list(user.contributions(total=total))
         if not uc:
-            self.skipTest('User {} has no contributions on site {}.'
-                          .format(mysite.user(), mysite))
+            self.skipTest(
+                f'User {mysite.user()} has no contributions on site {mysite}.')
         self.assertLessEqual(len(uc), total)
         self.assertEqual(uc[0], user.last_edit)
         first_edit = uc[-1] if len(uc) < total else list(
@@ -201,8 +203,8 @@ class TestUserMethods(DefaultSiteTestCase):
         user = User(mysite, mysite.user())
         le = list(user.logevents(total=10))
         if not le:
-            self.skipTest('User {} has no logevents on site {}.'
-                          .format(mysite.user(), mysite))
+            self.skipTest(
+                f'User {mysite.user()} has no logevents on site {mysite}.')
         self.assertLessEqual(len(le), 10)
         last = le[0]
         self.assertEqual(last, user.last_event)
@@ -210,6 +212,6 @@ class TestUserMethods(DefaultSiteTestCase):
             self.assertEqual(event.user(), user.username)
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

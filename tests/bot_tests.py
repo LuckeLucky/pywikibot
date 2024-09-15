@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Bot tests."""
 #
-# (C) Pywikibot team, 2015-2022
+# (C) Pywikibot team, 2015-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import sys
 from contextlib import suppress
 
@@ -27,8 +29,9 @@ class TWNBotTestCase(TestCase):
     def setUpClass(cls):
         """Verify that the translations are available."""
         if not i18n.messages_available():
-            raise unittest.SkipTest("i18n messages package '{}' not available."
-                                    .format(i18n._messages_package_name))
+            raise unittest.SkipTest(
+                f'i18n messages package {i18n._messages_package_name!r} not'
+                ' available.')
         super().setUpClass()
 
 
@@ -230,7 +233,7 @@ class LiveBotTestCase(TestBotTreatExit, DefaultSiteTestCase):
     def _missing_generator(self):
         """Yield pages and the last one does not exist."""
         self._count = 0  # skip_page skips one page
-        self._current_page = list(self.site.allpages(total=1))[0]
+        self._current_page = next(self.site.allpages(total=1))
         yield self._current_page
         while self._current_page.exists():
             self._count += 1
@@ -317,6 +320,6 @@ class TestOptionHandler(TestCase):
         self.assertNotIn('baz', oh.opt.__dict__)
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

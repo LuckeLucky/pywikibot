@@ -1,21 +1,29 @@
 #!/usr/bin/env python3
 """Tests for the flow module."""
 #
-# (C) Pywikibot team, 2015-2023
+# (C) Pywikibot team, 2015-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import unittest
 from contextlib import suppress
 
 from pywikibot import config
-from pywikibot.exceptions import NoPageError
-from pywikibot.flow import Board, Post, Topic
+from pywikibot.exceptions import LockedPageError, NoPageError
+from pywikibot.tools import suppress_warnings
 from tests.aspects import TestCase
 from tests.basepage import (
     BasePageLoadRevisionsCachingTestBase,
     BasePageMethodsTestBase,
 )
+
+
+with suppress_warnings(r'pywikibot\.flow\.(Board|Post|Topic) is deprecated '
+                       r'since release 9\.4\.0\.',
+                       DeprecationWarning):
+    from pywikibot.flow import Board, Post, Topic
 
 
 class TestMediaWikiFlowSandbox(TestCase):
@@ -261,6 +269,30 @@ class TestFlowTopic(TestCase):
         self.assertTrue(topic_hidden.is_moderated)
 
 
-if __name__ == '__main__':  # pragma: no cover
+class TestFlowEditFailure(TestCase):
+
+    """Flow-related edit failure tests."""
+
+    family = 'wikipedia'
+    code = 'test'
+    write = True
+
+    def test_reply_to_locked_topic(self):
+        """Test replying to locked topic (should raise exception)."""
+        # Setup
+        content = 'I am a reply to a locked topic. This is not good!'
+        topic = Topic(self.site, 'Topic:Smxnipjfs8umm1wt')
+        # Reply (should raise a LockedPageError exception)
+        with self.assertRaises(LockedPageError):
+            topic.reply(content, 'wikitext')
+        topic_root = topic.root
+        with self.assertRaises(LockedPageError):
+            topic_root.reply(content, 'wikitext')
+        topic_reply = topic.root.replies(force=True)[0]
+        with self.assertRaises(LockedPageError):
+            topic_reply.reply(content, 'wikitext')
+
+
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

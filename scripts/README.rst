@@ -1,22 +1,24 @@
-===========================================================================
+###########################################################################
 **This is a package to include robots for MediaWiki wikis like Wikipedia.**
-===========================================================================
+###########################################################################
 
+*********************************
 Some example robots are included.
-=================================
+*********************************
 
 These programs can actually modify the live wiki on the net, and proper
 wiki-etiquette should be followed before running it on any wiki.
 
 To get started on proper usage of the bot framework, refer to `Manual:Pywikibot <https://www.mediawiki.org/wiki/Manual:Pywikibot>`_.
 
+***************************
 The contents of the package
-===========================
+***************************
 
 Bots and scripts
-----------------
+================
 
-+------------------------------------------------------------------------------------+
++--------------------------+---------------------------------------------------------+
 | Bots and Scripts                                                                   |
 +==========================+=========================================================+
 | add_text.py              | Adds text at the top or end of pages.                   |
@@ -149,6 +151,8 @@ Bots and scripts
 | unusedfiles.py           | Bot appends some text to all unused images and other    |
 |                          | text to the respective uploaders.                       |
 +--------------------------+---------------------------------------------------------+
+| unlink.py                | This bot unlinks a page on every page that links to it. |
++--------------------------+---------------------------------------------------------+
 | upload.py                | Upload an image to a wiki.                              |
 +--------------------------+---------------------------------------------------------+
 | watchlists.py            | Allows access to the account's watchlist.               |
@@ -159,11 +163,13 @@ Bots and scripts
 +--------------------------+---------------------------------------------------------+
 
 Maintenance
------------
+===========
 
 +------------------------+---------------------------------------------------------+
 | maintenance            | Framework helper scripts                                |
 +========================+=========================================================+
+| addwikis.py            | Script to add wikis to a family file.                   |
++------------------------+---------------------------------------------------------+
 | cache.py               | Script for showing and deleting API cache.              |
 +------------------------+---------------------------------------------------------+
 | colors.py              | Utility to show pywikibot colors.                       |
@@ -172,11 +178,9 @@ Maintenance
 +------------------------+---------------------------------------------------------+
 | unidata.py             | Updates _first_upper_exception_dict in tools.unidata    |
 +------------------------+---------------------------------------------------------+
-| wikimedia_sites.py     | Updates the language lists in Wikimedia family files.   |
-+------------------------+---------------------------------------------------------+
 
 Others
-------
+======
 
 +------------------------+---------------------------------------------------------+
 | Others                 |                                                         |

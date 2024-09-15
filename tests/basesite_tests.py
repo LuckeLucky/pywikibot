@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """Tests for the site module."""
 #
-# (C) Pywikibot team, 2008-2022
+# (C) Pywikibot team, 2008-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 from contextlib import suppress
 
 import pywikibot
 from pywikibot.exceptions import Error
-from pywikibot.tools import suppress_warnings
 from tests.aspects import DefaultSiteTestCase, TestCase, unittest
 
 
@@ -91,12 +92,6 @@ class TestSiteObject(DefaultSiteTestCase):
         self.assertIsInstance(mysite.linktrail(), str)
         self.assertIsInstance(mysite.redirect(), str)
 
-        # sitename attribute could also be referenced like a function
-
-        with suppress_warnings(WARN_SELF_CALL, category=FutureWarning):
-            self.assertEqual(mysite.sitename(), '{}:{}'
-                                                .format(self.family, code))
-
         try:
             dabcat = mysite.disambcategory()
         except Error as e:
@@ -104,11 +99,11 @@ class TestSiteObject(DefaultSiteTestCase):
                 self.assertIn('No disambiguation category name found', str(e))
             except AssertionError:
                 self.assertIn(
-                    'No {repo} qualifier found for disambiguation category '
-                    'name in {fam}_family file'.format(
-                        repo=mysite.data_repository().family.name,
-                        fam=mysite.family.name),
-                    str(e))
+                    f'No {mysite.data_repository().family.name} qualifier'
+                    ' found for disambiguation category name in '
+                    f'{mysite.family.name}_family file',
+                    str(e)
+                )
         else:
             self.assertIsInstance(dabcat, pywikibot.Category)
 
@@ -134,6 +129,6 @@ class TestSiteObject(DefaultSiteTestCase):
                                          'MediaWiki:always'))
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

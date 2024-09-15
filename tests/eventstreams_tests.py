@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Tests for the eventstreams module."""
 #
-# (C) Pywikibot team, 2017-2023
+# (C) Pywikibot team, 2017-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import json
 import unittest
 from contextlib import suppress
@@ -44,8 +46,7 @@ class TestEventStreamsUrlTests(TestCase):
         self.assertIsNone(e._total)
         self.assertIsNone(e._streams)
         self.assertEqual(repr(e),
-                         "EventStreams(url='{}')"
-                         .format(self.sites[key]['hostname']))
+                         f"EventStreams(url='{self.sites[key]['hostname']}')")
 
     def test_url_from_site(self, key):
         """Test EventStreams with url from site."""
@@ -58,10 +59,9 @@ class TestEventStreamsUrlTests(TestCase):
         self.assertEqual(e._url, e.sse_kwargs.get('url'))
         self.assertIsNone(e._total)
         self.assertEqual(e._streams, streams)
-        site_repr = f'site={repr(site)}, ' if site != Site() else ''
+        site_repr = f'site={site!r}, ' if site != Site() else ''
         self.assertEqual(repr(e),
-                         "EventStreams({}streams='{}')"
-                         .format(site_repr, streams))
+                         f"EventStreams({site_repr}streams='{streams}')")
 
 
 @mock.patch('pywikibot.comms.eventstreams.EventSource', new=mock.MagicMock())
@@ -76,8 +76,7 @@ class TestEventStreamsStreamsTests(DefaultSiteTestCase):
         fam = site.family
         if not isinstance(fam, WikimediaFamily):
             self.skipTest(
-                "Family '{}' of site '{}' is not a WikimediaFamily."
-                .format(fam, site))
+                f"Family '{fam}' of site '{site}' is not a WikimediaFamily.")
 
     def test_url_with_streams(self):
         """Test EventStreams with url from default site."""
@@ -246,12 +245,12 @@ class TestEventStreamsFilter(TestCase):
         self.es.register_filter(lambda x: all_type, ftype='all')
         if any_type is not None:
             self.es.register_filter(lambda x: any_type, ftype='any')
-        self.assertEqual(self.es.streamfilter(self.data), result,
-                         'Test EventStreams filter mixed function failed for\n'
-                         "'none': {}, 'all': {}, 'any': {}\n"
-                         '(expected {}, given {})'
-                         .format(none_type, all_type, any_type,
-                                 result, not result))
+        self.assertEqual(
+            self.es.streamfilter(self.data), result,
+            'Test EventStreams filter mixed function failed for\n'
+            f"'none': {none_type}, 'all': {all_type}, 'any': {any_type}\n"
+            f'(expected {result}, given {not result})'
+        )
 
     def test_filter_mixed_function(self):
         """Test EventStreams filter mixed function."""
@@ -284,9 +283,9 @@ class EventStreamsTestClass(EventStreams):
                     self.source.resp.close()  # close SSLSocket
                     del self.source
                     raise ValueError(
-                        '{error}\n\nEvent no {number}: '
-                        'Could not load json data from source\n${event}$'
-                        .format(number=n, event=event, error=e))
+                        f'{e}\n\nEvent no {n}: '
+                        f'Could not load json data from source\n${event}$'
+                    ) from e
                 yield element
         del self.source
 
@@ -312,6 +311,6 @@ class TestEventSource(TestCase):
         self.assertLength(list(self.es), limit)
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

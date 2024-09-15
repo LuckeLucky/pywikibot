@@ -6,10 +6,12 @@ Tests which should fail should instead be in the TestWikibaseSaveTest
 class in edit_failiure_tests.py
 """
 #
-# (C) Pywikibot team, 2014-2022
+# (C) Pywikibot team, 2014-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import time
 import unittest
 from contextlib import suppress
@@ -89,9 +91,8 @@ class TestWikibaseWriteGeneral(WikibaseTestCase):
         item = pywikibot.PropertyPage(testsite, 'P115')
         item.get()
         if 'P115' in item.claims:
-            to_remove = []
-            for claim in item.claims['P115']:
-                to_remove.append({'id': claim.toJSON()['id'], 'remove': ''})
+            to_remove = [{'id': claim.toJSON()['id'], 'remove': ''}
+                         for claim in item.claims['P115']]
             item.editEntity({'claims': to_remove})
 
         claim = pywikibot.page.Claim(
@@ -127,6 +128,7 @@ class TestWikibaseWriteGeneral(WikibaseTestCase):
         item = pywikibot.ItemPage(testsite)
         item.editEntity(data)
 
+    @unittest.expectedFailure  # T367324
     def test_edit_entity_propogation(self):
         """Test that ``ItemPage.editEntity`` propagates changes to claims."""
         testsite = self.get_repo()
@@ -158,6 +160,7 @@ class TestWikibaseWriteGeneral(WikibaseTestCase):
         self.assertSame(qual.on_item, item)
         self.assertSame(ref.on_item, item)
 
+    @unittest.expectedFailure  # T367323
     def test_edit_entity_new_property(self):
         """Test creating a new property using ``PropertyPage.editEntity``."""
         testsite = self.get_repo()
@@ -289,6 +292,7 @@ class TestWikibaseMakeClaim(WikibaseTestCase):
         claim = item.claims['P271'][0]
         self.assertEqual(claim.getTarget(), target)
 
+    @unittest.expectedFailure  # T367326
     def test_Coordinate_edit(self):
         """Attempt adding a Coordinate with globe set via item."""
         testsite = self.get_repo()
@@ -391,6 +395,7 @@ class TestWikibaseMakeClaim(WikibaseTestCase):
         claim = item.claims['P27199'][0]
         self.assertEqual(claim.getTarget(), target)
 
+    @unittest.expectedFailure  # T367327
     def test_WbTabularData_edit(self):
         """Attempt adding a tabular-data with valid input."""
         # Clean the slate in preparation for test.
@@ -419,13 +424,48 @@ class TestWikibaseMakeClaim(WikibaseTestCase):
         # set new claim
         claim = pywikibot.page.Claim(
             testsite, 'P88936', datatype='musical-notation')
-        target = "\relative c' { c d e f | g2 g | a4 a a a | g1 |})"
+        target = "\\relative c' { c d e f | g2 g | a4 a a a | g1 |}"
         claim.setTarget(target)
         item.addClaim(claim)
 
         # confirm new claim
         item.get(force=True)
         claim = item.claims['P88936'][0]
+        self.assertEqual(claim.getTarget(), target)
+
+    def test_WbTime_edit_simple(self):
+        """Attempt adding a WbTime claim with valid input."""
+        testsite = self.get_repo()
+        item = self._clean_item(testsite, 'P66')
+
+        # set new claim
+        claim = pywikibot.page.Claim(
+            testsite, 'P66', datatype='time')
+        target = pywikibot.WbTime(year=2012)
+        claim.setTarget(target)
+        item.addClaim(claim)
+
+        # confirm new claim
+        item.get(force=True)
+        claim = item.claims['P66'][0]
+        self.assertEqual(claim.getTarget(), target)
+
+    @unittest.expectedFailure  # T325860
+    def test_WbTime_edit_fromTimestr(self):
+        """Attempt adding a WbTime claim with valid input."""
+        testsite = self.get_repo()
+        item = self._clean_item(testsite, 'P66')
+
+        # set new claim
+        claim = pywikibot.page.Claim(
+            testsite, 'P66', datatype='time')
+        target = pywikibot.WbTime.fromTimestr('+00000002010-01-01T12:43:01Z')
+        claim.setTarget(target)
+        item.addClaim(claim)
+
+        # confirm new claim
+        item.get(force=True)
+        claim = item.claims['P66'][0]
         self.assertEqual(claim.getTarget(), target)
 
 
@@ -626,6 +666,6 @@ class TestWikibaseAddClaimToExisting(WikibaseTestCase):
         self.assertEqual(claim1.getTarget(), target1)
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Test pwb.py."""
 #
-# (C) Pywikibot team, 2007-2023
+# (C) Pywikibot team, 2007-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import io
 import sys
 import unittest
@@ -81,13 +83,13 @@ class TestPwb(PwbTestCase):
         script_name = 'print_argv'
         script_path = join_pwb_tests_path(script_name + '.py')
         script_opts = ['-help']
-        command = [script_path] + script_opts
+        command = [script_path, *script_opts]
         without_global_args = execute_pwb(command)
-        with_no_global_args = execute_pwb(['-maxlag:5'] + command)
+        with_no_global_args = execute_pwb(['-maxlag:5', *command])
         self.assertEqual(without_global_args['stdout'],
                          with_no_global_args['stdout'])
         self.assertEqual(without_global_args['stdout'].rstrip(),
-                         str([script_name] + script_opts))
+                         str([script_name, *script_opts]))
 
     def test_script_found(self):
         """Test pwb.py script call which is found."""
@@ -139,5 +141,5 @@ class TestPwb(PwbTestCase):
         self.assertLength(remaining, 3)  # always 3 lines remaining after list
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     unittest.main(verbosity=10)

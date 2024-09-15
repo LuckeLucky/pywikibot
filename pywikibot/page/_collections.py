@@ -1,12 +1,14 @@
 """Structures holding data for Wikibase entities."""
 #
-# (C) Pywikibot team, 2019-2022
+# (C) Pywikibot team, 2019-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 from collections import defaultdict
 from collections.abc import MutableMapping, MutableSequence
-from typing import Optional
+from typing import Any
 
 import pywikibot
 from pywikibot.site import BaseSite
@@ -109,7 +111,7 @@ class LanguageDict(BaseDataDict):
                 norm_data[key] = value
         return norm_data
 
-    def toJSON(self, diffto: Optional[dict] = None) -> dict:
+    def toJSON(self, diffto: dict | None = None) -> dict:
         """Create JSON suitable for Wikibase API.
 
         When diffto is provided, JSON representing differences
@@ -173,7 +175,7 @@ class AliasesDict(BaseDataDict):
 
         return norm_data
 
-    def toJSON(self, diffto: Optional[dict] = None) -> dict:
+    def toJSON(self, diffto: dict | None = None) -> dict:
         """Create JSON suitable for Wikibase API.
 
         When diffto is provided, JSON representing differences
@@ -253,7 +255,7 @@ class ClaimCollection(MutableMapping):
         # no normalization here, should there be?
         return data
 
-    def toJSON(self, diffto: Optional[dict] = None) -> dict:
+    def toJSON(self, diffto: dict | None = None) -> dict:
         """Create JSON suitable for Wikibase API.
 
         When diffto is provided, JSON representing differences
@@ -373,7 +375,11 @@ class SiteLinkCollection(MutableMapping):
         self._data[key] = val
         return val
 
-    def __setitem__(self, key, val) -> None:
+    def __setitem__(
+        self,
+        key: str | pywikibot.site.APISite,
+        val: str | dict[str, Any] | pywikibot.page.SiteLink,
+    ) -> None:
         """
         Set the SiteLink for a given key.
 
@@ -382,10 +388,8 @@ class SiteLinkCollection(MutableMapping):
         __getitem__ method.
 
         :param key: site key as Site instance or db key
-        :type key: pywikibot.Site or str
         :param val: page name as a string or JSON containing SiteLink
             data or a SiteLink object
-        :type val: Union[str, dict, SiteLink]
         """
         key = self.getdbName(key)
         if isinstance(val, pywikibot.page.SiteLink):
@@ -451,7 +455,7 @@ class SiteLinkCollection(MutableMapping):
                 norm_data[db_name] = json
         return norm_data
 
-    def toJSON(self, diffto: Optional[dict] = None) -> dict:
+    def toJSON(self, diffto: dict | None = None) -> dict:
         """
         Create JSON suitable for Wikibase API.
 
@@ -467,14 +471,13 @@ class SiteLinkCollection(MutableMapping):
             for dbname, sitelink in data.items():
                 if dbname not in diffto:
                     continue
+
                 diffto_link = diffto[dbname]
                 if diffto_link.get('title') == sitelink.get('title'):
                     # compare badges
-                    tmp_badges = []
                     diffto_badges = diffto_link.get('badges', [])
                     badges = sitelink.get('badges', [])
-                    for badge in set(diffto_badges) - set(badges):
-                        tmp_badges.append('')
+                    tmp_badges = [''] * len(set(diffto_badges) - set(badges))
                     for badge in set(badges) - set(diffto_badges):
                         tmp_badges.append(badge)
                     if tmp_badges:
@@ -577,7 +580,7 @@ class SubEntityCollection(MutableSequence):
         """
         raise NotImplementedError  # TODO
 
-    def toJSON(self, diffto: Optional[dict] = None) -> dict:
+    def toJSON(self, diffto: dict | None = None) -> dict:
         """
         Create JSON suitable for Wikibase API.
 

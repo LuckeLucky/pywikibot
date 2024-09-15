@@ -5,6 +5,8 @@
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import unittest
 from contextlib import suppress
 from unittest.mock import Mock, patch
@@ -61,11 +63,11 @@ class TestGetSDTemplateNoSysop(DefaultSiteTestCase):
         options = {'delete': True, 'sdtemplate': 'txt {{n|a}} txt'}
         bot = RedirectTestRobot('broken', **options)
         with patch.object(Page, 'exists', new=Mock(return_value=False)), \
-             patch.object(pywikibot, 'warning') as w:
+                patch.object(pywikibot, 'warning') as w:
             self.assertIsNone(bot.sdtemplate, None)
         w.assert_called_with('No speedy deletion template "n" available.')
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

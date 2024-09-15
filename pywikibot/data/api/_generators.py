@@ -6,19 +6,27 @@
    :class:`tools.collections.GeneratorWrapper`
 """
 #
-# (C) Pywikibot team, 2008-2023
+# (C) Pywikibot team, 2008-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from contextlib import suppress
-from typing import Optional, Union
+from typing import Any
 from warnings import warn
 
 import pywikibot
 from pywikibot import config
-from pywikibot.backports import List
-from pywikibot.exceptions import Error, InvalidTitleError, UnsupportedPageError
+from pywikibot.backports import Callable, Iterable
+from pywikibot.exceptions import (
+    Error,
+    InvalidTitleError,
+    UnknownSiteError,
+    UnsupportedPageError,
+)
+from pywikibot.site import Namespace
 from pywikibot.tools import deprecated
 from pywikibot.tools.collections import GeneratorWrapper
 
@@ -56,7 +64,7 @@ class APIGeneratorBase(ABC):
         return kwargs
 
     @abstractmethod
-    def set_maximum_items(self, value: Union[int, str, None]) -> None:
+    def set_maximum_items(self, value: int | str | None) -> None:
         """Set the maximum number of items to be retrieved from the wiki.
 
         .. versionadded:: 7.1
@@ -104,12 +112,12 @@ class APIGenerator(APIGeneratorBase, GeneratorWrapper):
         self.limit_name = limit_name
         self.data_name = data_name
 
-        self.query_increment: Optional[int]
+        self.query_increment: int | None
         if config.step > 0:
             self.query_increment = config.step
         else:
             self.query_increment = None
-        self.limit = None
+        self.limit: int | None = None
         self.starting_offset = kwargs['parameters'].pop(self.continue_name, 0)
         self.request = self.request_class(**kwargs)
         self.request[self.limit_name] = self.query_increment
@@ -128,7 +136,7 @@ class APIGenerator(APIGeneratorBase, GeneratorWrapper):
         pywikibot.debug('{}: Set query_increment to {}.'
                         .format(type(self).__name__, self.query_increment))
 
-    def set_maximum_items(self, value: Union[int, str, None]) -> None:
+    def set_maximum_items(self, value: int | str | None) -> None:
         """
         Set the maximum number of items to be retrieved from the wiki.
 
@@ -209,11 +217,11 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
     # Used if the API module does not support multiple namespaces.
     # Override in subclasses by defining a function that returns True if
     # the result's namespace is in self._namespaces.
-    _check_result_namespace = NotImplemented
+    _check_result_namespace: Callable[[Any], bool] = NotImplemented
 
     # Set of allowed namespaces will be assigned to _namespaces during
     # set_namespace call. Only to be used by _check_result_namespace.
-    _namespaces = None
+    _namespaces: set[int] | bool | None = None
 
     def __init__(self, **kwargs) -> None:
         """Initialize a QueryGenerator object.
@@ -280,7 +288,7 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
                 else:
                     self.request[prefix + 'limit'] = int(param['max'])
 
-        self.api_limit: Optional[int]
+        self.api_limit: int | None
         if config.step > 0:
             self.api_limit = config.step
         else:
@@ -294,7 +302,7 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
         if self.api_limit is not None and 'generator' in parameters:
             self.prefix = 'g' + self.prefix
 
-        self.limit = None
+        self.limit: int | None = None
         self.query_limit = self.api_limit
         if 'generator' in parameters:
             # name of the "query" subelement key to look for when iterating
@@ -306,7 +314,7 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
 
     @property
     @deprecated(since='8.4.0')
-    def continuekey(self) -> List[str]:
+    def continuekey(self) -> list[str]:
         """Return deprecated continuekey which is self.modules."""
         return self.modules
 
@@ -378,7 +386,7 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
         pywikibot.debug('{}: Set query_limit to {}.'
                         .format(type(self).__name__, self.query_limit))
 
-    def set_maximum_items(self, value: Union[int, str, None]) -> None:
+    def set_maximum_items(self, value: int | str | None) -> None:
         """Set the maximum number of items to be retrieved from the wiki.
 
         If not called, most queries will continue as long as there is
@@ -397,6 +405,7 @@ class QueryGenerator(APIGeneratorBase, GeneratorWrapper):
 
     def _update_limit(self) -> None:
         """Set query limit for self.module based on api response."""
+        assert self.limited_module is not None
         param = self.site._paraminfo.parameter('query+' + self.limited_module,
                                                'limit')
         if self.site.logged_in() and self.site.has_right('apihighlimits'):
@@ -671,23 +680,28 @@ class PageGenerator(QueryGenerator):
         g_content: bool = False,
         **kwargs
     ) -> None:
-        """
-        Initializer.
+        """Initializer.
 
-        Required and optional parameters are as for ``Request``, except that
-        action=query is assumed and generator is required.
+        Required and optional parameters are as for ``Request``, except
+        that ``action=query`` is assumed and generator is required.
+
+        .. versionchanged:: 9.1
+           retrieve the same imageinfo properties as in
+           :meth:`APISite.loadimageinfo()
+           <pywikibot.site._apisite.APISite.loadimageinfo>` with default
+           parameters.
 
         :param generator: the "generator=" type from api.php
         :param g_content: if True, retrieve the contents of the current
             version of each Page (default False)
-
         """
-        # If possible, use self.request after __init__ instead of appendParams
+        # If possible, use self.request after __init__ instead of append_params
         def append_params(params, key, value) -> None:
             if key in params:
                 params[key] += '|' + value
             else:
                 params[key] = value
+
         kwargs = self._clean_kwargs(kwargs)
         parameters = kwargs['parameters']
         # get some basic information about every page generated
@@ -700,15 +714,14 @@ class PageGenerator(QueryGenerator):
         if not ('inprop' in parameters
                 and 'protection' in parameters['inprop']):
             append_params(parameters, 'inprop', 'protection')
-        append_params(parameters, 'iiprop',
-                      'timestamp|user|comment|url|size|sha1|metadata')
+        append_params(parameters, 'iiprop', pywikibot.site._IIPROP)
         append_params(parameters, 'iilimit', 'max')  # T194233
         parameters['generator'] = generator
         super().__init__(**kwargs)
         self.resultkey = 'pages'  # element to look for in result
         self.props = self.request['prop']
 
-    def result(self, pagedata):
+    def result(self, pagedata: dict[str, Any]) -> pywikibot.Page:
         """Convert page dict entry from api to Page object.
 
         This can be overridden in subclasses to return a different type
@@ -718,12 +731,12 @@ class PageGenerator(QueryGenerator):
         p = pywikibot.Page(self.site, pagedata['title'], pagedata['ns'])
         ns = pagedata['ns']
         # Upcast to proper Page subclass.
-        if ns == 2:
+        if ns == Namespace.USER:
             p = pywikibot.User(p)
-        elif ns == 6:
+        elif ns == Namespace.FILE:
             with suppress(ValueError):
                 p = pywikibot.FilePage(p)
-        elif ns == 14:
+        elif ns == Namespace.CATEGORY:
             p = pywikibot.Category(p)
         update_page(p, pagedata, self.props)
         return p
@@ -903,7 +916,7 @@ def _update_revisions(page, revisions) -> None:
         revid = rev['revid']
         revision = pywikibot.page.Revision(**rev)
         # do not overwrite an existing Revision if there is no content
-        if revid in page._revisions and revision.text is None:
+        if revid in page._revisions and revision.text is None:  # type: ignore[attr-defined]  # noqa: E501
             pass
         else:
             page._revisions[revid] = revision
@@ -928,10 +941,20 @@ def _update_categories(page, categories):
 
 
 def _update_langlinks(page, langlinks) -> None:
-    """Update page langlinks."""
-    links = {pywikibot.Link.langlinkUnsafe(link['lang'], link['*'],
-                                           source=page.site)
-             for link in langlinks}
+    """Update page langlinks.
+
+    .. versionadded:: 9.3
+       only add a language link if it is found in the family file.
+
+    :meta public:
+    """
+    links = set()
+    for langlink in langlinks:
+        with suppress(UnknownSiteError):
+            link = pywikibot.Link.langlinkUnsafe(langlink['lang'],
+                                                 langlink['*'],
+                                                 source=page.site)
+            links.add(link)
 
     if hasattr(page, '_langlinks'):
         page._langlinks |= links
@@ -955,25 +978,42 @@ def _update_coordinates(page, coordinates) -> None:
     page._coords = coords
 
 
-def update_page(page, pagedict: dict, props=None):
-    """Update attributes of Page object page, based on query data in pagedict.
+def update_page(page: pywikibot.Page,
+                pagedict: dict[str, Any],
+                props: Iterable[str] | None = None) -> None:
+    """
+    Update attributes of Page object *page*, based on query data in *pagedict*.
 
     :param page: object to be updated
-    :type page: pywikibot.page.Page
-    :param pagedict: the contents of a "page" element of a query response
-    :param props: the property names which resulted in pagedict. If a missing
-        value in pagedict can indicate both 'false' and 'not present' the
-        property which would make the value present must be in the props
-        parameter.
-    :type props: iterable of string
-    :raises pywikibot.exceptions.InvalidTitleError: Page title is invalid
-    :raises pywikibot.exceptions.UnsupportedPageError: Page with namespace < 0
-        is not supported yet
+    :param pagedict: the contents of a *page* element of a query
+        response
+    :param props: the property names which resulted in *pagedict*. If a
+        missing value in *pagedict* can indicate both 'false' and
+        'not present' the property which would make the value present
+        must be in the *props* parameter.
+    :raises InvalidTitleError: Page title is invalid
+    :raises UnsupportedPageError: Page with namespace < 0 is not
+        supported yet
     """
     _update_pageid(page, pagedict)
     _update_contentmodel(page, pagedict)
 
     props = props or []
+
+    # test for pagedict content only and call updater function
+    for element in ('coordinates', 'revisions'):
+        if element in pagedict:
+            updater = globals()['_update_' + element]
+            updater(page, pagedict[element])
+
+    # test for pagedict and props contents, call updater or set attribute
+    for element in ('categories', 'langlinks', 'templates'):
+        if element in pagedict:
+            updater = globals()['_update_' + element]
+            updater(page, pagedict[element])
+        elif element in props:
+            setattr(page, '_' + element, set())
+
     if 'info' in props:
         page._isredir = 'redirect' in pagedict
 
@@ -982,9 +1022,6 @@ def update_page(page, pagedict: dict, props=None):
 
     if 'protection' in pagedict:
         _update_protection(page, pagedict)
-
-    if 'revisions' in pagedict:
-        _update_revisions(page, pagedict['revisions'])
 
     if 'lastrevid' in pagedict:
         page.latest_revision_id = pagedict['lastrevid']
@@ -997,24 +1034,6 @@ def update_page(page, pagedict: dict, props=None):
 
     if 'categoryinfo' in pagedict:
         page._catinfo = pagedict['categoryinfo']
-
-    if 'templates' in pagedict:
-        _update_templates(page, pagedict['templates'])
-    elif 'templates' in props:
-        page._templates = set()
-
-    if 'categories' in pagedict:
-        _update_categories(page, pagedict['categories'])
-    elif 'categories' in props:
-        page._categories = set()
-
-    if 'langlinks' in pagedict:
-        _update_langlinks(page, pagedict['langlinks'])
-    elif 'langlinks' in props:
-        page._langlinks = set()
-
-    if 'coordinates' in pagedict:
-        _update_coordinates(page, pagedict['coordinates'])
 
     if 'pageimage' in pagedict:
         page._pageimage = pywikibot.FilePage(page.site, pagedict['pageimage'])
@@ -1038,3 +1057,8 @@ def update_page(page, pagedict: dict, props=None):
         page._lintinfo.pop('pageid')
         page._lintinfo.pop('title')
         page._lintinfo.pop('ns')
+
+    if 'imageforpage' in props and 'imagesforpage' in pagedict:
+        # proofreadpage will work always on dicts
+        # it serves also as workaround for T352482
+        page._imageforpage = pagedict['imagesforpage'] or {}

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Tests for generators of the site module."""
 #
-# (C) Pywikibot team, 2008-2023
+# (C) Pywikibot team, 2008-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import unittest
 from contextlib import suppress
 from unittest.mock import patch
@@ -22,6 +24,17 @@ from pywikibot.tools import suppress_warnings
 from tests import WARN_SITE_CODE, unittest_print
 from tests.aspects import DefaultSiteTestCase, DeprecationTestCase, TestCase
 from tests.utils import skipping
+
+
+global_expected_params = {
+    'action': ['query'],
+    'continue': [True],
+    'iilimit': ['max'],
+    'iiprop': list(pywikibot.site._IIPROP),
+    'indexpageids': [True],
+    'inprop': ['protection'],
+    'prop': ['info', 'imageinfo', 'categoryinfo'],
+}
 
 
 class TestSiteGenerators(DefaultSiteTestCase):
@@ -177,17 +190,11 @@ class TestSiteGenerators(DefaultSiteTestCase):
     def test_pagetemplates(self):
         """Test Site.pagetemplates."""
         tl_gen = self.site.pagetemplates(self.mainpage)
-        expected_params = {
-            'continue': [True],
-            'inprop': ['protection'],
-            'iilimit': ['max'],
-            'iiprop': ['timestamp', 'user', 'comment', 'url', 'size', 'sha1',
-                       'metadata'],
-            'indexpageids': [True],
-            'generator': ['templates'], 'action': ['query'],
-            'prop': ['info', 'imageinfo', 'categoryinfo'],
-            'titles': [self.mainpage.title()],
-        }
+        expected_params = dict(
+            global_expected_params,
+            generator=['templates'],
+            titles=[self.mainpage.title()],
+        )
 
         self.assertEqual(tl_gen.request._params, expected_params)
 
@@ -212,16 +219,11 @@ class TestSiteGenerators(DefaultSiteTestCase):
         """Test Site.pagelinks."""
         links_gen = self.site.pagelinks(self.mainpage)
         gen_params = links_gen.request._params.copy()
-        expected_params = {
-            'action': ['query'], 'indexpageids': [True],
-            'continue': [True],
-            'inprop': ['protection'],
-            'iilimit': ['max'],
-            'iiprop': ['timestamp', 'user', 'comment', 'url', 'size',
-                       'sha1', 'metadata'], 'generator': ['links'],
-            'prop': ['info', 'imageinfo', 'categoryinfo'],
-            'redirects': [False],
-        }
+        expected_params = dict(
+            global_expected_params,
+            generator=['links'],
+            redirects=[False],
+        )
         if 'pageids' in gen_params:
             expected_params['pageids'] = [str(self.mainpage.pageid)]
         else:
@@ -339,30 +341,50 @@ class TestSiteGenerators(DefaultSiteTestCase):
         fwd = list(mysite.alllinks(total=10))
         uniq = list(mysite.alllinks(total=10, unique=True))
 
-        self.assertLessEqual(len(fwd), 10)
+        with self.subTest(msg='Test that unique links are in all links'):
+            self.assertLessEqual(len(fwd), 10)
+            self.assertLessEqual(len(uniq), len(fwd))
+            for link in fwd:
+                self.assertIsInstance(link, pywikibot.Page)
+                self.assertIn(link, uniq)
 
-        for link in fwd:
-            self.assertIsInstance(link, pywikibot.Page)
-            self.assertIn(link, uniq)
-        for page in mysite.alllinks(start='Link', total=5):
-            self.assertIsInstance(page, pywikibot.Page)
-            self.assertEqual(page.namespace(), 0)
-            self.assertGreaterEqual(page.title(), 'Link')
-        for page in mysite.alllinks(prefix='Fix', total=5):
-            self.assertIsInstance(page, pywikibot.Page)
-            self.assertEqual(page.namespace(), 0)
-            self.assertTrue(page.title().startswith('Fix'))
-        for page in mysite.alllinks(namespace=1, total=5):
-            self.assertIsInstance(page, pywikibot.Page)
-            self.assertEqual(page.namespace(), 1)
-        for page in mysite.alllinks(start='From', namespace=4, fromids=True,
-                                    total=5):
-            self.assertIsInstance(page, pywikibot.Page)
-            self.assertGreaterEqual(page.title(with_ns=False), 'From')
-            self.assertTrue(hasattr(page, '_fromid'))
-        errgen = mysite.alllinks(unique=True, fromids=True)
-        with self.assertRaises(Error):
-            next(errgen)
+        with self.subTest(msg='Test with start parameter'):
+            for page in mysite.alllinks(start='Link', total=5):
+                self.assertIsInstance(page, pywikibot.Page)
+                self.assertEqual(page.namespace(), 0)
+                self.assertGreaterEqual(page.title(), 'Link')
+
+        with self.subTest(msg='Test with prefix parameter'):
+            for page in mysite.alllinks(prefix='Fix', total=5):
+                self.assertIsInstance(page, pywikibot.Page)
+                self.assertEqual(page.namespace(), 0)
+                self.assertTrue(
+                    page.title().startswith('Fix'),
+                    msg=f"{page.title()} does not start with 'Fix'"
+                )
+
+        # increase timeout due to T359427/T359425
+        # ~ 47s are required on wikidata
+        config_timeout = pywikibot.config.socket_timeout
+        pywikibot.config.socket_timeout = (config_timeout[0], 60)
+        with self.subTest(msg='Test namespace parameter'):
+            for page in mysite.alllinks(namespace=1, total=5):
+                self.assertIsInstance(page, pywikibot.Page)
+                self.assertEqual(page.namespace(), 1)
+        pywikibot.config.socket_timeout = config_timeout
+
+        with self.subTest(msg='Test with fromids parameter'):
+            for page in mysite.alllinks(start='From', namespace=4,
+                                        fromids=True, total=5):
+                self.assertIsInstance(page, pywikibot.Page)
+                self.assertGreaterEqual(page.title(with_ns=False), 'From')
+                self.assertTrue(hasattr(page, '_fromid'))
+
+        with self.subTest(
+                msg='Test that Error is raised with unique and fromids'):
+            errgen = mysite.alllinks(unique=True, fromids=True)
+            with self.assertRaises(Error):
+                next(errgen)
 
     def test_all_categories(self):
         """Test the site.allcategories() method."""
@@ -419,7 +441,7 @@ class TestSiteGenerators(DefaultSiteTestCase):
         pages = mysite.querypage('Longpages', total=10)
         for p in pages:
             self.assertIsInstance(p, pywikibot.Page)
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             mysite.querypage('LongpageX')
 
     def test_longpages(self):
@@ -547,12 +569,12 @@ class TestSiteGenerators(DefaultSiteTestCase):
 
         # starttime earlier than endtime
         with self.subTest(starttime=low, endtime=high, reverse=False), \
-             self.assertRaises(AssertionError):
+                self.assertRaises(AssertionError):
             mysite.blocks(total=5, starttime=low, endtime=high)
 
         # reverse: endtime earlier than starttime
         with self.subTest(starttime=high, endtime=low, reverse=True), \
-             self.assertRaises(AssertionError):
+                self.assertRaises(AssertionError):
             mysite.blocks(total=5, starttime=high, endtime=low, reverse=True)
 
     def test_exturl_usage(self):
@@ -570,14 +592,15 @@ class TestSiteGenerators(DefaultSiteTestCase):
 
     def test_protectedpages_create(self):
         """Test that protectedpages returns protected page titles."""
-        pages = list(self.get_site().protectedpages(type='create', total=10))
+        pages = list(self.get_site().protectedpages(protect_type='create',
+                                                    total=10))
         # Do not check for the existence of pages as they might exist (T205883)
         self.assertLessEqual(len(pages), 10)
 
     def test_protectedpages_edit(self):
         """Test that protectedpages returns protected pages."""
         site = self.get_site()
-        pages = list(site.protectedpages(type='edit', total=10))
+        pages = list(site.protectedpages(protect_type='edit', total=10))
         for page in pages:
             self.assertTrue(page.exists())
             self.assertIn('edit', page.protection())
@@ -589,19 +612,20 @@ class TestSiteGenerators(DefaultSiteTestCase):
         levels = set()
         all_levels = site.protection_levels().difference([''])
         for level in all_levels:
-            if list(site.protectedpages(type='edit', level=level, total=1)):
+            if list(site.protectedpages(protect_type='edit', level=level,
+                                        total=1)):
                 levels.add(level)
         if not levels:
             self.skipTest(
-                'The site "{}" has no protected pages in main namespace.'
-                .format(site))
+                f'The site "{site}" has no protected pages in main namespace.')
         # select one level which won't yield all pages from above
         level = next(iter(levels))
         if len(levels) == 1:
             # if only one level found, then use any other except that
             level = next(iter(all_levels.difference([level])))
         invalid_levels = all_levels.difference([level])
-        pages = list(site.protectedpages(type='edit', level=level, total=10))
+        pages = list(site.protectedpages(protect_type='edit', level=level,
+                                         total=10))
         for page in pages:
             self.assertTrue(page.exists())
             self.assertIn('edit', page.protection())
@@ -627,21 +651,6 @@ class TestSiteGenerators(DefaultSiteTestCase):
                     self.fail(
                         f'NotImplementedError not raised for {item}')
 
-    def test_unconnected(self):
-        """Test site.unconnected_pages method."""
-        if not self.site.data_repository():
-            self.skipTest('Site is not using a Wikibase repository')
-        pages = list(self.site.unconnected_pages(total=3))
-        self.assertLessEqual(len(pages), 3)
-
-        site = self.site.data_repository()
-        pattern = (r'Page '
-                   r'\[\[({site.sitename}:|{site.code}:)-1\]\]'
-                   r" doesn't exist\.".format(site=site))
-        for page in pages:
-            with self.assertRaisesRegex(NoPageError, pattern):
-                page.data_item()
-
     def test_assert_valid_iter_params(self):
         """Test site.assert_valid_iter_params method."""
         func = self.site.assert_valid_iter_params
@@ -665,6 +674,38 @@ class TestSiteGenerators(DefaultSiteTestCase):
         self.assertIsNone(func('m', 1, 2, True, True))
         with self.assertRaises(AssertionError):
             func('m', 2, 1, True, True)
+
+
+class TestUnconnectedPages(DefaultSiteTestCase):
+
+    """Test unconnected_pages method without cache enabled."""
+
+    def test_unconnected(self):
+        """Test site.unconnected_pages method."""
+        site = self.site.data_repository()
+        if not site:
+            self.skipTest('Site is not using a Wikibase repository')
+
+        pages = list(self.site.unconnected_pages(total=3))
+        self.assertLessEqual(len(pages), 3)
+
+        pattern = (fr'Page \[\[({site.sitename}:|{site.code}:)-1\]\]'
+                   r" doesn't exist\.")
+        found = []
+        for page in pages:
+            with self.subTest(page=page):
+                try:
+                    page.data_item()
+                except NoPageError as e:
+                    self.assertRegex(str(e), pattern)
+                else:
+                    found.append(page)
+        if found:
+            unittest_print('connection found for ',
+                           ', '.join(str(p) for p in found))
+
+        # assume that we have at least one unconnected page
+        self.assertLess(len(found), 3)
 
 
 class TestSiteGeneratorsUsers(DefaultSiteTestCase):
@@ -762,8 +803,8 @@ class TestImageUsage(DefaultSiteTestCase):
                 msg=f'No images on the main page of site {mysite!r}'):
             imagepage = next(page.imagelinks())  # 1st image of page
 
-        unittest_print('site_tests.TestImageUsage found {} on {}'
-                       .format(imagepage, page))
+        unittest_print(
+            f'site_tests.TestImageUsage found {imagepage} on {page}')
 
         self.__class__._image_page = imagepage
         return imagepage
@@ -1105,14 +1146,13 @@ class SearchTestCase(DefaultSiteTestCase):
         """Test site.search() method with 'where' parameter set to title."""
         search_gen = self.site.search(
             'wiki', namespaces=0, total=10, where='title')
-        expected_params = {
-            'prop': ['info', 'imageinfo', 'categoryinfo'],
-            'inprop': ['protection'],
-            'iiprop': ['timestamp', 'user', 'comment', 'url', 'size', 'sha1',
-                       'metadata'],
-            'iilimit': ['max'], 'generator': ['search'], 'action': ['query'],
-            'indexpageids': [True], 'continue': [True],
-            'gsrnamespace': [0], 'gsrsearch': ['wiki'], 'gsrwhat': ['title']}
+        expected_params = dict(
+            global_expected_params,
+            generator=['search'],
+            gsrnamespace=[0],
+            gsrsearch=['wiki'],
+            gsrwhat=['title'],
+        )
         self.assertEqual(search_gen.request._params, expected_params)
         for hit in search_gen:
             self.assertIsInstance(hit, pywikibot.Page)
@@ -1520,7 +1560,7 @@ class TestUserList(DefaultSiteTestCase):
 
     def test_users(self):
         """Test the site.users() method with preset usernames."""
-        user_list = ['Jimbo Wales', 'Brion VIBBER', 'Tim Starling']
+        user_list = ['Jimbo Wales', 'Brooke Vibber', 'Tim Starling']
         missing = ['A username that should not exist 1A53F6E375B5']
         all_users = user_list + missing
         for cnt, user in enumerate(self.site.users(all_users), start=1):
@@ -1545,7 +1585,7 @@ class SiteRandomTestCase(DefaultSiteTestCase):
         site = cls.get_site()
         if site.family.name in ('wpbeta', 'wsbeta'):
             cls.skipTest(cls,
-                         'Skipping test on {} due to T282602' .format(site))
+                         f'Skipping test on {site} due to T282602')
 
     def test_unlimited_small_step(self):
         """Test site.randompages() continuation.
@@ -2285,6 +2325,6 @@ class TestPagePreloading(DefaultSiteTestCase):
         self.assertTrue(page.has_content())
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

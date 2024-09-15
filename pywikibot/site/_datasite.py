@@ -1,18 +1,20 @@
 """Objects representing API interface to Wikibase site."""
 #
-# (C) Pywikibot team, 2012-2023
+# (C) Pywikibot team, 2012-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import datetime
 import json
 import uuid
 from contextlib import suppress
-from typing import Any, Dict, List, Optional
+from typing import Any
 from warnings import warn
 
 import pywikibot
-from pywikibot.backports import batched
+from pywikibot.backports import Generator, Iterable, batched
 from pywikibot.data import api
 from pywikibot.exceptions import (
     APIError,
@@ -47,7 +49,7 @@ class DataSite(APISite):
             'sense': pywikibot.LexemeSense,
         }
 
-    def get_repo_for_entity_type(self, entity_type: str) -> 'DataSite':
+    def get_repo_for_entity_type(self, entity_type: str) -> DataSite:
         """
         Get the data repository for the entity type.
 
@@ -203,7 +205,12 @@ class DataSite(APISite):
             raise APIError(data['errors'], '')
         return data['entities']
 
-    def preload_entities(self, pagelist, groupsize: int = 50):
+    def preload_entities(
+        self,
+        pagelist: Iterable[pywikibot.page.WikibaseEntity
+                           | pywikibot.page.Page],
+        groupsize: int = 50
+    ) -> Generator[pywikibot.page.WikibaseEntity, None, None]:
         """Yield subclasses of WikibaseEntity's with content prefilled.
 
         .. note:: Pages will be iterated in a different order than in
@@ -246,11 +253,12 @@ class DataSite(APISite):
                 yield page
 
     def getPropertyType(self, prop):
-        """
-        Obtain the type of a property.
+        """Obtain the type of a property.
 
-        This is used specifically because we can cache
-        the value for a much longer time (near infinite).
+        This is used specifically because we can cache the value for a
+        much longer time (near infinite).
+
+        :raises KeyError: *prop* does not exist
         """
         params = {'action': 'wbgetentities', 'ids': prop.getID(),
                   'props': 'datatype'}
@@ -262,28 +270,48 @@ class DataSite(APISite):
         # the IDs returned from the API can be upper or lowercase, depending
         # on the version. See bug T55894 for more information.
         try:
-            dtype = data['entities'][prop.getID()]['datatype']
+            entity = data['entities'][prop.getID()]
         except KeyError:
-            dtype = data['entities'][prop.getID().lower()]['datatype']
+            entity = data['entities'][prop.getID().lower()]
 
-        return dtype
+        if 'missing' in entity:
+            raise KeyError(f'{prop} does not exist')
+
+        return entity['datatype']
 
     @need_right('edit')
-    def editEntity(self, entity, data, bot: bool = True, **kwargs):
+    def editEntity(self,
+                   entity: pywikibot.page.WikibaseEntity | dict,
+                   data: dict,
+                   bot: bool = True,
+                   **kwargs) -> dict:
         """Edit entity.
 
         .. note:: This method is unable to create entities other than
-           'item' if dict with API parameters was passed to 'entity'
+           ``item`` if dict with API parameters was passed to *entity*
            parameter.
 
+        .. versionchanged:: 9.4
+           *tags* keyword argument was added
+
         :param entity: Page to edit, or dict with API parameters
-            to use for entity identification
-        :type entity: WikibaseEntity or dict
+            to use for entity identification.
         :param data: data updates
-        :type data: dict
-        :param bot: Whether to mark the edit as a bot edit
+        :param bot: Whether to mark the edit as a bot edit.
+
+        :keyword int baserevid: The numeric identifier for the revision
+            to base the modification on. This is used for detecting
+            conflicts during save.
+        :keyword bool clear: If set, the complete entity is emptied
+            before proceeding. The entity will not be saved before it is
+            filled with the *data*, possibly with parts excluded.
+        :keyword str summary: Summary for the edit. Will be prepended by
+            an automatically generated comment. The length limit of the
+            autocomment together with the summary is 260 characters. Be
+            aware that everything above that limit will be cut off.
+        :keyword Iterable[str] | str tags: Change tags to apply to the
+            revision.
         :return: New entity data
-        :rtype: dict
         """
         # this changes the reference to a new object
         data = dict(data)
@@ -302,15 +330,15 @@ class DataSite(APISite):
             if not params:  # If no identification was provided
                 params['new'] = 'item'
 
-        params['action'] = 'wbeditentity'
-        if bot:
-            params['bot'] = 1
-        if 'baserevid' in kwargs and kwargs['baserevid']:
+        params.update(action='wbeditentity', bot=bot)
+
+        if kwargs.get('baserevid'):
             params['baserevid'] = kwargs['baserevid']
+
         params['token'] = self.tokens['csrf']
 
         for arg in kwargs:
-            if arg in ['clear', 'summary']:
+            if arg in ['clear', 'summary', 'tags']:
                 params[arg] = kwargs[arg]
             elif arg != 'baserevid':
                 warn(f'Unknown wbeditentity parameter {arg} ignored',
@@ -322,26 +350,32 @@ class DataSite(APISite):
 
     @need_right('edit')
     def addClaim(self,
-                 entity: 'pywikibot.page.WikibaseEntity',
-                 claim: 'pywikibot.page.Claim',
+                 entity: pywikibot.page.WikibaseEntity,
+                 claim: pywikibot.page.Claim,
                  bot: bool = True,
-                 summary: Optional[str] = None) -> None:
-        """
-        Add a claim.
+                 summary: str | None = None,
+                 tags: str | None = None) -> None:
+        """Add a claim.
+
+        .. versionchanged:: 9.4
+           *tags* parameter was added
 
         :param entity: Entity to modify
         :param claim: Claim to be added
         :param bot: Whether to mark the edit as a bot edit
         :param summary: Edit summary
+        :param tags: Change tags to apply to the revision
         """
         claim.snak = entity.getID() + '$' + str(uuid.uuid4())
-        params = {'action': 'wbsetclaim',
-                  'claim': json.dumps(claim.toJSON()),
-                  'baserevid': entity.latest_revision_id,
-                  'summary': summary,
-                  'token': self.tokens['csrf'],
-                  'bot': bot,
-                  }
+        params = {
+            'action': 'wbsetclaim',
+            'claim': json.dumps(claim.toJSON()),
+            'baserevid': entity.latest_revision_id,
+            'summary': summary,
+            'tags': tags,
+            'bot': bot,
+            'token': self.tokens['csrf'],
+        }
         req = self.simple_request(**params)
         data = req.submit()
         # Update the item
@@ -352,27 +386,40 @@ class DataSite(APISite):
         entity.latest_revision_id = data['pageinfo']['lastrevid']
 
     @need_right('edit')
-    def changeClaimTarget(self, claim, snaktype: str = 'value',
-                          bot: bool = True, summary=None):
-        """
-        Set the claim target to the value of the provided claim target.
+    def changeClaimTarget(self,
+                          claim: pywikibot.Claim,
+                          snaktype: str = 'value',
+                          bot: bool = True,
+                          summary: str | None = None,
+                          tags: str | None = None):
+        """Set the claim target to the value of the provided claim target.
+
+        .. versionchanged:: 9.4
+           *tags* parameter was added
 
         :param claim: The source of the claim target value
-        :type claim: pywikibot.Claim
         :param snaktype: An optional snaktype ('value', 'novalue' or
             'somevalue'). Default: 'value'
         :param bot: Whether to mark the edit as a bot edit
         :param summary: Edit summary
-        :type summary: str
+        :param tags: Change tags to apply to the revision
         """
         if claim.isReference or claim.isQualifier:
             raise NotImplementedError
+
         if not claim.snak:
             # We need to already have the snak value
             raise NoPageError(claim)
-        params = {'action': 'wbsetclaimvalue', 'claim': claim.snak,
-                  'snaktype': snaktype, 'summary': summary, 'bot': bot,
-                  'token': self.tokens['csrf']}
+
+        params = {
+            'action': 'wbsetclaimvalue',
+            'claim': claim.snak,
+            'snaktype': snaktype,
+            'summary': summary,
+            'tags': tags,
+            'bot': bot,
+            'token': self.tokens['csrf'],
+        }
 
         if snaktype == 'value':
             params['value'] = json.dumps(claim._formatValue())
@@ -382,28 +429,41 @@ class DataSite(APISite):
         return req.submit()
 
     @need_right('edit')
-    def save_claim(self, claim: 'pywikibot.page.Claim',
-                   summary: Optional[str] = None,
-                   bot: bool = True):
+    def save_claim(self,
+                   claim: pywikibot.page.Claim,
+                   summary: str | None = None,
+                   bot: bool = True,
+                   tags: str | None = None):
         """
         Save the whole claim to the wikibase site.
+
+        .. versionchanged:: 9.4
+           *tags* parameter was added
 
         :param claim: The claim to save
         :param bot: Whether to mark the edit as a bot edit
         :param summary: Edit summary
+        :param tags: Change tags to apply to the revision
+        :raises NoPageError: missing the the snak value
+        :raises NotImplementedError: ``claim.isReference`` or
+            ``claim.isQualifier`` is given
         """
         if claim.isReference or claim.isQualifier:
             raise NotImplementedError
+
         if not claim.snak:
             # We need to already have the snak value
             raise NoPageError(claim)
-        params = {'action': 'wbsetclaim',
-                  'claim': json.dumps(claim.toJSON()),
-                  'token': self.tokens['csrf'],
-                  'baserevid': claim.on_item.latest_revision_id,
-                  'summary': summary,
-                  'bot': bot,
-                  }
+
+        params = {
+            'action': 'wbsetclaim',
+            'claim': json.dumps(claim.toJSON()),
+            'baserevid': claim.on_item.latest_revision_id,
+            'summary': summary,
+            'tags': tags,
+            'bot': bot,
+            'token': self.tokens['csrf'],
+        }
 
         req = self.simple_request(**params)
         data = req.submit()
@@ -412,34 +472,44 @@ class DataSite(APISite):
 
     @need_right('edit')
     @remove_last_args(['baserevid'])  # since 7.0.0
-    def editSource(self, claim, source,
+    def editSource(self,
+                   claim: pywikibot.Claim,
+                   source: pywikibot.Claim,
                    new: bool = False,
                    bot: bool = True,
-                   summary: Optional[str] = None):
+                   summary: str | None = None,
+                   tags: str | None = None):
         """Create/Edit a source.
 
         .. versionchanged:: 7.0
-           deprecated `baserevid` parameter was removed
+           deprecated *baserevid* parameter was removed
+        .. versionchanged:: 9.4
+           *tags* parameter was added
 
-        :param claim: A Claim object to add the source to
-        :type claim: pywikibot.Claim
-        :param source: A Claim object to be used as a source
-        :type source: pywikibot.Claim
-        :param new: Whether to create a new one if the "source" already exists
-        :param bot: Whether to mark the edit as a bot edit
-        :param summary: Edit summary
+        :param claim: A Claim object to add the source to.
+        :param source: A Claim object to be used as a source.
+        :param new: Whether to create a new one if the "source" already
+            exists.
+        :param bot: Whether to mark the edit as a bot edit.
+        :param summary: Edit summary.
+        :param tags: Change tags to apply to the revision.
+        :raises ValueError: The claim cannot have a source.
         """
         if claim.isReference or claim.isQualifier:
             raise ValueError('The claim cannot have a source.')
-        params = {'action': 'wbsetreference', 'statement': claim.snak,
-                  'baserevid': claim.on_item.latest_revision_id,
-                  'summary': summary, 'bot': bot, 'token': self.tokens['csrf']}
+
+        params = {
+            'action': 'wbsetreference',
+            'statement': claim.snak,
+            'baserevid': claim.on_item.latest_revision_id,
+            'summary': summary,
+            'tags': tags,
+            'bot': bot,
+            'token': self.tokens['csrf'],
+        }
 
         # build up the snak
-        if isinstance(source, list):
-            sources = source
-        else:
-            sources = [source]
+        sources = source if isinstance(source, list) else [source]
 
         snak = {}
         for sourceclaim in sources:
@@ -463,37 +533,50 @@ class DataSite(APISite):
 
     @need_right('edit')
     @remove_last_args(['baserevid'])  # since 7.0.0
-    def editQualifier(self, claim, qualifier,
+    def editQualifier(self,
+                      claim: pywikibot.Claim,
+                      qualifier: pywikibot.Claim,
                       new: bool = False,
                       bot: bool = True,
-                      summary: Optional[str] = None):
+                      summary: str | None = None,
+                      tags: str | None = None):
         """Create/Edit a qualifier.
 
         .. versionchanged:: 7.0
-           deprecated `baserevid` parameter was removed
+           deprecated *baserevid* parameter was removed
+        .. versionchanged:: 9.4
+           *tags* parameter was added
 
         :param claim: A Claim object to add the qualifier to
-        :type claim: pywikibot.Claim
         :param qualifier: A Claim object to be used as a qualifier
-        :type qualifier: pywikibot.Claim
-        :param new: Whether to create a new one if the "qualifier"
+        :param new: Whether to create a new one if the qualifier
             already exists
         :param bot: Whether to mark the edit as a bot edit
         :param summary: Edit summary
+        :param tags: Change tags to apply to the revision
+        :raises ValueError: The claim cannot have a qualifier.
         """
         if claim.isReference or claim.isQualifier:
             raise ValueError('The claim cannot have a qualifier.')
-        params = {'action': 'wbsetqualifier', 'claim': claim.snak,
-                  'baserevid': claim.on_item.latest_revision_id,
-                  'summary': summary, 'bot': bot}
+
+        params = {
+            'action': 'wbsetqualifier',
+            'claim': claim.snak,
+            'baserevid': claim.on_item.latest_revision_id,
+            'summary': summary,
+            'tags': tags,
+            'bot': bot,
+            'token': self.tokens['csrf'],
+        }
 
         if (not new and hasattr(qualifier, 'hash')
                 and qualifier.hash is not None):
             params['snakhash'] = qualifier.hash
-        params['token'] = self.tokens['csrf']
+
         # build up the snak
         if qualifier.getSnakType() == 'value':
             params['value'] = json.dumps(qualifier._formatValue())
+
         params['snaktype'] = qualifier.getSnakType()
         params['property'] = qualifier.getID()
 
@@ -502,20 +585,22 @@ class DataSite(APISite):
 
     @need_right('edit')
     @remove_last_args(['baserevid'])  # since 7.0.0
-    def removeClaims(self, claims,
+    def removeClaims(self,
+                     claims: list[pywikibot.Claim],
                      bot: bool = True,
-                     summary: Optional[str] = None):
+                     summary: str | None = None,
+                     tags: str | None = None):
         """Remove claims.
 
         .. versionchanged:: 7.0
-           deprecated `baserevid` parameter was removed
+           deprecated *baserevid* parameter was removed
+        .. versionchanged:: 9.4
+           *tags* parameter was added
 
         :param claims: Claims to be removed
-        :type claims: List[pywikibot.Claim]
         :param bot: Whether to mark the edit as a bot edit
-        :type bot: bool
         :param summary: Edit summary
-        :type summary: str
+        :param tags: Change tags to apply to the revision
         """
         # Check on_item for all additional claims
         items = {claim.on_item for claim in claims if claim.on_item}
@@ -523,10 +608,12 @@ class DataSite(APISite):
         baserevid = items.pop().latest_revision_id
 
         params = {
-            'action': 'wbremoveclaims', 'baserevid': baserevid,
-            'summary': summary,
-            'bot': bot,
+            'action': 'wbremoveclaims',
             'claim': '|'.join(claim.snak for claim in claims),
+            'baserevid': baserevid,
+            'summary': summary,
+            'tags': tags,
+            'bot': bot,
             'token': self.tokens['csrf'],
         }
 
@@ -535,27 +622,33 @@ class DataSite(APISite):
 
     @need_right('edit')
     @remove_last_args(['baserevid'])  # since 7.0.0
-    def removeSources(self, claim, sources,
+    def removeSources(self,
+                      claim: pywikibot.Claim,
+                      sources: list[pywikibot.Claim],
                       bot: bool = True,
-                      summary: Optional[str] = None):
+                      summary: str | None = None,
+                      tags: str | None = None):
         """Remove sources.
 
         .. versionchanged:: 7.0
            deprecated `baserevid` parameter was removed
+        .. versionchanged:: 9.4
+           *tags* parameter was added
 
         :param claim: A Claim object to remove the sources from
-        :type claim: pywikibot.Claim
         :param sources: A list of Claim objects that are sources
-        :type sources: list
         :param bot: Whether to mark the edit as a bot edit
         :param summary: Edit summary
+        :param tags: Change tags to apply to the revision
         """
         params = {
             'action': 'wbremovereferences',
-            'baserevid': claim.on_item.latest_revision_id,
-            'summary': summary, 'bot': bot,
             'statement': claim.snak,
             'references': '|'.join(source.hash for source in sources),
+            'baserevid': claim.on_item.latest_revision_id,
+            'summary': summary,
+            'tags': tags,
+            'bot': bot,
             'token': self.tokens['csrf'],
         }
 
@@ -564,46 +657,53 @@ class DataSite(APISite):
 
     @need_right('edit')
     @remove_last_args(['baserevid'])  # since 7.0.0
-    def remove_qualifiers(self, claim, qualifiers,
+    def remove_qualifiers(self,
+                          claim: pywikibot.Claim,
+                          qualifiers: list[pywikibot.Claim],
                           bot: bool = True,
-                          summary: Optional[str] = None):
+                          summary: str | None = None,
+                          tags: str | None = None):
         """Remove qualifiers.
 
         .. versionchanged:: 7.0
            deprecated `baserevid` parameter was removed
+        .. versionchanged:: 9.4
+           *tags* parameter was added
 
         :param claim: A Claim object to remove the qualifier from
-        :type claim: pywikibot.Claim
         :param qualifiers: Claim objects currently used as a qualifiers
-        :type qualifiers: List[pywikibot.Claim]
         :param bot: Whether to mark the edit as a bot edit
         :param summary: Edit summary
+        :param tags: Change tags to apply to the revision
         """
         params = {
             'action': 'wbremovequalifiers',
             'claim': claim.snak,
+            'qualifiers': [qualifier.hash for qualifier in qualifiers],
             'baserevid': claim.on_item.latest_revision_id,
             'summary': summary,
+            'tags': tags,
             'bot': bot,
-            'qualifiers': [qualifier.hash for qualifier in qualifiers],
-            'token': self.tokens['csrf']
+            'token': self.tokens['csrf'],
         }
 
         req = self.simple_request(**params)
         return req.submit()
 
     @need_right('edit')
-    def linkTitles(self, page1, page2, bot: bool = True):
-        """
-        Link two pages together.
+    def linkTitles(self,
+                   page1: pywikibot.Page,
+                   page2: pywikibot.Page,
+                   bot: bool = True) -> dict:
+        """Link two pages together.
+
+        .. versionchanged:: 9.4
+           *tags* parameter was added
 
         :param page1: First page to link
-        :type page1: pywikibot.Page
         :param page2: Second page to link
-        :type page2: pywikibot.Page
         :param bot: Whether to mark the edit as a bot edit
         :return: dict API output
-        :rtype: dict
         """
         params = {
             'action': 'wblinktitles',
@@ -611,43 +711,47 @@ class DataSite(APISite):
             'totitle': page1.title(),
             'fromsite': page2.site.dbName(),
             'fromtitle': page2.title(),
+            'bot': bot,
             'token': self.tokens['csrf']
         }
-        if bot:
-            params['bot'] = 1
+
         req = self.simple_request(**params)
         return req.submit()
 
     @need_right('item-merge')
-    def mergeItems(self, from_item, to_item, ignore_conflicts=None,
-                   summary=None, bot: bool = True):
-        """
-        Merge two items together.
+    def mergeItems(self,
+                   from_item: pywikibot.ItemPage,
+                   to_item: pywikibot.ItemPage,
+                   ignore_conflicts: list[str] | None = None,
+                   summary: str | None = None,
+                   bot: bool = True,
+                   tags: str | None = None) -> dict:
+        """Merge two items together.
+
+        .. versionchanged:: 9.4
+           *tags* parameter was added
 
         :param from_item: Item to merge from
-        :type from_item: pywikibot.ItemPage
         :param to_item: Item to merge into
-        :type to_item: pywikibot.ItemPage
         :param ignore_conflicts: Which type of conflicts
             ('description', 'sitelink', and 'statement')
             should be ignored
-        :type ignore_conflicts: list of str
         :param summary: Edit summary
-        :type summary: str
         :param bot: Whether to mark the edit as a bot edit
+        :param tags: Change tags to apply to the revision
         :return: dict API output
-        :rtype: dict
         """
         params = {
             'action': 'wbmergeitems',
             'fromid': from_item.getID(),
             'toid': to_item.getID(),
             'ignoreconflicts': ignore_conflicts,
-            'token': self.tokens['csrf'],
             'summary': summary,
+            'tags': tags,
+            'bot': bot,
+            'token': self.tokens['csrf'],
         }
-        if bot:
-            params['bot'] = 1
+
         req = self.simple_request(**params)
         return req.submit()
 
@@ -673,9 +777,9 @@ class DataSite(APISite):
             'target': to_lexeme.getID(),
             'token': self.tokens['csrf'],
             'summary': summary,
+            'bot': bot,
         }
-        if bot:
-            params['bot'] = 1
+
         req = self.simple_request(**params)
         return req.submit()
 
@@ -701,7 +805,7 @@ class DataSite(APISite):
         return req.submit()
 
     def search_entities(self, search: str, language: str,
-                        total: Optional[int] = None, **kwargs):
+                        total: int | None = None, **kwargs):
         """
         Search for pages or properties that contain the given text.
 
@@ -733,10 +837,10 @@ class DataSite(APISite):
                               total=total, parameters=parameters)
         return gen
 
-    def parsevalue(self, datatype: str, values: List[str],
-                   options: Optional[Dict[str, Any]] = None,
-                   language: Optional[str] = None,
-                   validate: bool = False) -> List[Any]:
+    def parsevalue(self, datatype: str, values: list[str],
+                   options: dict[str, Any] | None = None,
+                   language: str | None = None,
+                   validate: bool = False) -> list[Any]:
         """
         Send data values to the wikibase parser for interpretation.
 
@@ -801,14 +905,14 @@ class DataSite(APISite):
         wbsetaliases:
             dict shall have the following structure:
 
-            .. code-block::
+            .. code-block:: python
 
                {
                    'language': value (str),
                    'add': list of language codes (str),
                    'remove': list of language codes (str),
-                   'set' list of language codes (str)
-                }
+                   'set' list of language codes (str),
+               }
 
             'add' and 'remove' are alternative to 'set'
 

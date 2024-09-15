@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Tests for the replace script and ReplaceRobot class."""
 #
-# (C) Pywikibot team, 2015-2023
+# (C) Pywikibot team, 2015-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import unittest
 from contextlib import suppress
 
@@ -94,7 +96,7 @@ class TestReplacementsMain(TWNBotTestCase):
             -page to not have an empty generator
             -site as it will use Site() otherwise
         """
-        return replace.main(*(args + ('-site:wikipedia:test', '-page:TEST')))
+        return replace.main(*args, '-site:wikipedia:test', '-page:TEST')
 
     def test_invalid_replacements(self):
         """Test invalid command line replacement configurations."""
@@ -107,7 +109,7 @@ class TestReplacementsMain(TWNBotTestCase):
         with empty_sites():
             self._run('foo')
             self.assertEqual([
-                'Incomplete command line pattern replacement pair.',
+                "Incomplete command line pattern replacement pair:\n['foo']",
             ], pywikibot.bot.ui.pop_output())
 
         # In the end no bots should've been created
@@ -302,6 +304,6 @@ class TestReplacementsMain(TWNBotTestCase):
         ], pywikibot.bot.ui.pop_output())
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

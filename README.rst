@@ -1,9 +1,6 @@
 .. image:: https://github.com/wikimedia/pywikibot/actions/workflows/pywikibot-ci.yml/badge.svg?branch=master
    :alt: GitHub CI
    :target: https://github.com/wikimedia/pywikibot/actions/workflows/pywikibot-ci.yml
-.. image:: https://ci.appveyor.com/api/projects/status/xo2g4ctoom8k6yvw/branch/master?svg=true
-   :alt: AppVeyor Build Status
-   :target: https://ci.appveyor.com/project/pywikibot-core/pywikibot
 .. image:: https://codecov.io/gh/wikimedia/pywikibot/branch/master/graph/badge.svg
    :alt: Code coverage
    :target: https://app.codecov.io/gh/wikimedia/pywikibot
@@ -51,17 +48,16 @@ Quick start
 
 .. code:: text
 
-    pip install requests
     git clone https://gerrit.wikimedia.org/r/pywikibot/core.git
     cd core
     git submodule update --init
-    python pwb.py script_name
+    pip install -r requirements.txt
+    python pwb.py <script_name>
 
 Or to install using PyPI (excluding scripts)
 
 .. code:: text
 
-    pip install -U setuptools
     pip install pywikibot
     pwb <scriptname>
 

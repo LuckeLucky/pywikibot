@@ -117,10 +117,12 @@ Options (may be omitted):
    KeyboardInterrupt was enabled with ``-async`` option.
 """
 #
-# (C) Pywikibot team, 2006-2023
+# (C) Pywikibot team, 2006-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import datetime
 import locale
 import os
@@ -130,15 +132,16 @@ import threading
 import time
 from collections import OrderedDict, defaultdict
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import nullcontext
 from hashlib import md5
 from math import ceil
 from textwrap import fill
-from typing import Any, Optional, Pattern, Union
+from typing import Any, Pattern
 from warnings import warn
 
 import pywikibot
 from pywikibot import i18n
-from pywikibot.backports import List, Set, Tuple, nullcontext, pairwise
+from pywikibot.backports import pairwise
 from pywikibot.exceptions import Error, NoPageError
 from pywikibot.textlib import (
     TimeStripper,
@@ -149,10 +152,6 @@ from pywikibot.textlib import (
 )
 from pywikibot.time import MW_KEYS, parse_duration, str2timedelta
 from pywikibot.tools import PYTHON_VERSION
-
-
-ShouldArchive = Tuple[str, str]
-Size = Tuple[int, str]
 
 
 class ArchiveBotSiteConfigError(Error):
@@ -200,7 +199,7 @@ def str2localized_duration(site, string: str) -> str:
     return to_local_digits(string, site.code)
 
 
-def str2size(string: str) -> Size:
+def str2size(string: str) -> tuple[int, str]:
     """Return a size for a shorthand size.
 
     Accepts a string defining a size::
@@ -346,9 +345,9 @@ class DiscussionPage(pywikibot.Page):
 
     @staticmethod
     def max(
-        ts1: Optional[pywikibot.Timestamp],
-        ts2: Optional[pywikibot.Timestamp]
-    ) -> Optional[pywikibot.Timestamp]:
+        ts1: pywikibot.Timestamp | None,
+        ts2: pywikibot.Timestamp | None
+    ) -> pywikibot.Timestamp | None:
         """Calculate the maximum of two timestamps but allow None as value.
 
         .. versionadded:: 7.6
@@ -418,7 +417,7 @@ class DiscussionPage(pywikibot.Page):
         if pywikibot.calledModuleName() not in ['archivebot_tests', 'setup']:
             pywikibot.info(f'{len(self.threads)} thread(s) found on {self}')
 
-    def is_full(self, max_archive_size: Size) -> bool:
+    def is_full(self, max_archive_size: tuple[int, str]) -> bool:
         """Check whether archive size exceeded."""
         if self.full:
             return True
@@ -432,7 +431,7 @@ class DiscussionPage(pywikibot.Page):
         return self.full
 
     def feed_thread(self, thread: DiscussionThread,
-                    max_archive_size: Size) -> bool:
+                    max_archive_size: tuple[int, str]) -> bool:
         """Append a new thread to the archive."""
         self.threads.append(thread)
         self.archived_threads += 1
@@ -536,7 +535,7 @@ class PageArchiver:
                      ResourceWarning, stacklevel=2)
         self.attributes[attr] = [value, out]
 
-    def saveables(self) -> List[str]:
+    def saveables(self) -> list[str]:
         """Return a list of saveable attributes."""
         return [a for a in self.attributes if self.attributes[a][1]
                 and a != 'maxage']
@@ -544,7 +543,7 @@ class PageArchiver:
     def attr2text(self) -> str:
         """Return a template with archiver saveable attributes."""
         return '{{%s\n%s\n}}' \
-               % (self.tpl.title(with_ns=(self.tpl.namespace() != 10)),
+               % (self.tpl.title(with_ns=self.tpl.namespace() != 10),
                   '\n'.join(f'|{a} = {self.get_attr(a)}'
                             for a in self.saveables()))
 
@@ -578,7 +577,7 @@ class PageArchiver:
                     f'Missing argument {field!r} in template')
 
     def should_archive_thread(self, thread: DiscussionThread
-                              ) -> Optional[ShouldArchive]:
+                              ) -> tuple[str, str] | None:
         """Check whether a thread has to be archived.
 
         :return: the archivation reason as a tuple of localization args
@@ -612,8 +611,9 @@ class PageArchiver:
             if not (title.startswith(page_title + '/') or self.force
                     or self.key_ok()):
                 raise ArchiveSecurityError(
-                    'Archive page {} does not start with page title ({})!'
-                    .format(archive_link, page_title))
+                    f'Archive page {archive_link} does not start with page '
+                    f'title ({page_title})!'
+                )
             self.archives[title] = DiscussionPage(archive_link, self, params)
 
         return self.archives[title]
@@ -648,7 +648,7 @@ class PageArchiver:
             self.get_archive_page(pattern % params, params)
         list(self.site.preloadpages(self.archives.values()))
 
-    def analyze_page(self) -> Set[ShouldArchive]:
+    def analyze_page(self) -> set[tuple[str, str]]:
         """Analyze DiscussionPage."""
         max_size = self.get_attr('maxarchivesize')
         max_arch_size = str2size(max_size)
@@ -937,8 +937,8 @@ def main(*args: str) -> None:
 
     if not templates:
         templates = ['User:MiszaBot/config']
-        pywikibot.info('No template was specified, using default {{{{{}}}}}.'
-                       .format(templates[0]))
+        pywikibot.info('No template was specified, using default '
+                       f'{{{{{templates[0]}}}}}.')
 
     if asynchronous:
         signal.signal(signal.SIGINT, signal_handler)
@@ -975,7 +975,7 @@ def main(*args: str) -> None:
                     if not exiting.is_set():
                         continue
 
-                    canceled: Union[str, int] = ''
+                    canceled: str | int = ''
                     pywikibot.info(
                         '<<lightyellow>>Canceling pending Futures... ',
                         newline=False)
@@ -995,5 +995,5 @@ def main(*args: str) -> None:
 if __name__ == '__main__':
     start = datetime.datetime.now()
     main()
-    pywikibot.info('\nExecution time: {} seconds'
-                   .format((datetime.datetime.now() - start).seconds))
+    pywikibot.info('\nExecution time: '
+                   f'{(datetime.datetime.now() - start).seconds} seconds')

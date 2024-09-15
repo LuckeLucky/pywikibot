@@ -25,8 +25,11 @@ The advantages of pwb.py wrapper script are:
   due to spelling mistake
 """
 #
-# (C) Pywikibot team, 2021-2023
+# (C) Pywikibot team, 2021-2024
 #
 # Distributed under the terms of the MIT license.
 #
-__version__ = '8.6.0'
+from __future__ import annotations
+
+
+__version__ = '9.4.0'

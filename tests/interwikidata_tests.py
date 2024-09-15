@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Tests for scripts/interwikidata.py."""
 #
-# (C) Pywikibot team, 2015-2022
+# (C) Pywikibot team, 2015-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import unittest
 from contextlib import suppress
 
@@ -53,9 +55,17 @@ class TestInterwikidataBot(SiteAttributeTestCase):
 
     def test_main(self):
         """Test main function interwikidata.py."""
-        # The main function should return False when no generator is defined.
-        with empty_sites():
-            self.assertFalse(interwikidata.main())
+        # The default site is used here
+        if pywikibot.Site().has_data_repository:
+            with empty_sites():
+                # The main function return None.
+                self.assertIsNone(interwikidata.main())
+        else:
+            with empty_sites(), self.assertRaisesRegex(
+                ValueError,
+                    r'[a-z}+:[a-z_-]+ does not have a data repository, use '
+                    r'interwiki\.py instead\.'):
+                interwikidata.main()
 
     def test_iw_bot(self):
         """Test IWBot class."""
@@ -100,6 +110,6 @@ class TestInterwikidataBot(SiteAttributeTestCase):
                 site=self.wt)
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

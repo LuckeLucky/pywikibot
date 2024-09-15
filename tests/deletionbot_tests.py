@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Tests for scripts/delete.py."""
 #
-# (C) Pywikibot team, 2014-2022
+# (C) Pywikibot team, 2014-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import unittest
 from contextlib import suppress
 
@@ -31,9 +33,9 @@ class TestDeletionBotWrite(ScriptMainTestCase):
         delete.main('-cat:Pywikibot_Delete_Test', '-always')
         self.assertIsEmpty(list(cat.members()))
         delete.main('-page:User:Unicodesnowman/DeleteTest1', '-always',
-                    '-undelete', '-summary=pywikibot unit tests')
+                    '-undelete', '-summary:pywikibot unit tests')
         delete.main('-page:User:Unicodesnowman/DeleteTest2', '-always',
-                    '-undelete', '-summary=pywikibot unit tests')
+                    '-undelete', '-summary:pywikibot unit tests')
         self.assertLength(list(cat.members()), 2)
 
     def test_undelete_existing(self):
@@ -42,9 +44,9 @@ class TestDeletionBotWrite(ScriptMainTestCase):
         p1 = pywikibot.Page(site, 'User:Unicodesnowman/ExistingPage')
         if not p1.exists():
             p1.text = 'pywikibot unit test page'
-            p1.save('unit test', botflag=True)
+            p1.save('unit test')
         delete.main('-page:User:Unicodesnowman/ExistingPage', '-always',
-                    '-undelete', '-summary=pywikibot unit tests')
+                    '-undelete', '-summary:pywikibot unit tests')
 
 
 class TestDeletionBotUser(ScriptMainTestCase):
@@ -74,8 +76,9 @@ class TestDeletionBotUser(ScriptMainTestCase):
     def save_page(cls):
         """Reset the test page content."""
         cls.page.text = 'Pywikibot deletion test.'
-        cls.page.save('Pywikibot unit test', botflag=True)
+        cls.page.save('Pywikibot unit test')
 
+    @unittest.expectedFailure  # T367299
     def test_delete_mark(self):
         """Test marking User:Unicodesnowman/DeleteMark for deletion."""
         delete.main('-page:User:Unicodesnowman/DeleteMark', '-always',
@@ -138,6 +141,6 @@ def undelete_dummy(self, reason):
     TestDeletionBot.undelete_args = [self.title(as_link=True), reason]
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

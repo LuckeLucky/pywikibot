@@ -44,15 +44,16 @@ Examples::
 
 """
 #
-# (C) Pywikibot team, 2007-2023
+# (C) Pywikibot team, 2007-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import re
 import webbrowser
-from collections import namedtuple
 from itertools import chain
-from typing import Optional
+from typing import NamedTuple
 
 import pywikibot
 from pywikibot import i18n, pagegenerators
@@ -168,7 +169,12 @@ category_to_check = {
 project_inserted = ['ar', 'cs', 'fr', 'it', 'ja', 'pt', 'sr', 'ur', 'zh']
 
 # END PREFERENCES
-ParsedTemplate = namedtuple('ParsedTemplate', 'blocktype, regex, msgtype')
+
+
+class _ParsedTemplate(NamedTuple):
+    blocktype: str
+    regex: str
+    msgtype: str
 
 
 class CheckerBot(ConfigParserBot, ExistingPageBot, SingleSiteBot):
@@ -259,25 +265,25 @@ class CheckerBot(ConfigParserBot, ExistingPageBot, SingleSiteBot):
                 for catch_regex in template:
                     result_catch = re.findall(catch_regex, text)
                     if result_catch:
-                        return ParsedTemplate(
+                        return _ParsedTemplate(
                             results[index], catch_regex, 'modifying')
 
             if tsmp and ttmp and ttp != ttmp and tsp != tsmp:
                 for catch_regex in ttmp:
                     result_catch = re.findall(catch_regex, text)
                     if result_catch:
-                        return ParsedTemplate(
+                        return _ParsedTemplate(
                             'sysop-move', catch_regex, 'modifying')
 
                 for catch_regex in tsmp:
                     result_catch = re.findall(catch_regex, text)
                     if result_catch:
-                        return ParsedTemplate(
+                        return _ParsedTemplate(
                             'autoconfirmed-move', catch_regex, 'modifying')
 
             # If editable means that we have no regex, won't change anything
             # with this regex
-            return ParsedTemplate('editable', r'\A', 'adding')
+            return _ParsedTemplate('editable', r'\A', 'adding')
 
         tsp = i18n.translate(self.site, template_semi_protection)
         ttp = i18n.translate(self.site, template_total_protection)
@@ -285,6 +291,8 @@ class CheckerBot(ConfigParserBot, ExistingPageBot, SingleSiteBot):
         ttmp = i18n.translate(self.site, template_total_move_protection)
         tnr = i18n.translate(self.site, template_no_regex)
         tu = i18n.translate(self.site, template_unique)
+        missing_l10n = ('This script is not localized to use it on '
+                        f'{self.site.sitename}.\nMissing ')
 
         while True:
             text, restrictions = yield
@@ -300,17 +308,15 @@ class CheckerBot(ConfigParserBot, ExistingPageBot, SingleSiteBot):
             # keep track of the changes for each step (edit then move)
             changes = -1
 
-            msg_type: Optional[str] = None
+            msg_type: str | None = None
             edit_restriction = restrictions.get('edit')
             if not edit_restriction:
                 # page is not edit-protected
                 # Deleting the template because the page doesn't need it.
                 if not (ttp or tsp):
-                    raise Error(
-                        'This script is not localized to use it on {}.\n'
-                        'Missing "template_semi_protection" or'
-                        '"template_total_protection"'
-                        .format(self.site.sitename))
+                    raise Error(missing_l10n
+                                + ('"template_semi_protection" '
+                                   'or "template_total_protection"'))
 
                 replacement = '|'.join(ttp + tsp + (tu or []))
                 text, changes = re.subn(
@@ -335,10 +341,7 @@ class CheckerBot(ConfigParserBot, ExistingPageBot, SingleSiteBot):
                     pywikibot.info(msg)
                 else:
                     if not tnr or tu and not tnr[4] or not (tu or tnr[1]):
-                        raise Error(
-                            'This script is not localized to use it on \n{}. '
-                            'Missing "template_no_regex"'
-                            .format(self.site.sitename))
+                        raise Error(missing_l10n + '"template_no_regex"')
 
                     pywikibot.info(
                         'The page is protected to the sysop, but the template '
@@ -358,10 +361,7 @@ class CheckerBot(ConfigParserBot, ExistingPageBot, SingleSiteBot):
                     pywikibot.info(msg)
                 else:
                     if not tnr or tu and not tnr[4] or not (tu or tnr[1]):
-                        raise Error(
-                            'This script is not localized to use it on \n'
-                            '{}. Missing "template_no_regex"'
-                            .format(self.site.sitename))
+                        raise Error(missing_l10n + '"template_no_regex"')
                     pywikibot.info(
                         'The page is editable only for the autoconfirmed '
                         'users, but the template seems not correct. Fixing...')
@@ -468,7 +468,7 @@ def main(*args: str) -> None:
         elif arg in ('-protectedpages', '-moveprotected'):
             protect_type = 'move' if option.startswith('move') else 'edit'
             generator = site.protectedpages(namespace=int(value or 0),
-                                            type=protect_type)
+                                            protect_type=protect_type)
 
     if not generator:
         generator = gen_factory.getCombinedGenerator()

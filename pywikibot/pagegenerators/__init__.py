@@ -1,5 +1,4 @@
-"""
-This module offers a wide variety of page generators.
+"""This module offers a wide variety of page generators.
 
 A page generator is an object that is iterable (see :pep:`255`) and
 that yields page objects on which other scripts can then work.
@@ -8,19 +7,21 @@ Most of these functions just wrap a Site or Page method that returns a
 generator. For testing purposes listpages.py can be used, to print page
 titles to standard output.
 
-These parameters are supported to specify which pages titles to print:
+These parameters are supported to specify which pages titles to be used:
 
 &params;
 """
 #
-# (C) Pywikibot team, 2008-2023
+# (C) Pywikibot team, 2008-2024
 #
 # Distributed under the terms of the MIT license.
 #
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 import pywikibot
-from pywikibot.backports import Callable, Dict, Iterable, Iterator, List, Set
+from pywikibot.backports import Callable, Generator, Iterable
 from pywikibot.pagegenerators._factory import GeneratorFactory
 from pywikibot.pagegenerators._filters import (
     CategoryFilterPageGenerator,
@@ -56,6 +57,7 @@ from pywikibot.pagegenerators._generators import (
     MySQLPageGenerator,
     NewimagesPageGenerator,
     NewpagesPageGenerator,
+    PagePilePageGenerator,
     PagesFromPageidGenerator,
     PagesFromTitlesGenerator,
     PetScanPageGenerator,
@@ -66,6 +68,7 @@ from pywikibot.pagegenerators._generators import (
     SearchPageGenerator,
     ShortPagesPageGenerator,
     SubCategoriesPageGenerator,
+    SupersetPageGenerator,
     TextIOPageGenerator,
     UnCategorizedCategoryGenerator,
     UnCategorizedImageGenerator,
@@ -128,6 +131,7 @@ __all__ = (
     'page_with_property_generator',
     'PagesFromPageidGenerator',
     'PagesFromTitlesGenerator',
+    'PagePilePageGenerator',
     'PetScanPageGenerator',
     'PrefixingPageGenerator',
     'RandomPageGenerator',
@@ -136,6 +140,7 @@ __all__ = (
     'SearchPageGenerator',
     'ShortPagesPageGenerator',
     'SubCategoriesPageGenerator',
+    'SupersetPageGenerator',
     'TextIOPageGenerator',
     'UnCategorizedCategoryGenerator',
     'UnCategorizedImageGenerator',
@@ -210,44 +215,47 @@ GENERATOR OPTIONS
 
                         logevent,username,start,end
 
-                    or for backward compatibility::
+                    .. deprecated:: 9.2
+                       backward compatible *total* argument like
+                       ``logevent,username,total``; use ``-limit`` filter
+                       option instead (see below).
 
-                        logevent,username,total
+                    To use the default value, use an empty string.
 
                     .. note:: 'start' is the most recent date and log
                        events are iterated from present to past. If
                        'start' is not provided, it means 'now'; if 'end'
                        is not provided, it means 'since the beginning'.
 
-                    To use the default value, use an empty string.
-                    You have options for every type of logs given by the
-                    log event parameter which could be one of the following::
+                    .. seealso::
+                       *letype* of :api:`Logevents` for the supported
+                       types of log events.
 
-                        spamblacklist, titleblacklist, gblblock, renameuser,
-                        globalauth, gblrights, gblrename, abusefilter,
-                        massmessage, thanks, usermerge, block, protect, rights,
-                        delete, upload, move, import, patrol, merge, suppress,
-                        tag, managetags, contentmodel, review, stable,
-                        timedmediahandler, newusers
+                    **Examples:**
 
-                    It uses the default number of pages 10.
-
-                    Examples:
-
-                    -logevents:move gives pages from move log (usually
+                    ``-logevents:move`` gives pages from move log (usually
                     redirects)
-                    -logevents:delete,,20 gives 20 pages from deletion log
-                    -logevents:protect,Usr gives pages from protect log by user
-                    Usr
-                    -logevents:patrol,Usr,20 gives 20 patrolled pages by Usr
-                    -logevents:upload,,20121231,20100101 gives upload pages
-                    in the 2010s, 2011s, and 2012s
-                    -logevents:review,,20121231 gives review pages since the
-                    beginning till the 31 Dec 2012
-                    -logevents:review,Usr,20121231 gives review pages by user
-                    Usr since the beginning till the 31 Dec 2012
 
-                    In some cases it must be given as -logevents:"move,Usr,20"
+                    ``-logevents:delete -limit20`` gives 20 pages from deletion
+                    log
+
+                    ``-logevents:protect,Usr`` gives pages from protect log by
+                    user Usr
+
+                    ``-logevents:patrol,Usr -limit:20`` gives 20 patrolled
+                    pages by Usr
+
+                    ``-logevents:upload,,20121231,20100101`` gives upload pages
+                    in the 2010s, 2011s, and 2012s
+
+                    ``-logevents:review,,20121231`` gives review pages since
+                    the beginning till the 31 Dec 2012
+
+                    ``-logevents:review,Usr,20121231`` gives review pages by
+                    user Usr since the beginning till the 31 Dec 2012
+
+                    In some cases it must be given as
+                    ``-logevents:"move,Usr,20"``
 
 -interwiki          Work on the given page and all equivalent pages in other
                     languages. This can, for example, be used to fight
@@ -278,14 +286,18 @@ GENERATOR OPTIONS
                     'duration' minutes of timespan. rctags are supported too.
                     The rctag must be the very first parameter part.
 
-                    Examples:
+                    **Examples:**
 
-                    -recentchanges:20 gives the 20 most recently changed pages
-                    -recentchanges:120,70 will give pages with 120 offset
+                    ``-recentchanges:20`` gives the 20 most recently changed
+                    pages
+
+                    ``-recentchanges:120,70`` will give pages with 120 offset
                     minutes and 70 minutes of timespan
-                    -recentchanges:visualeditor,10 gives the 10 most recently
-                    changed pages marked with 'visualeditor'
-                    -recentchanges:"mobile edit,60,35" will retrieve pages
+
+                    ``-recentchanges:visualeditor,10`` gives the 10 most
+                    recently changed pages marked with 'visualeditor'
+
+                    ``-recentchanges:"mobile edit,60,35"`` will retrieve pages
                     marked with 'mobile edit' for the given offset and timespan
 
 -unconnectedpages   Work on the most recent unconnected pages to the Wikibase
@@ -324,8 +336,10 @@ GENERATOR OPTIONS
                     Argument can be given as "-unwatched:n" where
                     n is the maximum number of articles to work on.
 
--property:name      Work on all pages with a given property name from
-                    Special:PagesWithProp.
+-property           Work on all pages with a given property name from
+                    Special:PagesWithProp. Usage:
+
+                        -property:name
 
 -usercontribs       Work on all articles that were edited by a certain user.
                     (Example : -usercontribs:DumZiBoT)
@@ -342,6 +356,12 @@ GENERATOR OPTIONS
                     WHERE page_namespace = 0"
                     and treats the resulting pages. See :manpage:`MySQL`
                     for more details.
+
+-supersetquery      Takes a SQL query string like
+                    "SELECT page_namespace, page_title FROM page
+                    WHERE page_namespace = 0" and run it in
+                    https://superset.wmcloud.org/ and treats
+                    the resulting pages.
 
 -sparql             Takes a SPARQL SELECT query string including ?item
                     and works on the resulting pages.
@@ -395,6 +415,8 @@ GENERATOR OPTIONS
                     "-pageid:'pageid1|pageid2|..'"
                     and supplied multiple times for multiple pages.
 
+-pagepile           Work on a PagePile. Argument is the pile id (an integer)
+
 -linter             Work on pages that contain lint errors. Extension Linter
                     must be available on the site.
                     -linter select all categories.
@@ -408,17 +430,23 @@ GENERATOR OPTIONS
 
                     -linter:show just shows available categories.
 
--querypage:name     Work on pages provided by a QueryPage-based special page,
-                    see :api:`Querypage`.
-                    (tip: use -limit:n to fetch only n pages).
+-querypage          Work on pages provided by a QueryPage-based special
+                    page. Usage:
 
-                    -querypage shows special pages available.
+                        -querypage:name
+
+                    ``-querypage`` without argument shows special pages
+                    available.
+
+                    .. seealso:: :api:`Querypage`
 
 -url                Read a list of pages to treat from the provided URL.
                     The URL must return text in the same format as expected for
                     the -file argument, e.g. page titles separated by newlines
                     or enclosed in brackets.
 
+.. tip::
+   use ``-limit:n`` filter option to fetch only n pages.
 
 FILTER OPTIONS
 ==============
@@ -523,7 +551,9 @@ FILTER OPTIONS
 
 docuReplacements = {'&params;': parameterHelp}  # noqa: N816
 
-PRELOAD_SITE_TYPE = Dict[pywikibot.site.BaseSite, List[pywikibot.page.Page]]
+if TYPE_CHECKING:
+    PRELOAD_SITE_TYPE = dict[pywikibot.site.BaseSite,
+                             list[pywikibot.page.Page]]
 
 # if a bot uses GeneratorFactory, the module should include the line
 #   docuReplacements = {'&params;': pywikibot.pagegenerators.parameterHelp}
@@ -535,8 +565,8 @@ PRELOAD_SITE_TYPE = Dict[pywikibot.site.BaseSite, List[pywikibot.page.Page]]
 __doc__ = __doc__.replace('&params;', parameterHelp)
 
 
-def PageClassGenerator(generator: Iterable['pywikibot.page.Page']
-                       ) -> Iterator['pywikibot.page.Page']:
+def PageClassGenerator(generator: Iterable[pywikibot.page.Page]
+                       ) -> Generator[pywikibot.page.Page, None, None]:
     """
     Yield pages from another generator as Page subclass objects.
 
@@ -554,9 +584,10 @@ def PageClassGenerator(generator: Iterable['pywikibot.page.Page']
             yield page
 
 
-def PageWithTalkPageGenerator(generator: Iterable['pywikibot.page.Page'],
-                              return_talk_only: bool = False
-                              ) -> Iterator['pywikibot.page.Page']:
+def PageWithTalkPageGenerator(
+    generator: Iterable[pywikibot.page.BasePage],
+    return_talk_only: bool = False,
+) -> Generator[pywikibot.page.BasePage, None, None]:
     """Yield pages and associated talk pages from another generator.
 
     Only yields talk pages if the original generator yields a non-talk page,
@@ -570,11 +601,13 @@ def PageWithTalkPageGenerator(generator: Iterable['pywikibot.page.Page'],
             yield page.toggleTalkPage()
 
 
-def RepeatingGenerator(generator: Callable,  # type: ignore[type-arg]
-                       key_func: Callable[[Any], Any] = lambda x: x,
-                       sleep_duration: int = 60,
-                       total: Optional[int] = None,
-                       **kwargs: Any) -> Iterator['pywikibot.page.Page']:
+def RepeatingGenerator(
+    generator: Callable[..., Iterable[pywikibot.page.BasePage]],
+    key_func: Callable[[pywikibot.page.BasePage], Any] = lambda x: x,
+    sleep_duration: int = 60,
+    total: int | None = None,
+    **kwargs: Any,
+) -> Generator[pywikibot.page.Page, None, None]:
     """Yield items in live time.
 
     The provided generator must support parameter 'start', 'end',
@@ -605,9 +638,10 @@ def RepeatingGenerator(generator: Callable,  # type: ignore[type-arg]
     kwargs.pop('start', None)  # don't set start time
     kwargs.pop('end', None)  # don't set stop time
 
-    seen: Set[Any] = set()
+    seen: set[Any] = set()
     while total is None or len(seen) < total:
-        def filtered_generator() -> Iterable['pywikibot.page.Page']:
+        def filtered_generator() -> Generator[pywikibot.page.BasePage,
+                                              None, None]:
             for item in generator(total=None if seen else 1, **kwargs):
                 key = key_func(item)
                 if key not in seen:
@@ -622,10 +656,10 @@ def RepeatingGenerator(generator: Callable,  # type: ignore[type-arg]
         yield from reversed(list(filtered_generator()))
 
 
-def PreloadingGenerator(generator: Iterable['pywikibot.page.Page'],
+def PreloadingGenerator(generator: Iterable[pywikibot.page.Page],
                         groupsize: int = 50,
                         quiet: bool = False
-                        ) -> Iterator['pywikibot.page.Page']:
+                        ) -> Generator[pywikibot.page.Page, None, None]:
     """Yield preloaded pages taken from another generator.
 
     :param generator: pages to iterate over
@@ -653,10 +687,11 @@ def PreloadingGenerator(generator: Iterable['pywikibot.page.Page'],
         yield from site.preloadpages(pages, groupsize=groupsize, quiet=quiet)
 
 
-def DequePreloadingGenerator(generator: Iterable['pywikibot.page.Page'],
-                             groupsize: int = 50,
-                             quiet: bool = False
-                             ) -> Iterator['pywikibot.page.Page']:
+def DequePreloadingGenerator(
+    generator: DequeGenerator,
+    groupsize: int = 50,
+    quiet: bool = False,
+) -> Generator[pywikibot.page.Page, None, None]:
     """Preload generator of type DequeGenerator.
 
     :param generator: pages to iterate over
@@ -675,9 +710,10 @@ def DequePreloadingGenerator(generator: Iterable['pywikibot.page.Page'],
         yield from PreloadingGenerator(generator, page_count, quiet)
 
 
-def PreloadingEntityGenerator(generator: Iterable['pywikibot.page.Page'],
-                              groupsize: int = 50
-                              ) -> Iterator['pywikibot.page.Page']:
+def PreloadingEntityGenerator(
+    generator: Iterable[pywikibot.page.WikibaseEntity],
+    groupsize: int = 50,
+) -> Generator[pywikibot.page.WikibaseEntity, None, None]:
     """
     Yield preloaded pages taken from another generator.
 
@@ -686,7 +722,8 @@ def PreloadingEntityGenerator(generator: Iterable['pywikibot.page.Page'],
     :param generator: pages to iterate over
     :param groupsize: how many pages to preload at once
     """
-    sites: PRELOAD_SITE_TYPE = {}
+    sites: dict[pywikibot.site.BaseSite,
+                list[pywikibot.page.WikibaseEntity]] = {}
     for page in generator:
         site = page.site
         sites.setdefault(site, []).append(page)

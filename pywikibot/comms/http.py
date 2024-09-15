@@ -26,10 +26,12 @@ To enable access via cookies, assign cookie handling class::
    Cookies are lazy loaded when logging to site.
 """
 #
-# (C) Pywikibot team, 2007-2023
+# (C) Pywikibot team, 2007-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import atexit
 import codecs
 import re
@@ -38,7 +40,6 @@ import traceback
 from contextlib import suppress
 from http import HTTPStatus, cookiejar
 from string import Formatter
-from typing import Optional, Union
 from urllib.parse import quote, urlparse
 from warnings import warn
 
@@ -46,7 +47,6 @@ import requests
 
 import pywikibot
 from pywikibot import config, tools
-from pywikibot.backports import Tuple
 from pywikibot.exceptions import (
     Client414Error,
     FatalServerError,
@@ -188,7 +188,7 @@ def user_agent_username(username=None):
     return username
 
 
-def user_agent(site: Optional['pywikibot.site.BaseSite'] = None,
+def user_agent(site: pywikibot.site.BaseSite | None = None,
                format_string: str = '') -> str:
     """Generate the user agent string for a given site and format.
 
@@ -247,9 +247,9 @@ def fake_user_agent() -> str:
     return UserAgent().random
 
 
-def request(site: 'pywikibot.site.BaseSite',
-            uri: Optional[str] = None,
-            headers: Optional[dict] = None,
+def request(site: pywikibot.site.BaseSite,
+            uri: str | None = None,
+            headers: dict | None = None,
             **kwargs) -> requests.Response:
     """
     Request to Site with default error handling and response decoding.
@@ -285,27 +285,26 @@ def request(site: 'pywikibot.site.BaseSite',
     return r
 
 
-def get_authentication(uri: str) -> Optional[Tuple[str, str]]:
-    """
-    Retrieve authentication token.
+def get_authentication(uri: str) -> tuple[str, str] | None:
+    """Retrieve authentication token.
 
     :param uri: the URI to access
     :return: authentication token
     """
-    parsed_uri = requests.utils.urlparse(uri)
+    parsed_uri = urlparse(uri)
     netloc_parts = parsed_uri.netloc.split('.')
     netlocs = [parsed_uri.netloc] + ['.'.join(['*'] + netloc_parts[i + 1:])
                                      for i in range(len(netloc_parts))]
     for path in netlocs:
         if path in config.authenticate:
-            if len(config.authenticate[path]) in [2, 4]:
+            length = len(config.authenticate[path])
+            if length in (2, 4):
                 return config.authenticate[path]
-            warn('config.authenticate["{path}"] has invalid value.\n'
-                 'It should contain 2 or 4 items, not {length}.\n'
-                 'See {url}/OAuth for more info.'
-                 .format(path=path,
-                         length=len(config.authenticate[path]),
-                         url=pywikibot.__url__))
+
+            warn(f'config.authenticate[{path!r}] has invalid value.\n'
+                 f'It should contain 2 or 4 items, not {length}.\n'
+                 f'See {pywikibot.__url__}/OAuth for more info.')
+
     return None
 
 
@@ -363,9 +362,9 @@ def error_handling_callback(response):
         warning(f'Http response status {response.status_code}')
 
 
-def fetch(uri: str, method: str = 'GET', headers: Optional[dict] = None,
+def fetch(uri: str, method: str = 'GET', headers: dict | None = None,
           default_error_handling: bool = True,
-          use_fake_user_agent: Union[bool, str] = False, **kwargs):
+          use_fake_user_agent: bool | str = False, **kwargs):
     """
     HTTP request.
 
@@ -433,11 +432,12 @@ def fetch(uri: str, method: str = 'GET', headers: Optional[dict] = None,
     auth = get_authentication(uri)
     if auth is not None and len(auth) == 4:
         if isinstance(requests_oauthlib, ImportError):
-            warn(str(requests_oauthlib), ImportWarning)
-            error(f'OAuth authentication not supported: {requests_oauthlib}')
-            auth = None
-        else:
-            auth = requests_oauthlib.OAuth1(*auth)
+            raise ModuleNotFoundError(f"""{requests_oauthlib}. Install it with
+
+    pip install requests_oauthlib
+""")
+
+        auth = requests_oauthlib.OAuth1(*auth)
 
     timeout = config.socket_timeout
 
@@ -466,7 +466,7 @@ CHARSET_RE = re.compile(
 )
 
 
-def get_charset_from_content_type(content_type: str) -> Optional[str]:
+def get_charset_from_content_type(content_type: str) -> str | None:
     """Get charset from the content-type header.
 
     .. versionadded:: 7.3
@@ -491,7 +491,7 @@ def get_charset_from_content_type(content_type: str) -> Optional[str]:
 
 def _get_encoding_from_response_headers(
     response: requests.Response
-) -> Optional[str]:
+) -> str | None:
     """Return charset given by the response header."""
     content_type = response.headers.get('content-type')
 
@@ -508,10 +508,7 @@ def _get_encoding_from_response_headers(
         header = response.content[:100].splitlines()[0]  # bytes
         m = re.search(
             br'encoding=(["\'])(?P<encoding>.+?)\1', header)
-        if m:
-            header_encoding = m['encoding'].decode('utf-8')
-        else:
-            header_encoding = 'utf-8'
+        header_encoding = m['encoding'].decode('utf-8') if m else 'utf-8'
     else:
         header_encoding = None
 
@@ -519,9 +516,9 @@ def _get_encoding_from_response_headers(
 
 
 def _decide_encoding(response: requests.Response,
-                     charset: Optional[str] = None) -> Optional[str]:
+                     charset: str | None = None) -> str | None:
     """Detect the response encoding."""
-    def _try_decode(content: bytes, encoding: Optional[str]) -> Optional[str]:
+    def _try_decode(content: bytes, encoding: str | None) -> str | None:
         """Helper function to try decoding."""
         if encoding is None:
             return None

@@ -9,6 +9,11 @@ This page contains documentation of the `scripts.maintenance` module:
 Maintenance submodules
 ======================
 
+scripts.maintenance.addwikis
+----------------------------
+
+.. automodule:: scripts.maintenance.addwikis
+
 scripts.maintenance.cache
 -------------------------
 
@@ -29,8 +34,3 @@ scripts.maintenance.unidata
 ---------------------------
 
 .. automodule:: scripts.maintenance.unidata
-
-scripts.maintenance.wikimedia\_sites
-------------------------------------
-
-.. automodule:: scripts.maintenance.wikimedia_sites

@@ -4,6 +4,7 @@ user-*.py
 *.lwp
 *.pyc
 *.pyo
+*.swp
 *.*~
 /.tox
 /*.egg
@@ -25,4 +26,4 @@ docs/_build/
 .vscode/
 log_*.txt
 **/.DS_Store
-/venv
+venv/

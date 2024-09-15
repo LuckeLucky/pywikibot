@@ -119,8 +119,8 @@ External identifiers:
    GNU General Public License v3.0, User:Geertivp
 
 **Documentation:**
-    * https://en.wikipedia.org/wiki/ISBN
-    * https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+    * :wiki:`ISBN`
+    * :wiki:`List_of_ISO_639-1_codes`
     * https://www.geeksforgeeks.org/searching-books-with-python/
     * https://www.freecodecamp.org/news/python-json-how-to-convert-a-string-to-json/
     * https://pypi.org/project/isbnlib/
@@ -213,21 +213,23 @@ Applications:
     * :phab:`T208134`
     * :phab:`T138911`
     * :phab:`T20814`
-    * https://en.wikipedia.org/wiki/User:Citation_bot
+    * :wiki:`User:Citation_bot`
     * https://meta.wikimedia.org/wiki/Community_Wishlist_Survey_2021/Wikidata/Bibliographical_references/sources_for_wikidataitems
     * https://zenodo.org/record/55004#.YvwO4hTP1D8
 
 **Other systems:**
-    * https://en.wikipedia.org/wiki/bibliographic_database
+    * `wiki:`bibliographic_database`
     * https://www.titelbank.nl/pls/ttb/f?p=103:4012:::NO::P4012_TTEL_ID:3496019&cs=19BB8084860E3314502A1F777F875FE61
 
 .. versionadded:: 7.7
-"""  # noqa: E501, W605
+"""  # noqa: E501, W505, W605
 #
-# (C) Pywikibot team, 2022-2023
+# (C) Pywikibot team, 2022-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import os  # Operating system
 import re  # Regular expressions (very handy!)
 from itertools import islice
@@ -236,9 +238,9 @@ from typing import Any
 
 import pywikibot  # API interface to Wikidata
 from pywikibot import pagegenerators as pg  # Wikidata Query interface
-from pywikibot.backports import Dict, List
 from pywikibot.config import verbose_output as verbose
 from pywikibot.data import api
+
 
 try:
     import isbnlib
@@ -278,7 +280,7 @@ mainlang = os.getenv('LANG', 'en')[:2]  # Default description language
 transcmt = '#pwb Create ISBN edition'  # Wikidata transaction comment
 
 
-def is_in_list(statement_list, checklist: List[str]) -> bool:
+def is_in_list(statement_list, checklist: list[str]) -> bool:
     """Verify if statement list contains at least one item from the checklist.
 
     :param statement_list: Statement list
@@ -366,7 +368,7 @@ def amend_isbn_edition(isbn_number: str) -> None:
     add_claims(isbn_data)
 
 
-def add_claims(isbn_data: Dict[str, Any]) -> None:  # noqa: C901
+def add_claims(isbn_data: dict[str, Any]) -> None:  # noqa: C901
     """Inspect isbn_data and add claims if possible."""
     # Get the book language from the ISBN book reference
     booklang = mainlang  # Default language
@@ -457,9 +459,11 @@ SELECT ?item WHERE {{
             targetx[propty] = pywikibot.ItemPage(repo, target[propty])
 
             try:
-                pywikibot.warning('Add {} ({}): {} ({})'.format(
-                    proptyx[propty].labels[booklang], propty,
-                    targetx[propty].labels[booklang], target[propty]))
+                pywikibot.warning(
+                    f'Add {proptyx[propty].labels[booklang]} '
+                    f'({propty}): {targetx[propty].labels[booklang]} '
+                    f'({target[propty]})'
+                )
             except:  # noqa: B001, E722, H201
                 pywikibot.warning(f'Add {propty}:{target[propty]}')
 
@@ -795,8 +799,8 @@ def main(*args: str) -> None:
         if propty in propreqinst and (
                 'P31' not in targetx[propty].claims or not is_in_list(
                     targetx[propty].claims['P31'], propreqinst[propty])):
-            pywikibot.critical('{} ({}) is not a language'.format(
-                targetx[propty].labels[mainlang], target[propty]))
+            pywikibot.critical(f'{targetx[propty].labels[mainlang]} '
+                               f'({target[propty]}) is not a language')
             return
 
     # check dependencies

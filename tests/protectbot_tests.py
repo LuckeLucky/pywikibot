@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Tests for scripts/protect.py."""
 #
-# (C) Pywikibot team, 2014-2022
+# (C) Pywikibot team, 2014-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import unittest
 from contextlib import suppress
 
@@ -19,19 +21,18 @@ class TestProtectionBot(ScriptMainTestCase):
 
     family = 'wikipedia'
     code = 'test'
-
     rights = 'protect'
     write = True
 
     def test_protect(self):
         """Test ProtectionBot protect/unprotect on the test wiki."""
         site = self.get_site()
-        protect.main('-page:User:Sn1per/ProtectTest1', '-always',
-                     '-unprotect', '-summary=Pywikibot protect.py unit tests')
+        protect.main('-page:User:Sn1per/ProtectTest1', '-always', '-unprotect',
+                     '-summary:Pywikibot protect.py unit tests')
         page = pywikibot.Page(site, 'User:Sn1per/ProtectTest1')
         self.assertIsEmpty(list(page.protection()))
-        protect.main('-page:User:Sn1per/ProtectTest1', '-always',
-                     '-default', '-summary=Pywikibot protect.py unit tests')
+        protect.main('-page:User:Sn1per/ProtectTest1', '-always', '-default',
+                     '-summary:Pywikibot protect.py unit tests')
         page = pywikibot.Page(site, 'User:Sn1per/ProtectTest1')
         self.assertLength(list(page.protection()), 2)
 
@@ -50,14 +51,19 @@ class TestProtectionBot(ScriptMainTestCase):
             rev[1].comment,
             'Removed protection from "[[User:Sn1per/ProtectTest2]]": Bot: '
             'Unprotecting all pages from category Pywikibot Protect Test')
-        self.assertEqual(
-            rev[0].comment,
+
+        self.maxDiff = None
+        comment = rev[0].comment
+        self.assertTrue(comment.startswith(
             'Protected "[[User:Sn1per/ProtectTest2]]": Bot: '
-            'Protecting all pages from category Pywikibot Protect Test '
-            '([Edit=Allow only administrators] (indefinite) [Move=Allow only '
-            'administrators] (indefinite))')
+            'Protecting all pages from category Pywikibot Protect Test'
+        ))
+        # the order may change, see T367259
+        for ptype in ('Edit', 'Move'):
+            self.assertIn(f'[{ptype}=Allow only administrators] (indefinite)',
+                          comment)
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

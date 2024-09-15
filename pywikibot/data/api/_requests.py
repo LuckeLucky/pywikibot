@@ -1,9 +1,11 @@
 """Objects representing API requests."""
 #
-# (C) Pywikibot team, 2007-2023
+# (C) Pywikibot team, 2007-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import datetime
 import hashlib
 import inspect
@@ -11,18 +13,19 @@ import os
 import pickle
 import pprint
 import re
+import sys
 import traceback
 from collections.abc import MutableMapping
 from contextlib import suppress
 from email.mime.nonmultipart import MIMENonMultipart
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 from urllib.parse import unquote, urlencode, urlparse
 from warnings import warn
 
 import pywikibot
 from pywikibot import config
-from pywikibot.backports import Callable, Dict, Match, Tuple, removeprefix
+from pywikibot.backports import Callable, Match, removeprefix
 from pywikibot.comms import http
 from pywikibot.data import WaitingMixin
 from pywikibot.exceptions import (
@@ -36,7 +39,7 @@ from pywikibot.exceptions import (
 )
 from pywikibot.login import LoginStatus
 from pywikibot.textlib import removeDisabledParts, removeHTMLParts
-from pywikibot.tools import PYTHON_VERSION
+from pywikibot.tools import deprecated
 
 
 __all__ = ('CachedRequest', 'Request', 'encode_url')
@@ -128,18 +131,21 @@ class Request(MutableMapping, WaitingMixin):
     ['namespaces', 'userinfo']
 
     .. versionchanged:: 8.4
-       inherited from WaitingMixin.
+       inherited from :class:`WaitingMixin`.
+
+    .. versionchanged:: 9.0
+       *keys* and *items* methods return a view object instead a list
     """
 
     # To make sure the default value of 'parameters' can be identified.
     _PARAM_DEFAULT = object()
 
     def __init__(self, site=None,
-                 mime: Optional[dict] = None,
+                 mime: dict | None = None,
                  throttle: bool = True,
-                 max_retries: Optional[int] = None,
-                 retry_wait: Optional[int] = None,
-                 use_get: Optional[bool] = None,
+                 max_retries: int | None = None,
+                 retry_wait: int | None = None,
+                 use_get: bool | None = None,
                  parameters=_PARAM_DEFAULT, **kwargs) -> None:
         """
         Create a new Request instance with the given parameters.
@@ -221,12 +227,12 @@ class Request(MutableMapping, WaitingMixin):
             parameters = kwargs
         elif parameters is self._PARAM_DEFAULT:
             parameters = {}
-        self._params: Dict[str, Any] = {}
+        self._params: dict[str, Any] = {}
         if 'action' not in parameters:
             raise ValueError("'action' specification missing from Request.")
         self.action = parameters['action']
         self.update(parameters)  # also convert all parameter values to lists
-        self._warning_handler: Optional[Callable[[str, str], Union[Match[str], bool, None]]] = None  # noqa: E501
+        self._warning_handler: Callable[[str, str], Match[str] | bool | None] | None = None  # noqa: E501
         self.write = self.action in WRITE_ACTIONS
         # Client side verification that the request is being performed
         # by a logged in user, and warn if it isn't a config username.
@@ -380,10 +386,6 @@ class Request(MutableMapping, WaitingMixin):
         """Implement dict interface."""
         del self._params[key]
 
-    def keys(self):
-        """Implement dict interface."""
-        return list(self._params)
-
     def __iter__(self):
         """Implement dict interface."""
         return iter(self._params)
@@ -392,13 +394,14 @@ class Request(MutableMapping, WaitingMixin):
         """Implement dict interface."""
         return len(self._params)
 
+    @deprecated('items()', since='9.0.0')
     def iteritems(self):
-        """Implement dict interface."""
-        return iter(self._params.items())
+        """Implement dict interface.
 
-    def items(self):
-        """Return a list of tuples containing the parameters in any order."""
-        return list(self._params.items())
+        .. deprecated:: 9.0
+           Use ``items()`` instead.
+        """
+        return iter(self.items())
 
     def _add_defaults(self):
         """
@@ -423,10 +426,10 @@ class Request(MutableMapping, WaitingMixin):
             typep = self._params.get('type', [])
             if not ('tokens' in meta and 'login' in typep):
                 if 'userinfo' not in meta:
-                    meta = set(meta + ['userinfo'])
+                    meta = {*meta, 'userinfo'}
                     self['meta'] = sorted(meta)
                 uiprop = self._params.get('uiprop', [])
-                uiprop = set(uiprop + ['blockinfo', 'hasmsg'])
+                uiprop = {*uiprop, 'blockinfo', 'hasmsg'}
                 self['uiprop'] = sorted(uiprop)
             if 'prop' in self._params \
                and self.site.has_extension('ProofreadPage'):
@@ -445,7 +448,7 @@ class Request(MutableMapping, WaitingMixin):
 
         self.__defaulted = True  # skipcq: PTC-W0037
 
-    def _encoded_items(self) -> Dict[str, Union[str, bytes]]:
+    def _encoded_items(self) -> dict[str, str | bytes]:
         """
         Build a dict of params with minimal encoding needed for the site.
 
@@ -611,7 +614,7 @@ class Request(MutableMapping, WaitingMixin):
 
     @classmethod
     def _build_mime_request(cls, params: dict,
-                            mime_params: dict) -> Tuple[dict, bytes]:
+                            mime_params: dict) -> tuple[dict, bytes]:
         """
         Construct a MIME multipart form post.
 
@@ -668,9 +671,13 @@ class Request(MutableMapping, WaitingMixin):
         .. versionchanged:: 8.2
            change the scheme if the previous request didn't have json
            content.
+        .. versionchanged:: 9.2
+           no wait cycles for :exc:`ImportError` and :exc:`NameError`.
 
         :return: a tuple containing requests.Response object from
-            http.request and use_get value
+            :func:`comms.http.request` and *use_get* value
+
+        :meta public:
         """
         kwargs = {}
         schemes = ('http', 'https')
@@ -684,6 +691,7 @@ class Request(MutableMapping, WaitingMixin):
                                     data=data, headers=headers, **kwargs)
         except Server504Error:
             pywikibot.log('Caught HTTP 504 error; retrying')
+
         except Client414Error:
             if use_get:
                 pywikibot.log('Caught HTTP 414 error; retrying')
@@ -692,21 +700,29 @@ class Request(MutableMapping, WaitingMixin):
                 pywikibot.warning(
                     'Caught HTTP 414 error, although not using GET.')
                 raise
-        except (ConnectionError, FatalServerError):
-            # This error is not going to be fixed by just waiting
-            pywikibot.error(traceback.format_exc())
+
+        except (ConnectionError, FatalServerError, NameError):
+            # These errors are not going to be fixed by just waiting
             raise
+
+        except ImportError as e:
+            # Leave the script gracefully
+            pywikibot.error(e)
+            sys.exit(1)
+
         # TODO: what other exceptions can occur here?
         except Exception:
             # for any other error on the http request, wait and retry
             pywikibot.error(traceback.format_exc())
             pywikibot.log(f'{uri}, {paramstring}')
+
         else:
             return response, use_get
+
         self.wait()
         return None, use_get
 
-    def _json_loads(self, response) -> Optional[dict]:
+    def _json_loads(self, response) -> dict | None:
         """Return a dict from requests.Response.
 
         .. versionchanged:: 8.2
@@ -718,6 +734,8 @@ class Request(MutableMapping, WaitingMixin):
         :return: a data dict
         :raises pywikibot.exceptions.APIError: unknown action found
         :raises pywikibot.exceptions.APIError: unknown query result type
+
+        :meta public:
         """
         try:
             result = response.json()
@@ -793,11 +811,13 @@ but {scheme!r} is required. Please add the following code to your family file:
                 return True
         return False
 
-    def _handle_warnings(self, result: Dict[str, Any]) -> bool:
+    def _handle_warnings(self, result: dict[str, Any]) -> bool:
         """Handle warnings; return True to retry request, False to resume.
 
         .. versionchanged:: 7.2
            Return True to retry the current request and Falso to resume.
+
+        :meta public:
         """
         retry = False
         if 'warnings' not in result:
@@ -829,13 +849,15 @@ but {scheme!r} is required. Please add the following code to your family file:
                         retry = retry or handled
         return retry
 
-    def _default_warning_handler(self, mode: str, msg: str) -> Optional[bool]:
+    def _default_warning_handler(self, mode: str, msg: str) -> bool | None:
         """A default warning handler to handle specific warnings.
 
         Return True to retry the request, False to resume and None if
         the warning is not handled.
 
         .. versionadded:: 7.2
+
+        :meta public:
         """
         warnings = {
             'purge': ("You've exceeded your rate limit. "
@@ -881,7 +903,9 @@ but {scheme!r} is required. Please add the following code to your family file:
     def _internal_api_error(self, code, error, result) -> bool:
         """Check for ``internal_api_error_`` or readonly and retry.
 
-        :raises pywikibot.exceptions.APIMWError: internal_api_error or readonly
+        :raises pywikibot.exceptions.APIMWError: internal_api_error or
+            readonly
+        :meta public:
         """
         iae = 'internal_api_error_'
         if not (code.startswith(iae) or code == 'readonly'):
@@ -896,12 +920,14 @@ but {scheme!r} is required. Please add the following code to your family file:
         # If the error key is in this table, it is probably a temporary
         # problem, so we will retry the edit.
         # TODO: T154011: 'ReadOnlyError' seems replaced by 'readonly'
-        retry = class_name in ['DBConnectionError',  # T64974
-                               'DBQueryError',  # T60158
-                               'DBQueryTimeoutError',  # T297708
-                               'ReadOnlyError',  # T61227
-                               'readonly',  # T154011
-                               ]
+        retry = class_name in [
+            'DBConnectionError',  # T64974
+            'DBQueryError',  # T60158
+            'DBQueryTimeoutError',  # T297708
+            'DBUnexpectedError',  # T360930
+            'ReadOnlyError',  # T61227
+            'readonly',  # T154011
+        ]
 
         pywikibot.error('Detected MediaWiki API exception {}{}'
                         .format(e, '; retrying' if retry else '; raising'))
@@ -916,21 +942,11 @@ but {scheme!r} is required. Please add the following code to your family file:
         return True
 
     def _ratelimited(self) -> None:
-        """Handle ratelimited warning."""
-        ratelimits = self.site.userinfo['ratelimits']
-        delay = None
+        """Handle ratelimited warning.
 
-        ratelimit = ratelimits.get(self.action, {})
-        # find the lowest wait time for the given action
-        for limit in ratelimit.values():
-            seconds = limit['seconds']
-            hits = limit['hits']
-            delay = min(delay or seconds, seconds / hits)
-
-        if not delay:
-            pywikibot.warning(
-                f'No rate limit found for action {self.action}')
-        self.wait(delay)
+        This is also called from :meth:`_default_warning_handler`.
+        """
+        self.wait(self.site.ratelimit(self.action).delay)
 
     def _bad_token(self, code) -> bool:
         """Check for bad token.
@@ -953,18 +969,38 @@ but {scheme!r} is required. Please add the following code to your family file:
         self._params['token'] = tokens
         return True
 
+    def wait(self, delay: int | None = None) -> None:
+        """Determine how long to wait after a failed request.
+
+        Also reset last API error with wait cycles.
+
+        .. versionadded:: 9.0
+
+        :param delay: Minimum time in seconds to wait. Overwrites
+            ``retry_wait`` variable if given. The delay doubles each
+            retry until ``retry_max`` seconds is reached.
+        """
+        self.last_error = dict.fromkeys(['code', 'info'])
+        super().wait(delay)
+
     def submit(self) -> dict:
         """Submit a query and parse the response.
 
         .. versionchanged:: 8.0.4
            in addition to *readapidenied* also try to login when API
            response is *notloggedin*.
+        .. versionchanged:: 9.0
+           Raise :exc:`exceptions.APIError` if the same error comes
+           twice in a row within the loop.
 
         :return: a dict containing data retrieved from api.php
         """
+        test_running = os.environ.get('PYWIKIBOT_TEST_RUNNING', '0') == '1'
+
         self._add_defaults()
         use_get = self._use_get()
         retries = 0
+        self.last_error = dict.fromkeys(['code', 'info'])
         while True:
             paramstring = self._http_param_string()
 
@@ -1011,6 +1047,11 @@ but {scheme!r} is required. Please add the following code to your family file:
             code = error.setdefault('code', 'Unknown')
             info = error.setdefault('info', None)
 
+            if (code == self.last_error['code']
+                    and info == self.last_error['info']):
+                raise pywikibot.exceptions.APIError(**self.last_error)
+            self.last_error = error
+
             if not self._logged_in(code):
                 continue
 
@@ -1027,6 +1068,8 @@ but {scheme!r} is required. Please add the following code to your family file:
                     lag = float(lag['lag']) if lag else 0.0
 
                 self.site.throttle.lag(lag * retries)
+                # reset last error
+                self.last_error = dict.fromkeys(['code', 'info'])
                 continue
 
             if code == 'help' and self.action == 'help':
@@ -1068,6 +1111,7 @@ but {scheme!r} is required. Please add the following code to your family file:
                     pywikibot.error(f'Retrying failed {msg}')
                     continue
                 raise NoUsernameError(f'Failed {msg}')
+
             if code == 'cirrussearch-too-busy-error':  # T170647
                 self.wait()
                 continue
@@ -1095,18 +1139,20 @@ but {scheme!r} is required. Please add the following code to your family file:
             # raise error
             try:
                 param_repr = str(self._params)
-                pywikibot.log(
-                    f'API Error: query=\n{pprint.pformat(param_repr)}')
-                pywikibot.log(f'           response=\n{result}')
+                msg = (f'API Error: query=\n{pprint.pformat(param_repr)}\n'
+                       f'           response=\n{result}')
+                if test_running:
+                    from tests import unittest_print
+                    unittest_print(msg)
+                else:
+                    pywikibot.log(msg)
 
-                args = {'param': body} if body else {}
-                args.update(error)
-                raise pywikibot.exceptions.APIError(**args)
+                raise pywikibot.exceptions.APIError(**error)
             except TypeError:
                 raise RuntimeError(result)
 
         msg = 'Maximum retries attempted due to maxlag without success.'
-        if os.environ.get('PYWIKIBOT_TEST_RUNNING', '0') == '1':
+        if test_running:
             import unittest
             raise unittest.SkipTest(msg)
 
@@ -1115,7 +1161,11 @@ but {scheme!r} is required. Please add the following code to your family file:
 
 class CachedRequest(Request):
 
-    """Cached request."""
+    """Cached request.
+
+    .. versionchanged:: 9.0
+       timestamp with timezone is used to determine expiry.
+    """
 
     def __init__(self, expiry, *args, **kwargs) -> None:
         """Initialize a CachedRequest object.
@@ -1144,16 +1194,20 @@ class CachedRequest(Request):
 
         .. versionchanged:: 8.0
            return a `pathlib.Path` object.
+        .. versionchanged:: 9.0
+           remove Python main version from directoy name
 
         :return: base directory path for cache entries
+
+        :meta public:
         """
-        path = Path(config.base_dir, f'apicache-py{PYTHON_VERSION[0]:d}')
+        path = Path(config.base_dir, 'apicache')
         cls._make_dir(path)
         cls._get_cache_dir = classmethod(lambda c: path)  # cache the result
         return path
 
     @staticmethod
-    def _make_dir(dir_name: Union[str, Path]) -> Path:
+    def _make_dir(dir_name: str | Path) -> Path:
         """Create directory if it does not exist already.
 
         .. versionchanged:: 7.0
@@ -1165,6 +1219,8 @@ class CachedRequest(Request):
 
         :param dir_name: directory path
         :return: directory path as `pathlib.Path` object for test purpose
+
+        :meta public:
         """
         if isinstance(dir_name, str):
             dir_name = Path(dir_name)
@@ -1204,11 +1260,14 @@ class CachedRequest(Request):
 
         .. versionchanged:: 8.0
            return a `pathlib.Path` object.
+
+        :meta public:
         """
         return CachedRequest._get_cache_dir() / self._create_file_name()
 
     def _expired(self, dt):
-        return dt + self.expiry < datetime.datetime.utcnow()
+        """Check whether the timestamp is expired."""
+        return dt + self.expiry < pywikibot.Timestamp.nowutc()
 
     def _load_cache(self) -> bool:
         """Load cache entry for request, if available.
@@ -1244,7 +1303,7 @@ class CachedRequest(Request):
 
     def _write_cache(self, data) -> None:
         """Write data to self._cachefile_path()."""
-        data = (self._uniquedescriptionstr(), data, datetime.datetime.utcnow())
+        data = self._uniquedescriptionstr(), data, pywikibot.Timestamp.nowutc()
         path = self._cachefile_path()
         with suppress(OSError), path.open('wb') as f:
             pickle.dump(data, f, protocol=config.pickle_protocol)

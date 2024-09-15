@@ -1,13 +1,40 @@
-Current release
----------------
+Current Release Changes
+=======================
 
-* **Python 3.6 support will be discontinued soon**.
+* Add tags to the wikibase functions (:phab:`T372513`)
+* :func:`diff.get_close_matches_ratio()` function was added
+* Initialize super classes of :exc:`EditReplacementError` (:phab:`T212740`)
+* Add a hint to import missing module in :mod:`wrapper<pywikibot.scripts.wrapper>` script
+* i18n updates
 
+Current Deprecations
+====================
 
-Deprecations
-------------
-
-* 8.4.0: Python 3.6 support is deprecated and will be dropped soon with Pywikibot 9
+* 9.4.0: :mod:`flow` support is deprecated and will be removed (:phab:`T371180`)
+* 9.3.0: :meth:`page.BasePage.userName` and :meth:`page.BasePage.isIpEdit` are deprecated in favour of
+  ``user`` or ``anon`` attributes of :attr:`page.BasePage.latest_revision` property
+* 9.2.0: Imports of :mod:`logging` functions from :mod:`bot` module is deprecated and will be desupported
+* 9.2.0: *total* argument in ``-logevents`` pagegenerators option is deprecated;
+  use ``-limit`` instead (:phab:`T128981`)
+* 9.0.0: The *content* parameter of :meth:`proofreadpage.IndexPage.page_gen` is deprecated and will be ignored
+  (:phab:`T358635`)
+* 9.0.0: ``userinterfaces.transliteration.transliterator`` was renamed to :class:`Transliterator
+  <userinterfaces.transliteration.Transliterator>`
+* 9.0.0: ``next`` parameter of :meth:`userinterfaces.transliteration.transliterator.transliterate` was renamed to
+  ``succ``
+* 9.0.0: ``type`` parameter of :meth:`site.APISite.protectedpages()
+  <pywikibot.site._generators.GeneratorsMixin.protectedpages>` was renamed to ``protect_type``
+* 9.0.0: ``all`` parameter of :meth:`site.APISite.namespace()<pywikibot.site._apisite.APISite.namespace>` was renamed to
+  ``all_ns``
+* 9.0.0: ``filter`` parameter of :func:`date.dh` was renamed to ``filter_func``
+* 9.0.0: ``dict`` parameter of :class:`data.api.OptionSet` was renamed to ``data``
+* 9.0.0: ``pywikibot.version.get_toolforge_hostname()`` is deprecated without replacement
+* 9.0.0: ``allrevisions`` parameter of :class:`xmlreader.XmpDump` is deprecated, use ``revisions`` instead
+  (:phab:`T340804`)
+* 9.0.0: ``iteritems`` method of :class:`data.api.Request` will be removed in favour of ``items``
+* 9.0.0: ``SequenceOutputter.output()`` is deprecated in favour of :attr:`tools.formatter.SequenceOutputter.out`
+  property
+* 9.0.0: *nullcontext* context manager and *SimpleQueue* queue of :mod:`backports` are derecated
 * 8.4.0: *modules_only_mode* parameter of :class:`data.api.ParamInfo`, its *paraminfo_keys* class attribute
   and its preloaded_modules property will be removed
 * 8.4.0: *dropdelay* and *releasepid* attributes of :class:`throttle.Throttle` will be removed
@@ -33,12 +60,24 @@ Deprecations
   :attr:`userinfo['messages']<pywikibot.site._apisite.APISite.userinfo>`
 * 8.0.0: :meth:`Page.editTime()<page.BasePage.editTime>` method is deprecated and should be replaced by
   :attr:`Page.latest_revision.timestamp<page.BasePage.latest_revision>`
+
+
+Pending removal in Pywikibot 10
+-------------------------------
+
+* 9.1.0: :func:`version.svn_rev_info` and :func:`version.getversion_svn` will be removed. SVN is no longer supported.
+  (:phab:`T362484`)
 * 7.7.0: :mod:`tools.threading` classes should no longer imported from :mod:`tools`
 * 7.6.0: :mod:`tools.itertools` datatypes should no longer imported from :mod:`tools`
 * 7.6.0: :mod:`tools.collections` datatypes should no longer imported from :mod:`tools`
 * 7.5.0: :mod:`textlib`.tzoneFixedOffset class will be removed in favour of :class:`time.TZoneFixedOffset`
 * 7.4.0: ``FilePage.usingPages()`` was renamed to :meth:`using_pages()<pywikibot.FilePage.using_pages>`
-* 7.2.0: ``tb`` parameter of :func:`exception()<pywikibot.exception>` function was renamed to ``exc_info``
+* 7.3.0: Old color escape sequences like ``\03{color}`` is deprecated in favour of new color format like <<color>>
+* 7.3.0: ``linktrail`` method of :class:`family.Family` is deprecated; use :meth:`APISite.linktrail()
+  <pywikibot.site._apisite.APISite.linktrail>` instead
+* 7.2.0: Positional arguments *decoder*, *layer* and *newline* for :mod:`logging` functions where dropped; keyword
+  arguments must be used instead.
+* 7.2.0: ``tb`` parameter of :func:`exception()<pywikibot.logging.exception>` function was renamed to ``exc_info``
 * 7.2.0: XMLDumpOldPageGenerator is deprecated in favour of a ``content`` parameter of
   :func:`XMLDumpPageGenerator<pagegenerators.XMLDumpPageGenerator>` (:phab:`T306134`)
 * 7.2.0: RedirectPageBot and NoRedirectPageBot bot classes are deprecated in favour of
@@ -47,21 +86,7 @@ Deprecations
 * 7.1.0: Unused ``get_redirect`` parameter of :meth:`Page.getOldVersion()<page.BasePage.getOldVersion>` will be removed
 * 7.0.0: User.isBlocked() method is renamed to is_blocked for consistency
 * 7.0.0: A boolean watch parameter in Page.save() is deprecated and will be desupported
-* 7.0.0: baserevid parameter of editSource(), editQualifier(), removeClaims(), removeSources(), remove_qualifiers() DataSite methods will be removed
+* 7.0.0: baserevid parameter of editSource(), editQualifier(), removeClaims(), removeSources(), remove_qualifiers()
+  DataSite methods will be removed
 * 7.0.0: Values of APISite.allpages() parameter filterredir other than True, False and None are deprecated
 * 7.0.0: The i18n identifier 'cosmetic_changes-append' will be removed in favour of 'pywikibot-cosmetic-changes'
-
-Will be removed in Pywikibot 9
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* 6.5.0: OutputOption.output() method will be removed in favour of OutputOption.out property
-* 6.5.0: Infinite rotating file handler with logfilecount of -1 is deprecated
-* 6.4.0: 'allow_duplicates' parameter of :func:`tools.itertools.intersect_generators` as positional argument is deprecated, use keyword argument instead
-* 6.4.0: 'iterables' of :func:`tools.itertools.intersect_generators` given as a list or tuple is deprecated, either use consecutive iterables or use '*' to unpack
-* 6.2.0: outputter of OutputProxyOption without out property is deprecated
-* 6.2.0: ContextOption.output_range() and HighlightContextOption.output_range() are deprecated
-* 6.2.0: Error messages with '%' style is deprecated in favour for str.format() style
-* 6.2.0: page.url2unicode() function is deprecated in favour of tools.chars.url2string()
-* 6.2.0: Throttle.multiplydelay attribute is deprecated
-* 6.2.0: SequenceOutputter.format_list() is deprecated in favour of 'out' property
-* 6.0.0: config.register_family_file() is deprecated

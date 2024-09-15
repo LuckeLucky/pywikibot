@@ -64,10 +64,12 @@ Available output commands:
     uniquedesc(entry)
 """
 #
-# (C) Pywikibot team, 2014-2023
+# (C) Pywikibot team, 2014-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import datetime
 import hashlib
 import os
@@ -75,7 +77,6 @@ import pickle
 import sys
 from pathlib import Path
 from random import sample
-from typing import Optional
 
 import pywikibot
 from pywikibot.data import api
@@ -218,9 +219,9 @@ class CacheEntry(api.CachedRequest):
         self._cachefile_path().unlink()
 
 
-def process_entries(cache_path, func, use_accesstime: Optional[bool] = None,
+def process_entries(cache_path, func, use_accesstime: bool | None = None,
                     output_func=None, action_func=None, *,
-                    tests: Optional[int] = None):
+                    tests: int | None = None):
     """Check the contents of the cache.
 
     This program tries to use file access times to determine whether
@@ -229,13 +230,15 @@ def process_entries(cache_path, func, use_accesstime: Optional[bool] = None,
     check the filesystem mount options. You may need to remount with
     'strictatime'.
 
+    .. versionchanged:: 9.0
+       default cache path to 'apicache' without Python main version.
+
     :param use_accesstime: Whether access times should be used. `None`
         for detect, `False` for don't use and `True` for always use.
     :param tests: Only process a test sample of files
     """
     if not cache_path:
-        cache_path = os.path.join(pywikibot.config.base_dir,
-                                  f'apicache-py{PYTHON_VERSION[0]:d}')
+        cache_path = os.path.join(pywikibot.config.base_dir, 'apicache')
 
     if not os.path.exists(cache_path):
         pywikibot.error(f'{cache_path}: no such file or directory')
@@ -267,9 +270,8 @@ def process_entries(cache_path, func, use_accesstime: Optional[bool] = None,
         # Skip foreign python specific directory
         *_, version = cache_path.partition('-')
         if version and version[-1] != str(PYTHON_VERSION[0]):
-            pywikibot.error(
-                "Skipping {} directory, can't read content with python {}"
-                .format(cache_path, PYTHON_VERSION[0]))
+            pywikibot.error(f"Skipping {cache_path} directory, can't read "
+                            f'content with python {PYTHON_VERSION[0]}')
             continue
 
         try:
@@ -299,18 +301,14 @@ def process_entries(cache_path, func, use_accesstime: Optional[bool] = None,
         try:
             entry._rebuild()
         except Exception:
-            pywikibot.error('Problems loading {} with key {}, {!r}'
-                            .format(entry.filename, entry.key,
-                                    entry._parsed_key))
+            pywikibot.error(f'Problems loading {entry.filename} with key '
+                            f'{entry.key}, {entry._parsed_key!r}')
             pywikibot.exception()
             continue
 
         if func is None or func(entry):
             if output_func or action_func is None:
-                if output_func is None:
-                    output = entry
-                else:
-                    output = output_func(entry)
+                output = entry if output_func is None else output_func(entry)
                 if output is not None:
                     pywikibot.info(output)
             if action_func:
@@ -369,15 +367,29 @@ def incorrect_hash(entry):
 
 def older_than(entry, interval):
     """Find older entries."""
-    if entry._cachetime + interval < datetime.datetime.utcnow():
+    if entry._cachetime.tzinfo is not None \
+       and entry._cachetime + interval < pywikibot.Timestamp.nowutc():
         return entry
+
+    # old apicache-py2/3 cache
+    if entry._cachetime.tzinfo is None \
+       and entry._cachetime + interval < pywikibot.Timestamp.utcnow():
+        return entry
+
     return None
 
 
 def newer_than(entry, interval):
     """Find newer entries."""
-    if entry._cachetime + interval >= datetime.datetime.utcnow():
+    if entry._cachetime.tzinfo is not None \
+       and entry._cachetime + interval >= pywikibot.Timestamp.nowutc():
         return entry
+
+    # old apicache-py2/3 cache
+    if entry._cachetime.tzinfo is None \
+       and entry._cachetime + interval >= pywikibot.Timestamp.utcnow():
+        return entry
+
     return None
 
 
@@ -456,10 +468,7 @@ def main():
             cache_paths += [
                 os.path.join(userpath, f) for f in folders]
 
-    if delete:
-        action_func = CacheEntry._delete
-    else:
-        action_func = None
+    action_func = CacheEntry._delete if delete else None
 
     if output:
         output_func = _parse_command(output, 'output')

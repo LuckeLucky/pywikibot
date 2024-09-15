@@ -3,18 +3,19 @@
 Do not import classes directly from here but from specialbots.
 """
 #
-# (C) Pywikibot team, 2003-2022
+# (C) Pywikibot team, 2003-2024
 #
 # Distributed under the terms of the MIT license.
 #
-from pywikibot.bot import (
+from __future__ import annotations
+
+from pywikibot.bot import AutomaticTWSummaryBot, ExistingPageBot
+from pywikibot.bot_choice import (
     AlwaysChoice,
-    AutomaticTWSummaryBot,
     ChoiceException,
-    ExistingPageBot,
     InteractiveReplace,
+    UnhandledAnswer,
 )
-from pywikibot.bot_choice import UnhandledAnswer
 from pywikibot.editor import TextEditor
 from pywikibot.textlib import replace_links
 
@@ -25,8 +26,7 @@ class EditReplacementError(ChoiceException, UnhandledAnswer):
 
     def __init__(self) -> None:
         """Initializer."""
-        super().__init__('edit', 'e')
-        self.stop = True
+        super().__init__('edit', 'e', stop=True)
 
 
 class InteractiveUnlink(InteractiveReplace):
@@ -84,10 +84,7 @@ class BaseUnlinkBot(ExistingPageBot, AutomaticTWSummaryBot):
                     unlink_callback.current_text,
                     jumpIndex=unlink_callback.current_range[0])
                 # if user didn't press Cancel
-                if new_text:
-                    text = new_text
-                else:
-                    text = unlink_callback.current_text
+                text = new_text or unlink_callback.current_text
             else:
                 break
 

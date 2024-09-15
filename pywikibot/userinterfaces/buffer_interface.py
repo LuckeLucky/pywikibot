@@ -7,9 +7,11 @@
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import logging
 import queue
-from typing import Any, Sequence, Union
+from typing import Any, Sequence
 
 from pywikibot import config
 from pywikibot.logging import INFO, VERBOSE
@@ -45,14 +47,14 @@ class UI(ABUIC):
         """Ask the user a question and return the answer."""
         return default
 
-    def input_choice(self, question: str, options, default: str = None,
+    def input_choice(self, question: str, options, default: str | None = None,
                      return_shortcut: bool = True,
                      automatic_quit: bool = True, force: bool = False):
         """Ask the user and returns a value from the options."""
         return default
 
     def input_list_choice(self, question: str, answers: Sequence[Any],
-                          default: Union[int, str, None] = None,
+                          default: int | str | None = None,
                           force: bool = False) -> Any:
         """Ask the user to select one entry from a list of entries."""
         return default

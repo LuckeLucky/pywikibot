@@ -1,31 +1,25 @@
 """Functions for manipulating wiki-text."""
 #
-# (C) Pywikibot team, 2008-2023
+# (C) Pywikibot team, 2008-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import itertools
 import re
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
 from collections.abc import Sequence
-from contextlib import suppress
+from contextlib import closing, suppress
 from html.parser import HTMLParser
-from typing import NamedTuple, Optional, Union
+from typing import NamedTuple
 
 import pywikibot
-from pywikibot.backports import (
-    Callable,
-    Container,
-    Dict,
-    Iterable,
-    Match,
-    List,
-    Pattern,
-    Tuple,
-    pairwise,
-)
+from pywikibot.backports import Callable, Container, Iterable, Match
 from pywikibot.backports import OrderedDict as OrderedDictType
+from pywikibot.backports import Pattern
 from pywikibot.backports import Sequence as SequenceType
+from pywikibot.backports import pairwise
 from pywikibot.exceptions import InvalidTitleError, SiteDefinitionError
 from pywikibot.family import Family
 from pywikibot.time import TZoneFixedOffset
@@ -45,10 +39,8 @@ except ImportError:
     import mwparserfromhell as wikitextparser
 
 
-ETPType = List[Tuple[str, OrderedDictType[str, str]]]
-
 # cache for replaceExcept to avoid recompile or regexes each call
-_regex_cache: Dict[str, Pattern[str]] = {}
+_regex_cache: dict[str, Pattern[str]] = {}
 
 # The regex below collects nested templates, providing simpler
 # identification of templates used at the top-level of wikitext.
@@ -119,7 +111,7 @@ FILE_LINK_REGEX = r"""
 TIMESTAMP_GAP_LIMIT = 10
 
 
-def to_local_digits(phrase: Union[str, int], lang: str) -> str:
+def to_local_digits(phrase: str | int, lang: str) -> str:
     """
     Change Latin digits based on language to localized version.
 
@@ -142,7 +134,7 @@ def to_local_digits(phrase: Union[str, int], lang: str) -> str:
 
 
 def to_latin_digits(phrase: str,
-                    langs: Union[SequenceType[str], str, None] = None) -> str:
+                    langs: SequenceType[str] | str | None = None) -> str:
     """Change non-latin digits to latin digits.
 
     .. versionadded:: 7.0
@@ -318,9 +310,9 @@ def _create_default_regexes() -> None:
 
 
 def get_regexes(
-    keys: Union[str, Iterable[str]],
-    site: Optional['pywikibot.site.BaseSite'] = None
-) -> List[Pattern[str]]:
+    keys: str | Iterable[str],
+    site: pywikibot.site.BaseSite | None = None
+) -> list[Pattern[str]]:
     """Fetch compiled regexes.
 
     .. versionchanged:: 8.2
@@ -382,13 +374,13 @@ def get_regexes(
 
 
 def replaceExcept(text: str,
-                  old: Union[str, Pattern[str]],
-                  new: Union[str, Callable[[Match[str]], str]],
-                  exceptions: SequenceType[Union[str, Pattern[str]]],
+                  old: str | Pattern[str],
+                  new: str | Callable[[Match[str]], str],
+                  exceptions: SequenceType[str | Pattern[str]],
                   caseInsensitive: bool = False,
                   allowoverlap: bool = False,
                   marker: str = '',
-                  site: Optional['pywikibot.site.BaseSite'] = None,
+                  site: pywikibot.site.BaseSite | None = None,
                   count: int = 0) -> str:
     """
     Return text with *old* replaced by *new*, ignoring specified types of text.
@@ -506,9 +498,9 @@ def replaceExcept(text: str,
 
 
 def removeDisabledParts(text: str,
-                        tags: Optional[Iterable] = None,
-                        include: Optional[Container] = None,
-                        site: Optional['pywikibot.site.BaseSite'] = None
+                        tags: Iterable | None = None,
+                        include: Container | None = None,
+                        site: pywikibot.site.BaseSite | None = None
                         ) -> str:
     """
     Return text without portions where wiki markup is disabled.
@@ -550,23 +542,27 @@ def removeDisabledParts(text: str,
     return text
 
 
-def removeHTMLParts(text: str, keeptags: Optional[List[str]] = None) -> str:
-    """
-    Return text without portions where HTML markup is disabled.
+def removeHTMLParts(text: str, keeptags: list[str] | None = None) -> str:
+    """Return text without portions where HTML markup is disabled.
 
-    Parts that can/will be removed are --
-    * HTML and all wiki tags
+    Parts that can/will be removed are HTML tags and all wiki tags. The
+    exact set of parts which should NOT be removed can be passed as the
+    *keeptags* parameter, which defaults to
+    ``['tt', 'nowiki', 'small', 'sup']``.
 
-    The exact set of parts which should NOT be removed can be passed as the
-    'keeptags' parameter, which defaults to ['tt', 'nowiki', 'small', 'sup'].
+    **Example:**
+
+    >>> removeHTMLParts('<div><b><ref><tt>Hi all!</tt></ref></b></div>')
+    '<tt>Hi all!</tt>'
+
+    .. seealso:: :class:`_GetDataHTML`
     """
-    # try to merge with 'removeDisabledParts()' above into one generic function
-    # thanks to:
-    # https://www.hellboundhackers.org/articles/read-article.php?article_id=841
+    # TODO: try to merge with 'removeDisabledParts()' above into one generic
+    # function
     parser = _GetDataHTML()
     if keeptags is None:
         keeptags = ['tt', 'nowiki', 'small', 'sup']
-    with parser:
+    with closing(parser):
         parser.keeptags = keeptags
         parser.feed(text)
     return parser.textdata
@@ -576,19 +572,38 @@ class _GetDataHTML(HTMLParser):
 
     """HTML parser which removes html tags except they are listed in keeptags.
 
-    This class is also a context manager which closes itself at exit time.
+    The parser is used by :func:`removeHTMLParts` similar to this:
 
-    .. seealso:: :pylib:`html.parser`
+    .. code-block:: python
+
+       from contextlib import closing
+       from pywikibot.textlib import _GetDataHTML
+       with closing(_GetDataHTML()) as parser:
+           parser.keeptags = ['html']
+           parser.feed('<html><head><title>Test</title></head>'
+                       '<body><h1><!-- Parse --> me!</h1></body></html>')
+           print(parser.textdata)
+
+    The result is:
+
+    .. code-block:: html
+
+       <html>Test me!</html>
+
+    .. versionchanged:: 9.2
+       This class is no longer a context manager;
+       :pylib:`contextlib.closing()<contextlib#contextlib.closing>`
+       should be used instead.
+
+    .. seealso::
+       - :pylib:`html.parser`
+       - :pylib:`contextlib#contextlib.closing`
+
+    :meta public:
     """
 
     textdata = ''
-    keeptags: List[str] = []
-
-    def __enter__(self) -> None:
-        pass
-
-    def __exit__(self, *exc_info) -> None:
-        self.close()
+    keeptags: list[str] = []
 
     def handle_data(self, data) -> None:
         """Add data to text."""
@@ -619,7 +634,7 @@ def isDisabled(text: str, index: int, tags=None) -> bool:
 
 
 def findmarker(text: str, startwith: str = '@@',
-               append: Optional[str] = None) -> str:
+               append: str | None = None) -> str:
     """Find a string which is not part of text."""
     if not append:
         append = '@'
@@ -665,7 +680,7 @@ def expandmarker(text: str, marker: str = '', separator: str = '') -> str:
     return marker
 
 
-def replace_links(text: str, replace, site: 'pywikibot.site.BaseSite') -> str:
+def replace_links(text: str, replace, site: pywikibot.site.BaseSite) -> str:
     """Replace wikilinks selectively.
 
     The text is searched for a link and on each link it replaces the text
@@ -943,7 +958,11 @@ def add_text(text: str, add: str, *, site=None) -> str:
 HEAD_PATTERN = re.compile(r'(={1,6}).+\1', re.DOTALL)
 TITLE_PATTERN = re.compile("'{3}([^']+)'{3}")
 
-_Heading = namedtuple('_Heading', ('text', 'start', 'end'))
+
+class _Heading(NamedTuple):
+    text: str
+    start: int
+    end: int
 
 
 class Section(NamedTuple):
@@ -985,7 +1004,7 @@ class Content(NamedTuple):
     """
 
     header: str  #: the page header
-    sections: List[Section]  #: the page sections
+    sections: list[Section]  #: the page sections
     footer: str  #: the page footer
 
     @property
@@ -1000,7 +1019,7 @@ class Content(NamedTuple):
         return m[1].strip() if m else ''
 
 
-def _extract_headings(text: str) -> List[_Heading]:
+def _extract_headings(text: str) -> list[_Heading]:
     """Return _Heading objects."""
     headings = []
     heading_regex = get_regexes('header')[0]
@@ -1011,7 +1030,7 @@ def _extract_headings(text: str) -> List[_Heading]:
     return headings
 
 
-def _extract_sections(text: str, headings) -> List[Section]:
+def _extract_sections(text: str, headings) -> list[Section]:
     """Return a list of :class:`Section` objects."""
     sections = []
     if headings:
@@ -1027,7 +1046,7 @@ def _extract_sections(text: str, headings) -> List[Section]:
 
 def extract_sections(
     text: str,
-    site: Optional['pywikibot.site.BaseSite'] = None
+    site: pywikibot.site.BaseSite | None = None,
 ) -> Content:
     """Return section headings and contents found in text.
 
@@ -1140,7 +1159,7 @@ def getLanguageLinks(
     text: str,
     insite=None,
     template_subpage: bool = False
-) -> Dict['pywikibot.site.BaseSite', 'pywikibot.Page']:
+) -> dict[pywikibot.site.BaseSite, pywikibot.Page]:
     """Return a dict of inter-language links found in text.
 
     The returned dict uses the site as keys and Page objects as values.
@@ -1156,7 +1175,7 @@ def getLanguageLinks(
     # infos there
     if fam.interwiki_forward:
         fam = Family.load(fam.interwiki_forward)
-    result: Dict[pywikibot.site.BaseSite, pywikibot.Page] = {}
+    result: dict[pywikibot.site.BaseSite, pywikibot.Page] = {}
     # Ignore interwiki links within nowiki tags, includeonly tags, pre tags,
     # and HTML comments
     include = []
@@ -1260,7 +1279,7 @@ def removeLanguageLinksAndSeparator(text: str, site=None, marker: str = '',
 @deprecated_args(addOnly='add_only')  # since 8.0
 def replaceLanguageLinks(oldtext: str,
                          new: dict,
-                         site: Optional['pywikibot.site.BaseSite'] = None,
+                         site: pywikibot.site.BaseSite | None = None,
                          add_only: bool = False,
                          template: bool = False,
                          template_subpage: bool = False) -> str:
@@ -1407,10 +1426,7 @@ def interwikiFormat(links: dict, insite=None) -> str:
             s.append(link)
         else:
             raise ValueError('links dict must contain Page or Link objects')
-    if insite.code in insite.family.interwiki_on_one_line:
-        sep = ' '
-    else:
-        sep = '\n'
+    sep = ' ' if insite.code in insite.family.interwiki_on_one_line else '\n'
     return sep.join(s) + '\n'
 
 
@@ -1443,8 +1459,8 @@ def interwikiSort(sites, insite=None):
 # -------------------------------------
 
 def getCategoryLinks(text: str, site=None,
-                     include: Optional[List[str]] = None,
-                     expand_text: bool = False) -> List['pywikibot.Category']:
+                     include: list[str] | None = None,
+                     expand_text: bool = False) -> list[pywikibot.Category]:
     """Return a list of category links found in text.
 
     :param include: list of tags which should not be removed by
@@ -1596,7 +1612,7 @@ def replaceCategoryInPlace(oldtext, oldcat, newcat, site=None,
 @deprecated_args(addOnly='add_only')  # since 8.0
 def replaceCategoryLinks(oldtext: str,
                          new: Iterable,
-                         site: Optional['pywikibot.site.BaseSite'] = None,
+                         site: pywikibot.site.BaseSite | None = None,
                          add_only: bool = False) -> str:
     """
     Replace all existing category links with new category links.
@@ -1675,8 +1691,7 @@ def replaceCategoryLinks(oldtext: str,
 
     if under_categories:
         category = get_regexes('category', site)[0]
-        for last_category in category.finditer(newtext):
-            pass
+        last_category = list(category.finditer(newtext))[-1]
         for reg in under_categories:
             special = reg.search(newtext)
             if special and not isDisabled(newtext, special.start()):
@@ -1767,9 +1782,11 @@ def compileLinkR(withoutBracketed: bool = False, onlyBracketed: bool = False):
 # Functions dealing with templates
 # --------------------------------
 
-def extract_templates_and_params(text: str,
-                                 remove_disabled_parts: bool = False,
-                                 strip: bool = False) -> ETPType:
+def extract_templates_and_params(
+    text: str,
+    remove_disabled_parts: bool = False,
+    strip: bool = False,
+) -> list[tuple[str, OrderedDictType[str, str]]]:
     """Return a list of templates found in text.
 
     Return value is a list of tuples. There is one tuple for each use of a
@@ -1871,10 +1888,7 @@ def extract_templates_and_params_regex_simple(text: str):
         name, params = match[1], match[2]
 
         # Special case for {{a}}
-        if params is None:
-            params = []
-        else:
-            params = params.split('|')
+        params = [] if params is None else params.split('|')
 
         numbered_param_identifiers = itertools.count(1)
 
@@ -1948,11 +1962,20 @@ def reformat_ISBNs(text: str, match_func) -> str:
 
 TIMEGROUPS = ('time', 'tzinfo', 'year', 'month', 'day', 'hour', 'minute')
 
-#: Hold precompiled timestamp patterns for :class:`TimeStripper`.
-#: Order of TimeStripperPatterns is important to avoid mismatch when searching.
-#:
-#: .. versionadded:: 8.0
-TimeStripperPatterns = namedtuple('TimeStripperPatterns', TIMEGROUPS[:-2])
+
+class TimeStripperPatterns(NamedTuple):
+    """Hold precompiled timestamp patterns for :class:`TimeStripper`.
+
+    Attribute order is important to avoid mismatch when searching.
+
+    .. versionadded:: 8.0
+    """
+
+    time: Pattern[str]
+    tzinfo: Pattern[str]
+    year: Pattern[str]
+    month: Pattern[str]
+    day: Pattern[str]
 
 
 class TimeStripper:
@@ -1978,10 +2001,13 @@ class TimeStripper:
         self.site = pywikibot.Site() if site is None else site
 
         self.origNames2monthNum = {}
-        # use first_lower/first_upper for 'vi' language because monthsnames
-        # were changed: T324310
-        functions = [first_upper,
-                     first_lower] if self.site.lang == 'vi' else [str]
+        # use first_lower/first_upper for those language where month names
+        # were changed: T324310, T356175
+        if self.site.lang in ('hy', 'vi'):
+            functions = [first_upper, first_lower]
+        else:
+            functions = [str]
+
         for n, (long, short) in enumerate(self.site.months_names, start=1):
             for func in functions:
                 self.origNames2monthNum[func(long)] = n
@@ -2102,28 +2128,30 @@ class TimeStripper:
         """
         return to_latin_digits(line)
 
-    def _last_match_and_replace(self, txt: str, pat):
+    def _last_match_and_replace(self,
+                                txt: str,
+                                pat) -> tuple[str, Match[str] | None]:
         """Take the rightmost match and replace with marker.
 
         It does so to prevent spurious earlier matches.
         """
-        m = None
-        cnt = 0
-        for cnt, m in enumerate(pat.finditer(txt), start=1):
-            pass
+        all_matches = list(pat.finditer(txt))
+        cnt = len(all_matches)
 
-        def marker(m):
+        if not cnt:
+            return (txt, None)
+
+        m = all_matches[-1]
+
+        def marker(m: Match[str]):
             """
             Replace exactly the same number of matched characters.
 
-            Same number of chars shall be replaced, in order to be able to
-            compare pos for matches reliably (absolute pos of a match
+            Same number of chars shall be replaced, in order to be able
+            to compare pos for matches reliably (absolute pos of a match
             is not altered by replacement).
             """
             return '@' * (m.end() - m.start())
-
-        if not m:
-            return (txt, None)
 
         # month and day format might be identical (e.g. see bug T71315),
         # avoid to wipe out day, after month is matched. Replace all matches
@@ -2156,11 +2184,9 @@ class TimeStripper:
             return False
         if min_pos < tzinfo_pos < max_pos:
             return False
-        if min_pos < time_pos < max_pos:
-            return False
-        return True
+        return not min_pos < time_pos < max_pos
 
-    def timestripper(self, line: str) -> Optional['pywikibot.Timestamp']:
+    def timestripper(self, line: str) -> pywikibot.Timestamp | None:
         """
         Find timestamp in line and convert it to time zone aware datetime.
 
@@ -2242,8 +2268,8 @@ class TimeStripper:
                     f"incorrect month name {dateDict['month']['value']!r} "
                     f'in page in site {self.site}'
                 )
-            else:
-                dateDict['month']['value'] = value
+
+            dateDict['month']['value'] = value
 
             # convert to integers and remove the inner dict
             for k, v in dateDict.items():

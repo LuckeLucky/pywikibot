@@ -29,23 +29,17 @@ Furthermore, the following command line parameters are supported:
    can be set within a settings file which is scripts.ini by default.
 """
 
-# (C) Pywikibot team, 2015-2023
+# (C) Pywikibot team, 2015-2024
 #
 # Distributed under the terms of the MIT license.
 #
-from typing import Union
+from __future__ import annotations
 
 import pywikibot
 import pywikibot.i18n
 import pywikibot.textlib
 from pywikibot import info, pagegenerators, warning
-from pywikibot.backports import Set
-from pywikibot.bot import (
-    ConfigParserBot,
-    ExistingPageBot,
-    SingleSiteBot,
-    suggest_help,
-)
+from pywikibot.bot import ConfigParserBot, ExistingPageBot, SingleSiteBot
 from pywikibot.exceptions import APIError, NoPageError
 
 
@@ -80,8 +74,9 @@ class IWBot(ConfigParserBot, ExistingPageBot, SingleSiteBot):
         """Initialize the bot."""
         super().__init__(**kwargs)
         if not self.site.has_data_repository:
-            raise ValueError('{site} does not have a data repository, use '
-                             'interwiki.py instead.'.format(site=self.site))
+            raise ValueError(
+                f'{self.site} does not have a data repository, use '
+                'interwiki.py instead.')
 
         self.repo = self.site.data_repository()
         if not self.opt.summary:
@@ -168,8 +163,8 @@ class IWBot(ConfigParserBot, ExistingPageBot, SingleSiteBot):
         dbnames = [iw_site.dbName() for iw_site in self.iwlangs]
         if set(dbnames) - set(self.current_item.sitelinks.keys()) \
            and not self.handle_complicated():
-            warning('Interwiki conflict in {}, skipping...'
-                    .format(self.current_page.title(as_link=True)))
+            warning('Interwiki conflict in '
+                    f'{self.current_page.title(as_link=True)}, skipping...')
             return
 
         info('Cleaning up the page')
@@ -177,13 +172,13 @@ class IWBot(ConfigParserBot, ExistingPageBot, SingleSiteBot):
             self.current_page.text, site=self.current_page.site)
         self.put_current(new_text, summary=self.opt.summary)
 
-    def get_items(self) -> Set[pywikibot.ItemPage]:
+    def get_items(self) -> set[pywikibot.ItemPage]:
         """Return all items of pages linked through the interwiki."""
         wd_data = set()
         for iw_page in self.iwlangs.values():
             if not iw_page.exists():
-                warning('Interwiki {} does not exist, skipping...'
-                        .format(iw_page.title(as_link=True)))
+                warning(f'Interwiki {iw_page.title(as_link=True)} does not'
+                        ' exist, skipping...')
                 continue
             try:
                 wd_data.add(pywikibot.ItemPage.fromPage(iw_page))
@@ -191,7 +186,7 @@ class IWBot(ConfigParserBot, ExistingPageBot, SingleSiteBot):
                 info(f'Interwiki {iw_page} does not have an item')
         return wd_data
 
-    def try_to_add(self) -> Union[pywikibot.ItemPage, bool, None]:
+    def try_to_add(self) -> pywikibot.ItemPage | bool | None:
         """Add current page in repo."""
         wd_data = self.get_items()
         if not wd_data:
@@ -199,8 +194,8 @@ class IWBot(ConfigParserBot, ExistingPageBot, SingleSiteBot):
             return None
 
         if len(wd_data) > 1:
-            warning('Interwiki conflict in {}, skipping...'
-                    .format(self.current_page.title(as_link=True)))
+            warning('Interwiki conflict in '
+                    f'{self.current_page.title(as_link=True)}, skipping...')
             return False
 
         item = list(wd_data).pop()
@@ -213,7 +208,7 @@ class IWBot(ConfigParserBot, ExistingPageBot, SingleSiteBot):
             self.current_page.title(as_link=True, insite=item.site)))
         return item
 
-    def try_to_merge(self, item) -> Union[pywikibot.ItemPage, bool, None]:
+    def try_to_merge(self, item) -> pywikibot.ItemPage | bool | None:
         """Merge two items."""
         wd_data = self.get_items()
         if not wd_data:
@@ -230,9 +225,9 @@ class IWBot(ConfigParserBot, ExistingPageBot, SingleSiteBot):
         except APIError:
             # warning already printed by the API
             return False
-        else:
-            target_item.get(force=True)
-            return target_item
+
+        target_item.get(force=True)
+        return target_item
 
 
 def main(*args: str) -> None:
@@ -250,7 +245,11 @@ def main(*args: str) -> None:
     options = {}
     for arg in local_args:
         option, _, value = arg.partition(':')
-        option = option[1:] if option.startswith('-') else None
+        if option.startswith('-'):
+            option = option[1:]
+        else:
+            continue
+
         if option == 'summary':
             options[option] = value
         else:
@@ -259,11 +258,8 @@ def main(*args: str) -> None:
     site = pywikibot.Site()
 
     generator = gen_factory.getCombinedGenerator(preload=True)
-    if generator:
-        bot = IWBot(generator=generator, site=site, **options)
-        bot.run()
-    else:
-        suggest_help(missing_generator=True)
+    bot = IWBot(generator=generator, site=site, **options)
+    bot.run()
 
 
 if __name__ == '__main__':

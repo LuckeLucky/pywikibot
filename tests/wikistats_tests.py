@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Test cases for the WikiStats dataset."""
 #
-# (C) Pywikibot team, 2014-2022
+# (C) Pywikibot team, 2014-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import sys
 import unittest
 from contextlib import suppress
@@ -71,8 +73,7 @@ class WikiStatsTestCase(TestCase):
             curr = int(data[code]['good'])
             self.assertGreaterEqual(
                 last, curr,
-                '{} ({}) is greater than {} ({}).'
-                .format(code, curr, last_code, last))
+                f'{code} ({curr}) is greater than {last_code} ({last}).')
             last = curr
             last_code = code
 
@@ -86,7 +87,7 @@ class WikiStatsTestCase(TestCase):
         self.assertGreater(int(data['en']['total']), int(data['en']['good']))
         data = data['en']
         self.assertTrue(all(isinstance(key, str)
-                            for key in data.keys() if key is not None))
+                            for key in data if key is not None))
         self.assertIsInstance(data['total'], str)
         self.assertIn('prefix', data)
         self.assertIn('total', data)
@@ -101,12 +102,12 @@ class WikiStatsTestCase(TestCase):
         self.assertGreater(int(data['fr']['total']), int(data['fr']['good']))
         data = data['fr']
         self.assertTrue(all(isinstance(key, str)
-                            for key in data.keys() if key is not None))
+                            for key in data if key is not None))
         self.assertIsInstance(data['total'], str)
         self.assertIn('prefix', data)
         self.assertIn('total', data)
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

@@ -1,40 +1,45 @@
 """Module to determine the pywikibot version (tag, revision and date)."""
 #
-# (C) Pywikibot team, 2007-2022
+# (C) Pywikibot team, 2007-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import datetime
 import json
 import os
 import pathlib
 import socket
+import sqlite3
 import subprocess
 import sys
 import sysconfig
 import time
-import xml.dom.minidom
 from contextlib import closing, suppress
 from importlib import import_module
-from io import BytesIO
-from typing import Optional
+from pathlib import Path
 from warnings import warn
 
 import pywikibot
 from pywikibot import config
-from pywikibot.backports import Dict, List, Tuple, cache
+from pywikibot.backports import cache
 from pywikibot.comms.http import fetch
 from pywikibot.exceptions import VersionParseError
+from pywikibot.tools import deprecated, suppress_warnings
+from pywikibot.tools._deprecate import _NotImplementedWarning
 
 
 def _get_program_dir() -> str:
     return os.path.normpath(os.path.split(os.path.dirname(__file__))[0])
 
 
-def get_toolforge_hostname() -> Optional[str]:
+@deprecated(since='9.0.0')
+def get_toolforge_hostname() -> str | None:
     """Get hostname of the current Toolforge host.
 
     .. versionadded:: 3.0
+    .. deprecated:: 9.0
 
     :return: The hostname of the currently running host,
              if it is in Wikimedia Toolforge; otherwise return None.
@@ -63,7 +68,7 @@ def getversion(online: bool = True) -> str:
             data['cmp_ver'] = 'UNKNOWN'
         else:
             for branch, path in branches.items():
-                with suppress(Exception):
+                with suppress(VersionParseError):
                     hsh[getversion_onlinerepo(path)] = branch
             if hsh:
                 data['cmp_ver'] = hsh.get(local_hsh, 'OUTDATED')
@@ -73,7 +78,7 @@ def getversion(online: bool = True) -> str:
 
 
 @cache
-def getversiondict() -> Dict[str, str]:
+def getversiondict() -> dict[str, str]:
     """Get version info for the package.
 
     :return:
@@ -90,38 +95,47 @@ def getversiondict() -> Dict[str, str]:
                      getversion_nightly,
                      getversion_package):
         try:
-            (tag, rev, date, hsh) = vcs_func(_program_dir)
+            with suppress_warnings(
+                f'.*({vcs_func.__name__}|svn_rev_info) is deprecated since '
+                    'release 9.1.', _NotImplementedWarning):
+                tag, rev, date, hsh = vcs_func(_program_dir)
         except Exception as e:
-            exceptions[vcs_func] = e
+            exceptions[vcs_func] = vcs_func.__name__, e
         else:
             break
-    else:
+    else:  # pragma: no cover
         # nothing worked; version unknown (but suppress exceptions)
         # the value is most likely '$Id' + '$', it means that
         # pywikibot was imported without using version control at all.
         tag, rev, date, hsh = (
             '', '-1 (unknown)', '0 (unknown)', '(unknown)')
-        warn('Unable to detect version; exceptions raised:\n{!r}'
-             .format(exceptions), UserWarning)
+        warn(f'Unable to detect version; exceptions raised:\n{exceptions!r}',
+             UserWarning)
         exceptions = None
 
     # Git and SVN can silently fail, as it may be a nightly.
-    if exceptions:
+    if exceptions:  # pragma: no cover
         pywikibot.debug(f'version algorithm exceptions:\n{exceptions!r}')
 
     if isinstance(date, str):
         datestring = date
     elif isinstance(date, time.struct_time):
         datestring = time.strftime('%Y/%m/%d, %H:%M:%S', date)
-    else:
+    else:  # pragma: no cover
         warn('Unable to detect package date', UserWarning)
         datestring = '-2 (unknown)'
 
     return {'tag': tag, 'rev': rev, 'date': datestring, 'hsh': hsh}
 
 
-def svn_rev_info(path):  # pragma: no cover
+@deprecated(since='9.1')
+def svn_rev_info(path):
     """Fetch information about the current revision of a Subversion checkout.
+
+    .. deprecated:: 9.1
+       update to git repository.
+    .. versionchanged:: 9.1
+       drop support for svn 1.6 and older.
 
     :param path: directory of the Subversion checkout
     :return:
@@ -133,31 +147,8 @@ def svn_rev_info(path):  # pragma: no cover
     if not os.path.isdir(os.path.join(path, '.svn')):
         path = os.path.join(path, '..')
 
-    _program_dir = path
-    filename = os.path.join(_program_dir, '.svn/entries')
-    if os.path.isfile(filename):
-        with open(filename) as entries:
-            version = entries.readline().strip()
-            if version != '12':
-                for _ in range(3):
-                    entries.readline()
-                tag = entries.readline().strip()
-                t = tag.split('://', 1)
-                t[1] = t[1].replace('svn.wikimedia.org/svnroot/pywikipedia/',
-                                    '')
-                tag = '[{}] {}'.format(*t)
-                for _ in range(4):
-                    entries.readline()
-                date = time.strptime(entries.readline()[:19],
-                                     '%Y-%m-%dT%H:%M:%S')
-                rev = entries.readline()[:-1]
-                return tag, rev, date
-
-    # We haven't found the information in entries file.
-    # Use sqlite table for new entries format
-    from sqlite3 import dbapi2 as sqlite
     with closing(
-            sqlite.connect(os.path.join(_program_dir, '.svn/wc.db'))) as con:
+            sqlite3.connect(os.path.join(path, '.svn/wc.db'))) as con:
         cur = con.cursor()
         cur.execute("""select
 local_relpath, repos_path, revision, changed_date, checksum from nodes
@@ -171,52 +162,28 @@ order by revision desc, changed_date desc""")
     return tag, rev, date
 
 
-def github_svn_rev2hash(tag: str, rev):  # pragma: no cover
-    """Convert a Subversion revision to a Git hash using GitHub.
-
-    :param tag: name of the Subversion repo on GitHub
-    :param rev: Subversion revision identifier
-    :return: the git hash
-    """
-    uri = f'https://github.com/wikimedia/{tag}/!svn/vcc/default'
-    request = fetch(uri, method='PROPFIND',
-                    data="<?xml version='1.0' encoding='utf-8'?>"
-                         '<propfind xmlns=\"DAV:\"><allprop/></propfind>',
-                    headers={'label': str(rev),
-                             'user-agent': 'SVN/1.7.5 {pwb}'})
-    dom = xml.dom.minidom.parse(BytesIO(request.content))
-    hsh = dom.getElementsByTagName('C:git-commit')[0].firstChild.nodeValue
-    date = dom.getElementsByTagName('S:date')[0].firstChild.nodeValue
-    date = time.strptime(date[:19], '%Y-%m-%dT%H:%M:%S')
-    return hsh, date
-
-
-def getversion_svn(path=None):  # pragma: no cover
+@deprecated(since='9.1')
+def getversion_svn(path=None):
     """Get version info for a Subversion checkout.
+
+    .. deprecated:: 9.1
+       update to git repository.
 
     :param path: directory of the Subversion checkout
     :return:
         - tag (name for the repository),
         - rev (current Subversion revision identifier),
         - date (date of current revision),
-        - hash (git hash for the Subversion revision)
+        - hash '(unknown)'
     :rtype: ``tuple`` of three ``str`` and a ``time.struct_time``
     """
     _program_dir = path or _get_program_dir()
     tag, rev, date = svn_rev_info(_program_dir)
-    hsh, date2 = github_svn_rev2hash(tag, rev)
-    if date.tm_isdst >= 0 and date2.tm_isdst >= 0:
-        assert date == date2, 'Date of version is not consistent'
-    # date.tm_isdst is -1 means unknown state
-    # compare its contents except daylight saving time status
-    else:
-        for i in range(len(date) - 1):
-            assert date[i] == date2[i], 'Date of version is not consistent'
-
     rev = f's{rev}'
+
     if (not date or not tag or not rev) and not path:
         raise VersionParseError
-    return (tag, rev, date, hsh)
+    return (tag, rev, date, '(unknown)')
 
 
 def getversion_git(path=None):
@@ -274,8 +241,12 @@ def getversion_git(path=None):
     return (tag, rev, date, hsh)
 
 
-def getversion_nightly(path=None):  # pragma: no cover
+def getversion_nightly(path: str | Path | None = None):
     """Get version info for a nightly release.
+
+    .. hint::
+       the version informations of the nightly dump is stored in the
+       ``version`` file within the ``pywikibot`` folder.
 
     :param path: directory of the uncompressed nightly.
     :return:
@@ -285,20 +256,22 @@ def getversion_nightly(path=None):  # pragma: no cover
         - hash (git hash for the current revision)
     :rtype: ``tuple`` of three ``str`` and a ``time.struct_time``
     """
+    file = Path(path or _get_program_dir())
     if not path:
-        path = _get_program_dir()
+        file /= 'pywikibot'  # pragma: no cover
+    file /= 'version'
 
-    with open(os.path.join(path, 'version')) as data:
-        (tag, rev, date, hsh) = data.readlines()
+    with file.open() as data:
+        (tag, rev, date, hsh) = data.read().splitlines()
 
     date = time.strptime(date[:19], '%Y-%m-%dT%H:%M:%S')
 
     if not date or not tag or not rev:
-        raise VersionParseError
+        raise VersionParseError  # pragma: no cover
     return (tag, rev, date, hsh)
 
 
-def getversion_package(path=None) -> Tuple[str, str, str, str]:
+def getversion_package(path=None) -> tuple[str, str, str, str]:
     """Get version info for an installed package.
 
     :param path: Unused argument
@@ -317,7 +290,7 @@ def getversion_package(path=None) -> Tuple[str, str, str, str]:
     return (tag, rev, date, hsh)
 
 
-def getversion_onlinerepo(path: str = 'branches/master'):
+def getversion_onlinerepo(path: str = 'branches/master') -> str:
     """Retrieve current framework git hash from Gerrit."""
     # Gerrit API responses include )]}' at the beginning,
     # make sure to strip it out
@@ -326,11 +299,11 @@ def getversion_onlinerepo(path: str = 'branches/master'):
         headers={'user-agent': '{pwb}'}).text[4:]
     try:
         return json.loads(buf)['revision']
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         raise VersionParseError(f'{e!r} while parsing {buf!r}')
 
 
-def get_module_filename(module) -> Optional[str]:
+def get_module_filename(module) -> str | None:
     """
     Retrieve filename from an imported pywikibot module.
 
@@ -348,7 +321,7 @@ def get_module_filename(module) -> Optional[str]:
             return None
 
         program_dir = _get_program_dir()
-        if filename[:len(program_dir)] == program_dir:
+        if filename.startswith(program_dir):
             return filename
     return None
 
@@ -369,9 +342,9 @@ def get_module_mtime(module):
 
 
 def package_versions(
-    modules: Optional[List[str]] = None,
-    builtins: Optional[bool] = False,
-    standard_lib: Optional[bool] = None
+    modules: list[str] | None = None,
+    builtins: bool | None = False,
+    standard_lib: bool | None = None,
 ):
     """Retrieve package version information.
 
@@ -439,8 +412,8 @@ def package_versions(
 
             info['path'] = path
             assert path not in paths, \
-                   'Path {} of the package {} is in defined paths as {}' \
-                   .format(path, name, paths[path])
+                'Path {} of the package {} is in defined paths as {}' \
+                .format(path, name, paths[path])
             paths[path] = name
 
         if '__version__' in package.__dict__:

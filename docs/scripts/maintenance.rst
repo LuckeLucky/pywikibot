@@ -2,6 +2,13 @@
 Utility scripts
 ***************
 
+addwikis script
+===============
+
+.. automodule:: scripts.maintenance.addwikis
+   :no-members:
+   :noindex:
+
 cache script
 ============
 
@@ -27,12 +34,5 @@ unidata script
 ==============
 
 .. automodule:: scripts.maintenance.unidata
-   :no-members:
-   :noindex:
-
-wikimedia\_sites script
-=======================
-
-.. automodule:: scripts.maintenance.wikimedia_sites
    :no-members:
    :noindex:

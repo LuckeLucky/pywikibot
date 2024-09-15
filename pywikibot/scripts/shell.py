@@ -4,9 +4,9 @@
 To exit the shell, type :kbd:`ctrl-D` (Linux) or :kbd:`ctrl-Z` (Windows)
 or use the :func:`exit` function.
 
-The following local option is supported::
+The following local option is supported:
 
- -noimport Do not import the pywikibot library. All other arguments are
+-noimport  Do not import the pywikibot library. All other arguments are
            ignored in this case.
 
 Usage::
@@ -16,10 +16,12 @@ Usage::
 .. versionchanged:: 7.0
    moved to pywikibot.scripts
 """
-# (C) Pywikibot team, 2014-2023
+# (C) Pywikibot team, 2014-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import code
 import sys
 
@@ -42,7 +44,7 @@ def main(*args: str) -> None:
         warn_type = 'Unknown'
 
     if args:
-        print('{} arguments: {}\n'  # noqa: T001, T201
+        print('{} arguments: {}\n'  # noqa: T201
               .format(warn_type, ', '.join(args)))
 
     # Various stuffs in Python 3.4+, such as history file.
@@ -55,7 +57,7 @@ def main(*args: str) -> None:
                   exitmsg='Thank you for using Pywikibot; exiting now...\n')
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     if sys.platform == 'win32':
         import platform
         import subprocess

@@ -6,14 +6,15 @@ This module includes objects:
 * FileInfo: a structure holding imageinfo of latest revision of FilePage
 """
 #
-# (C) Pywikibot team, 2008-2023
+# (C) Pywikibot team, 2008-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 from http import HTTPStatus
 from os import PathLike
 from pathlib import Path
-from typing import Optional, Union
 from urllib.parse import urlparse
 
 import pywikibot
@@ -37,24 +38,32 @@ class FilePage(Page):
     Supports the same interface as Page except *ns*; some added methods.
     """
 
-    def __init__(self, source, title: str = '') -> None:
+    def __init__(self, source, title: str = '', *,
+                 ignore_extension: bool = False) -> None:
         """Initializer.
 
         .. versionchanged:: 8.4
            check for valid extensions.
+        .. versionchanged:: 9.3
+           *ignore_extension* parameter was added
 
         :param source: the source of the page
         :type source: pywikibot.page.BaseLink (or subclass),
             pywikibot.page.Page (or subclass), or pywikibot.page.Site
         :param title: normalized title of the page; required if source is a
             Site, ignored otherwise
+        :param ignore_extension: prevent extension check
         :raises ValueError: Either the title is not in the file
-            namespace or does not have a valid extension.
+            namespace or does not have a valid extension and
+            *ignore_extension* was not set.
         """
         self._file_revisions = {}  # dictionary to cache File history.
         super().__init__(source, title, 6)
         if self.namespace() != 6:
             raise ValueError(f"'{self.title()}' is not in the file namespace!")
+
+        if ignore_extension:
+            return
 
         title = self.title(with_ns=False, with_section=False)
         _, sep, extension = title.rpartition('.')
@@ -65,6 +74,12 @@ class FilePage(Page):
             )
 
     def _load_file_revisions(self, imageinfo) -> None:
+        """
+        Store an Image revision of FilePage (a FileInfo object) in local cache.
+
+        Metadata shall be added lazily to the revision already present
+        in cache.
+        """
         for file_rev in imageinfo:
             # filemissing in API response indicates most fields are missing
             # see https://gerrit.wikimedia.org/r/c/mediawiki/core/+/533482/
@@ -72,8 +87,13 @@ class FilePage(Page):
                 pywikibot.warning(
                     f"File '{self.title()}' contains missing revisions")
                 continue
-            file_revision = FileInfo(file_rev)
-            self._file_revisions[file_revision.timestamp] = file_revision
+
+            ts_key = pywikibot.Timestamp.fromISOformat(file_rev['timestamp'])
+            file_revision = self._file_revisions.setdefault(
+                ts_key, FileInfo(file_rev, self))
+
+            # add new imageinfo attributes since last request.
+            file_revision.update(file_rev)
 
     @property
     def latest_file_info(self):
@@ -105,6 +125,22 @@ class FilePage(Page):
         oldest_ts = min(self._file_revisions)
         return self._file_revisions[oldest_ts]
 
+    def get_file_info(self, ts) -> dict:
+        """
+        Retrieve and store information of a specific Image rev. of FilePage.
+
+        This function will load also metadata.
+        It is also used as a helper in FileInfo to load metadata lazily.
+
+        .. versionadded:: 8.6
+
+        :param ts: timestamp of the Image rev. to retrieve
+
+        :return: instance of FileInfo()
+        """
+        self.site.loadimageinfo(self, history=False, timestamp=ts)
+        return self._file_revisions[ts]
+
     def get_file_history(self) -> dict:
         """
         Return the file's version history.
@@ -130,9 +166,9 @@ class FilePage(Page):
         return self._imagePageHtml
 
     def get_file_url(self,
-                     url_width: Optional[int] = None,
-                     url_height: Optional[int] = None,
-                     url_param: Optional[int] = None) -> str:
+                     url_width: int | None = None,
+                     url_height: int | None = None,
+                     url_param: str | None = None) -> str:
         """Return the url or the thumburl of the file described on this page.
 
         Fetch the information if not available.
@@ -235,7 +271,7 @@ class FilePage(Page):
     def usingPages(self, **kwargs):  # noqa: N802
         """Yield Pages on which the file is displayed.
 
-        .. deprecated:: 7.4.0
+        .. deprecated:: 7.4
            Use :meth:`using_pages` instead.
         """
         return self.using_pages(**kwargs)
@@ -296,12 +332,12 @@ class FilePage(Page):
                                 **kwargs)
 
     def download(self,
-                 filename: Union[None, str, PathLike, Iterable[str]] = None,
+                 filename: str | PathLike | Iterable[str] | None = None,
                  chunk_size: int = 100 * 1024,
-                 revision: Optional['FileInfo'] = None, *,
-                 url_width: Optional[int] = None,
-                 url_height: Optional[int] = None,
-                 url_param: Optional[int] = None) -> bool:
+                 revision: FileInfo | None = None, *,
+                 url_width: int | None = None,
+                 url_height: int | None = None,
+                 url_param: str | None = None) -> bool:
         """Download to filename file of FilePage.
 
         **Usage examples:**
@@ -405,9 +441,9 @@ class FilePage(Page):
         """
         Convenience function to get the associated Wikibase item of the file.
 
-        If WikibaseMediaInfo extension is available (e.g. on Commons),
+        If WikibaseMediaInfo extension is available (e.g., on Commons),
         the method returns the associated mediainfo entity. Otherwise,
-        it falls back to behavior of BasePage.data_item.
+        it falls back to the behavior of :meth:`BasePage.data_item`.
 
         .. versionadded:: 6.5
 
@@ -431,7 +467,7 @@ class FileInfo:
     Attributes can be retrieved both as self['key'] or self.key.
 
     Following attributes will be returned:
-        - timestamp, user, comment, url, size, sha1, mime, metadata
+        - timestamp, user, comment, url, size, sha1, mime, metadata (lazily)
         - archivename (not for latest revision)
 
     see :meth:`Site.loadimageinfo()
@@ -442,12 +478,26 @@ class FileInfo:
     .. versionchanged:: 7.7
        raises KeyError instead of AttributeError if FileInfo is used as
        Mapping.
+    .. versionchanged:: 8.6
+       Metadata are loaded lazily.
+       Added *filepage* parameter.
     """
 
-    def __init__(self, file_revision) -> None:
+    def __init__(self, file_revision, filepage) -> None:
         """Initiate the class using the dict from ``APISite.loadimageinfo``."""
-        self.__dict__.update(file_revision)
-        self.timestamp = pywikibot.Timestamp.fromISOformat(self.timestamp)
+        self.filepage = filepage
+        self._metadata = None
+        self.update(file_revision)
+
+    def update(self, file_revision):
+        """Update FileInfo with new values.
+
+        .. versionadded:: 8.6
+        """
+        for k, v in file_revision.items():
+            if k == 'timestamp':
+                v = pywikibot.Timestamp.fromISOformat(v)
+            setattr(self, k, v)
 
     def __getitem__(self, key):
         """Give access to class values by key."""
@@ -464,3 +514,21 @@ class FileInfo:
     def __eq__(self, other) -> bool:
         """Test if two FileInfo objects are equal."""
         return self.__dict__ == other.__dict__
+
+    @property
+    def metadata(self):
+        """Return metadata.
+
+        .. versionadded:: 8.6
+        """
+        if self._metadata is None:
+            self.filepage.get_file_info(self.timestamp)
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, value):
+        """Set metadata.
+
+        .. versionadded:: 8.6
+        """
+        self._metadata = value

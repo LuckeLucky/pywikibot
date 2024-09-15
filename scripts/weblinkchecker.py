@@ -31,7 +31,7 @@ When a link is found alive, it will be removed from the .dat file.
 
 These command line parameters can be used to specify which pages to work on:
 
--repeat      Work on all pages were dead links were found before. This is
+-repeat      Work on all pages where dead links were found before. This is
              useful to confirm that the links are dead after some time (at
              least one week), which is required before the script will report
              the problem.
@@ -104,10 +104,12 @@ Loads all wiki pages where dead links were found during a prior run:
     python pwb.py weblinkchecker -repeat
 """
 #
-# (C) Pywikibot team, 2005-2022
+# (C) Pywikibot team, 2005-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import codecs
 import pickle
 import re
@@ -122,7 +124,7 @@ import requests
 
 import pywikibot
 from pywikibot import comms, config, i18n, pagegenerators, textlib
-from pywikibot.backports import Dict, removeprefix
+from pywikibot.backports import removeprefix
 from pywikibot.bot import ExistingPageBot, SingleSiteBot, suggest_help
 from pywikibot.exceptions import (
     IsRedirectPageError,
@@ -249,7 +251,7 @@ class LinkCheckThread(threading.Thread):
     """
 
     #: Collecting start time of a thread for any host
-    hosts: Dict[str, float] = {}
+    hosts: dict[str, float] = {}
     lock = threading.Lock()
 
     def __init__(self, page, url, history, http_ignores, day) -> None:
@@ -375,11 +377,10 @@ class History:
             iso_date = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(date))
             error_report += f'** In [[{page_title}]] on {iso_date}, {error}\n'
         pywikibot.info('** Logging link for deletion.')
-        txtfilename = pywikibot.config.datafilepath('deadlinks',
-                                                    'results-{}-{}.txt'
-                                                    .format(
-                                                        self.site.family.name,
-                                                        self.site.lang))
+        txtfilename = pywikibot.config.datafilepath(
+            'deadlinks',
+            f'results-{self.site.family.name}-{self.site.lang}.txt'
+        )
         with codecs.open(txtfilename, 'a', 'utf-8') as txtfile:
             self.log_count += 1
             if self.log_count % 30 == 0:
@@ -529,8 +530,8 @@ class DeadLinkReportThread(threading.Thread):
                 except SpamblacklistError as error:
                     pywikibot.info(
                         '<<lightaqua>>** SpamblacklistError while trying to '
-                        'change {}: {}<<default>>'
-                        .format(talk_page, error.url))
+                        f'change {talk_page}: {error.url}<<default>>'
+                    )
 
 
 class WeblinkCheckerRobot(SingleSiteBot, ExistingPageBot):
@@ -583,18 +584,18 @@ class WeblinkCheckerRobot(SingleSiteBot, ExistingPageBot):
         """Finish remaining threads and save history file."""
         num = self.count_link_check_threads()
         if num:
-            pywikibot.info('<<lightblue>>Waiting for remaining {} threads '
-                           'to finish, please wait...'.format(num))
+            pywikibot.info(f'<<lightblue>>Waiting for remaining {num} threads '
+                           'to finish, please wait...')
 
         while self.count_link_check_threads():
             try:
                 time.sleep(0.1)
             except KeyboardInterrupt:
                 # Threads will die automatically because they are daemonic.
-                if pywikibot.input_yn('There are {} pages remaining in the '
-                                      'queue. Really exit?'
-                                      .format(self.count_link_check_threads()),
-                                      default=False, automatic_quit=False):
+                if pywikibot.input_yn(
+                    f'There are {self.count_link_check_threads()} pages'
+                    ' remaining in the queue. Really exit?',
+                        default=False, automatic_quit=False):
                     break
 
         num = self.count_link_check_threads()

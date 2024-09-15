@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Tests for the site module."""
 #
-# (C) Pywikibot team, 2008-2023
+# (C) Pywikibot team, 2008-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import pickle
 import random
 import threading
@@ -16,6 +18,8 @@ from contextlib import suppress
 import pywikibot
 from pywikibot import config
 from pywikibot.exceptions import (
+    APIError,
+    Error,
     IsNotRedirectPageError,
     NoPageError,
     PageInUseError,
@@ -24,7 +28,6 @@ from pywikibot.exceptions import (
 )
 from tests.aspects import (
     AlteredDefaultSiteTestCase,
-    DefaultDrySiteTestCase,
     DefaultSiteTestCase,
     DeprecationTestCase,
     TestCase,
@@ -53,20 +56,6 @@ class TestSiteObjectDeprecatedFunctions(DefaultSiteTestCase,
         self.assertOneDeprecation()
 
 
-class TestSiteDryDeprecatedFunctions(DefaultDrySiteTestCase,
-                                     DeprecationTestCase):
-
-    """Test cases for Site deprecated methods without a user."""
-
-    def test_namespaces_callable(self):
-        """Test that namespaces is callable and returns itself."""
-        site = self.get_site()
-        self.assertIs(site.namespaces(), site.namespaces)
-        self.assertOneDeprecationParts(
-            'Referencing this attribute like a function',
-            'it directly')
-
-
 class TestSiteObject(DefaultSiteTestCase):
 
     """Test cases for Site methods."""
@@ -83,8 +72,10 @@ class TestSiteObject(DefaultSiteTestCase):
     def test_repr(self):
         """Test __repr__."""
         code = self.site.family.obsolete.get(self.code) or self.code
-        expect = f'Site("{code}", "{self.family}")'
-        self.assertTrue(repr(self.site).endswith(expect))
+        expect = f"Site('{code}', '{self.family}')"
+        reprs = repr(self.site)
+        self.assertTrue(reprs.endswith(expect),
+                        f'\n{reprs} does not end with {expect}')
 
     def test_constructors(self):
         """Test cases for site constructors."""
@@ -275,6 +266,32 @@ class TestSiteObject(DefaultSiteTestCase):
         if a:
             self.assertEqual(a[0], mainpage)
 
+    def test_maxlimit(self):
+        """Test maxlimit property."""
+        limit = self.site.maxlimit
+        self.assertIsInstance(limit, int)
+        self.assertIn(limit, [10, 50, 500, 5000])
+
+    def test_ratelimit(self):
+        """Test ratelimit method."""
+        actions = ('edit', 'move', 'purge', 'invalid')
+        if self.site.logged_in():
+            groups = ['user', 'unknown', 'noratelimit']
+        else:
+            groups = ['ip', 'unknown']
+            self.assertFalse(self.site.has_right('noratelimit'))
+        for action in actions:
+            with self.subTest(action=action):
+                limit = self.site.ratelimit(action)
+                self.assertIn(limit.group, groups)
+                self.assertEqual(limit.seconds / limit.hits, limit.delay)
+                self.assertEqual(
+                    1 / limit.delay if limit.seconds else float('inf'),
+                    limit.ratio)
+                if limit.group == 'unknown':
+                    self.assertEqual(limit.hits, self.site.maxlimit)
+                    self.assertEqual(limit.seconds, config.put_throttle)
+
 
 class TestLockingPage(DefaultSiteTestCase):
     """Test cases for lock/unlock a page within threads."""
@@ -376,7 +393,7 @@ class SiteSysopTestCase(DefaultSiteTestCase):
         if not mysite.has_right('deletedhistory'):
             self.skipTest(
                 "You don't have permission to view the deleted revisions "
-                'on {}.'.format(mysite))
+                f'on {mysite}.')
         mainpage = self.get_mainpage()
         gen = mysite.deletedrevs(total=10, titles=mainpage)
 
@@ -476,7 +493,7 @@ class SiteSysopTestCase(DefaultSiteTestCase):
         if not mysite.has_right('deletedhistory'):
             self.skipTest(
                 "You don't have permission to view the deleted revisions "
-                'on {}.'.format(mysite))
+                f'on {mysite}.')
         prop = ['ids', 'timestamp', 'flags', 'user', 'comment']
         gen = mysite.alldeletedrevisions(total=10, prop=prop)
 
@@ -493,6 +510,7 @@ class SiteSysopTestCase(DefaultSiteTestCase):
                           prop=prop):
             for item in mysite.alldeletedrevisions(
                 start='2008-10-11T01:02:03Z',
+                user=myuser,
                 total=5
             ):
                 for drev in item['revisions']:
@@ -504,6 +522,7 @@ class SiteSysopTestCase(DefaultSiteTestCase):
                           prop=prop):
             for item in mysite.alldeletedrevisions(
                 start='2008-10-11T01:02:03Z',
+                user=myuser,
                 total=5
             ):
                 for drev in item['revisions']:
@@ -553,8 +572,8 @@ class TestSiteSysopWrite(TestCase):
                          reason='Pywikibot unit test')
         self.assertIsNone(r)
         self.assertEqual(site.page_restrictions(page=p1),
-                         {'edit': ('sysop', 'infinity'),
-                          'move': ('autoconfirmed', 'infinity')})
+                         {'edit': ('sysop', 'infinite'),
+                          'move': ('autoconfirmed', 'infinite')})
 
         expiry = pywikibot.Timestamp.fromISOformat('2050-01-01T00:00:00Z')
         site.protect(protections={'edit': 'sysop', 'move': 'autoconfirmed'},
@@ -582,8 +601,8 @@ class TestSiteSysopWrite(TestCase):
                          reason='Pywikibot unit test')
         self.assertIsNone(r)
         self.assertEqual(site.page_restrictions(page=p1),
-                         {'edit': ('sysop', 'infinity'),
-                          'move': ('autoconfirmed', 'infinity')})
+                         {'edit': ('sysop', 'infinite'),
+                          'move': ('autoconfirmed', 'infinite')})
 
         p1 = pywikibot.Page(site, 'User:Unicodesnowman/ProtectTest')
         expiry = pywikibot.Timestamp.fromISOformat('2050-01-01T00:00:00Z')
@@ -605,13 +624,18 @@ class TestSiteSysopWrite(TestCase):
     def test_protect_exception(self):
         """Test that site.protect() throws an exception for invalid args."""
         site = self.get_site()
-        p1 = pywikibot.Page(site, 'User:Unicodesnowman/ProtectTest')
-        with self.assertRaises(AssertionError):
-            site.protect(protections={'anInvalidValue': 'sysop'},
-                         page=p1, reason='Pywikibot unit test')
-        with self.assertRaises(AssertionError):
-            site.protect(protections={'edit': 'anInvalidValue'},
-                         page=p1, reason='Pywikibot unit test')
+        page = pywikibot.Page(site, 'User:Unicodesnowman/ProtectTest')
+
+        with self.subTest(test='anInvalidType'), \
+            self.assertRaisesRegex(APIError,
+                                   'Invalid protection type "anInvalidType"'):
+            site.protect(protections={'anInvalidType': 'sysop'},
+                         page=page, reason='Pywikibot unit test')
+
+        with self.subTest(test='anInvalidLevel'), \
+                self.assertRaisesRegex(Error, 'Invalid protection level'):
+            site.protect(protections={'edit': 'anInvalidLevel'},
+                         page=page, reason='Pywikibot unit test')
 
     def test_delete(self):
         """Test the site.delete() and site.undelete() methods."""
@@ -687,6 +711,7 @@ class TestSiteSysopWrite(TestCase):
                         show='content|comment|user',
                         reason='pywikibot unit tests')
 
+    @unittest.expectedFailure  # T367309
     def test_revdel_file(self):
         """Test deleting and undeleting file revisions."""
         site = pywikibot.Site('test')
@@ -718,7 +743,7 @@ class TestSiteSysopWrite(TestCase):
 
         fp2 = pywikibot.FilePage(site, 'File:T276726.png')
         site.loadimageinfo(fp2, history=True)
-        for idx, v in fp2._file_revisions.items():
+        for v in fp2._file_revisions.values():
             if v['timestamp'] in (ts1, ts2):
                 self.assertTrue(hasattr(v, 'commenthidden'))
 
@@ -730,7 +755,7 @@ class TestSiteSysopWrite(TestCase):
 
         fp3 = pywikibot.FilePage(site, 'File:T276726.png')
         site.loadimageinfo(fp3, history=True)
-        for idx, v in fp3._file_revisions.items():
+        for v in fp3._file_revisions.values():
             if v['timestamp'] in (ts1, ts2):
                 self.assertFalse(hasattr(v, 'commenthidden'))
                 self.assertFalse(hasattr(v, 'userhidden'))
@@ -1307,6 +1332,6 @@ class TestCategoryFromWikibase(DefaultSiteTestCase):
         self.assertIsNone(page)
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     with suppress(SystemExit):
         unittest.main()

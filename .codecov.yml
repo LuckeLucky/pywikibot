@@ -19,6 +19,7 @@ coverage:
         enabled: yes
 
   ignore:
+    - Users
     - pywikibot/daemonize.py
     - pywikibot/families/__init__.py
     - pywikibot/scripts/preload_sites.py
@@ -26,7 +27,6 @@ coverage:
     - scripts/dataextend.py
     - scripts/maintenance/colors.py
     - scripts/maintenance/make_i18n_dict.py
-    - scripts/maintenance/wikimedia_sites.py
     - scripts/userscripts/
     - tests/pwb/
 
@@ -35,3 +35,16 @@ coverage:
       default:
         server: libera.chat
         channel: pywikibot
+
+component_management:
+
+  individual_components:
+    - component_id: Framework
+      paths:
+        - pywikibot/**
+    - component_id: Tests
+      paths:
+        - tests/**
+    - component_id: Scripts
+      paths:
+        - scripts/**

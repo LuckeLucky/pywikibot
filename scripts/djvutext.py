@@ -36,8 +36,9 @@ by default:
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import os.path
-from typing import Optional
 
 import pywikibot
 from pywikibot import i18n
@@ -67,7 +68,7 @@ class DjVuTextBot(SingleSiteBot):
         self,
         djvu,
         index,
-        pages: Optional[tuple] = None,
+        pages: tuple | None = None,
         **kwargs
     ) -> None:
         """
@@ -122,9 +123,9 @@ class DjVuTextBot(SingleSiteBot):
 
         if page.exists() and not self.opt.force:
             pywikibot.info(
-                'Page {} already exists, not adding!\n'
+                f'Page {page} already exists, not adding!\n'
                 'Use -force option to overwrite the output page.'
-                .format(page))
+            )
         else:
             self.userPut(page, old_text, new_text, summary=self.opt.summary)
 

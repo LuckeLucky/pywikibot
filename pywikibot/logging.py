@@ -18,12 +18,27 @@ option.
 The function :func:`debug` only logs its messages, they are never
 displayed on the user console. :func:`debug()` takes a required second
 argument, which is a string indicating the debugging layer.
+
+.. seealso::
+   - :pyhow:`Logging HOWTO<logging>`
+   - :python:`Logging Cookbook<howto/logging-cookbook.html>`
 """
 #
-# (C) Pywikibot team, 2010-2023
+# (C) Pywikibot team, 2010-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
+
+__all__ = (
+    'CRITICAL', 'DEBUG', 'ERROR', 'INFO', 'WARNING', 'STDOUT', 'VERBOSE',
+    'INPUT',
+    'add_init_routine',
+    'logoutput', 'info', 'output', 'stdout', 'warning', 'error', 'log',
+    'critical', 'debug', 'exception',
+)
+
 import logging
 import os
 import sys
@@ -32,7 +47,7 @@ import sys
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
 from typing import Any
 
-from pywikibot.backports import Callable, List, Tuple
+from pywikibot.backports import Callable
 from pywikibot.tools import deprecated_args, issue_deprecation_warning
 
 
@@ -46,7 +61,7 @@ INPUT = 25  #:
 .. seealso:: :python:`Python Logging Levels<logging.html#logging-levels>`
 """
 
-_init_routines: List[Callable[[], Any]] = []
+_init_routines: list[Callable[[], Any]] = []
 _inited_routines = set()
 
 
@@ -75,9 +90,9 @@ def logoutput(msg: Any,
               **kwargs: Any) -> None:
     """Format output and send to the logging module.
 
-    Helper function used by all the user-output convenience functions.
-    It can be used to implement your own high-level output function with
-    a different logging level.
+    Dispatch helper function used by all the user-output convenience
+    functions. It can be used to implement your own high-level output
+    function with a different logging level.
 
     `msg` can contain special sequences to create colored output. These
     consist of the color name in angle bracket, e. g. <<lightpurple>>.
@@ -87,27 +102,27 @@ def logoutput(msg: Any,
     the only argument that is useful is ``exc_info=True``, which causes
     the log message to include an exception traceback.
 
+    .. versionchanged:: 7.2
+       Positional arguments for *decoder* and *newline* are deprecated;
+       keyword arguments should be used.
+
     :param msg: The message to be printed.
     :param args: Not used yet; prevents positional arguments except `msg`.
     :param level: The logging level; supported by :func:`logoutput` only.
-    :keyword newline: If newline is True (default), a line feed will be
-        added after printing the msg.
-    :type newline: bool
-    :keyword layer: Suffix of the logger name separated by dot. By
+    :keyword bool newline: If newline is True (default), a line feed
+        will be added after printing the msg.
+    :keyword str layer: Suffix of the logger name separated by dot. By
         default no suffix is used.
-    :type layer: str
-    :keyword decoder: If msg is bytes, this decoder is used to decode.
-        Default is 'utf-8', fallback is 'iso8859-1'
-    :type decoder: str
+    :keyword str decoder: If msg is bytes, this decoder is used to
+        decode. Default is 'utf-8', fallback is 'iso8859-1'
     :param kwargs: For the other keyword arguments refer
         :python:`Logger.debug()<library/logging.html#logging.Logger.debug>`
-        and :pyhow:`logging-cookbook`
     """
     # invoke any init routines
     if _init_routines:
         _init()
 
-    keys: Tuple[str, ...]
+    keys: tuple[str, ...]
     # cleanup positional args
     if level == ERROR:
         keys = ('decoder', 'newline', 'exc_info')
@@ -164,7 +179,9 @@ def info(msg: Any = '', *args: Any, **kwargs: Any) -> None:
     The arguments are interpreted as for :func:`logoutput`.
 
     .. versionadded:: 7.2
-       was renamed from :func:`output`.
+       was renamed from :func:`output`. Positional arguments for
+       *decoder* and *newline* are deprecated; keyword arguments should
+       be used. Keyword parameter *layer* was added.
 
     .. seealso::
        :python:`Logger.info()<library/logging.html#logging.Logger.info>`
@@ -179,7 +196,7 @@ are interpreted as for :func:`logoutput`.
 .. versionchanged:: 7.2
    was renamed to :func:`info`; `text` was renamed to `msg`; `msg`
    paramerer may be omitted; only keyword arguments are allowed except
-   for `msg`.
+   for `msg`. Keyword parameter *layer* was added.
 .. seealso::
    :python:`Logger.info()<library/logging.html#logging.Logger.info>`
 """
@@ -199,10 +216,11 @@ def stdout(msg: Any = '', *args: Any, **kwargs: Any) -> None:
 
     .. versionchanged:: 7.2
        `text` was renamed to `msg`; `msg` parameter may be omitted;
-       only keyword arguments are allowed except for `msg`.
+       only keyword arguments are allowed except for `msg`. Keyword
+       parameter *layer* was added.
     .. seealso::
        - :python:`Logger.log()<library/logging.html#logging.Logger.log>`
-       - https://en.wikipedia.org/wiki/Pipeline_%28Unix%29
+       - :wiki:`Pipeline (Unix)`
     """
     logoutput(msg, *args, level=STDOUT, **kwargs)
 
@@ -217,7 +235,7 @@ def warning(msg: Any, *args: Any, **kwargs: Any) -> None:
 
     .. versionchanged:: 7.2
        `text` was renamed to `msg`; only keyword arguments are allowed
-       except for `msg`.
+       except for `msg`. Keyword parameter *layer* was added.
     .. seealso::
        :python:`Logger.warning()<library/logging.html#logging.Logger.warning>`
     """
@@ -234,7 +252,7 @@ def error(msg: Any, *args: Any, **kwargs: Any) -> None:
 
     .. versionchanged:: 7.2
        `text` was renamed to `msg`; only keyword arguments are allowed
-       except for `msg`.
+       except for `msg`. Keyword parameter *layer* was added.
     .. seealso::
        :python:`Logger.error()<library/logging.html#logging.Logger.error>`
     """
@@ -250,7 +268,7 @@ def log(msg: Any, *args: Any, **kwargs: Any) -> None:
 
     .. versionchanged:: 7.2
        `text` was renamed to `msg`; only keyword arguments are allowed
-       except for `msg`.
+       except for `msg`. Keyword parameter *layer* was added.
     .. seealso::
        :python:`Logger.log()<library/logging.html#logging.Logger.log>`
     """
@@ -267,7 +285,7 @@ def critical(msg: Any, *args: Any, **kwargs: Any) -> None:
 
     .. versionchanged:: 7.2
        `text` was renamed to `msg`; only keyword arguments are allowed
-       except for `msg`.
+       except for `msg`. Keyword parameter *layer* was added.
     .. seealso::
        :python:`Logger.critical()
        <library/logging.html#logging.Logger.critical>`
@@ -319,7 +337,8 @@ def exception(msg: Any = None, *args: Any,
 
     .. versionchanged:: 7.2
        only keyword arguments are allowed except for `msg`;
-       `exc_info` keyword is to be used instead of `tb`.
+       `exc_info` keyword is to be used instead of `tb`. Keyword
+       parameter *layer* was added.
     .. versionchanged:: 7.3
        `exc_info` is True by default
     .. seealso::

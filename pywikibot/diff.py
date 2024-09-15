@@ -1,19 +1,29 @@
 """Diff module."""
 #
-# (C) Pywikibot team, 2014-2023
+# (C) Pywikibot team, 2014-2024
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import annotations
+
 import difflib
 import math
 from collections import abc
-from difflib import _format_range_unified  # type: ignore[attr-defined]
+from difflib import SequenceMatcher, _format_range_unified
+from heapq import nlargest
 from itertools import zip_longest
-from typing import Optional, Union
 
 import pywikibot
-from pywikibot.backports import Dict, Iterable, List, Sequence, Tuple
+from pywikibot.backports import Iterable, Sequence
 from pywikibot.tools import chars
+
+
+__all__ = [
+    'Hunk',
+    'PatchManager', 'cherry_pick',
+    'get_close_matches_ratio',
+    'html_comparator',
+]
 
 
 class Hunk:
@@ -29,9 +39,9 @@ class Hunk:
     NOT_APPR = -1
     PENDING = 0
 
-    def __init__(self, a: Union[str, Sequence[str]],
-                 b: Union[str, Sequence[str]],
-                 grouped_opcode: Sequence[Tuple[str, int, int, int, int]]
+    def __init__(self, a: str | Sequence[str],
+                 b: str | Sequence[str],
+                 grouped_opcode: Sequence[tuple[str, int, int, int, int]]
                  ) -> None:
         """
         Initializer.
@@ -77,7 +87,7 @@ class Hunk:
         return self.get_header_text(self.a_rng, self.b_rng) + '\n'
 
     @staticmethod
-    def get_header_text(a_rng: Tuple[int, int], b_rng: Tuple[int, int],
+    def get_header_text(a_rng: tuple[int, int], b_rng: tuple[int, int],
                         affix: str = '@@') -> str:
         """Provide header for any ranges."""
         a_rng = _format_range_unified(*a_rng)
@@ -88,7 +98,7 @@ class Hunk:
         """Generator of diff text for this hunk, without formatting.
 
         Check each line ends with line feed to prevent behaviour like
-        :bug:`2142`
+        :issue:`46395`
         """
         def check_line(line: str) -> str:
             r"""Make sure each line ends with '\n'."""
@@ -114,7 +124,7 @@ class Hunk:
         """Color diff lines."""
         diff = iter(self.diff)
 
-        fmt: Optional[str] = ''
+        fmt: str | None = ''
         line1, line2 = '', next(diff)
         for line in diff:
             fmt, line1, line2 = line1, line2, line
@@ -155,7 +165,7 @@ class Hunk:
             fmt = fmt if fmt else None
             yield self.color_line(line2, fmt)
 
-    def color_line(self, line: str, line_ref: Optional[str] = None) -> str:
+    def color_line(self, line: str, line_ref: str | None = None) -> str:
         """Color line characters.
 
         If line_ref is None, the whole line is colored.
@@ -226,7 +236,7 @@ class _SuperHunk(abc.Sequence):
     def __len__(self) -> int:
         return len(self._hunks)
 
-    def split(self) -> List['_SuperHunk']:
+    def split(self) -> list[_SuperHunk]:
         return [_SuperHunk([hunk]) for hunk in self._hunks]
 
     @property
@@ -261,8 +271,8 @@ class PatchManager:
         :param replace_invisible: Replace invisible characters like U+200e with
             the charnumber in brackets (e.g. <200e>).
         """
-        self.a: Union[str, List[str]] = text_a.splitlines(True)
-        self.b: Union[str, List[str]] = text_b.splitlines(True)
+        self.a: str | list[str] = text_a.splitlines(True)
+        self.b: str | list[str] = text_b.splitlines(True)
         if by_letter and len(self.a) <= 1 and len(self.b) <= 1:
             self.a = text_a
             self.b = text_b
@@ -289,7 +299,7 @@ class PatchManager:
         self._super_hunks = self._generate_super_hunks()
         self._replace_invisible = replace_invisible
 
-    def get_blocks(self) -> List[Tuple[int, Tuple[int, int], Tuple[int, int]]]:
+    def get_blocks(self) -> list[tuple[int, tuple[int, int], tuple[int, int]]]:
         """Return list with blocks of indexes.
 
         Format of each block::
@@ -326,8 +336,8 @@ class PatchManager:
             pywikibot.info('\n'.join(self._generate_diff(super_hunk)
                                      for super_hunk in self._super_hunks))
 
-    def _generate_super_hunks(self, hunks: Optional[Iterable[Hunk]] = None
-                              ) -> List[_SuperHunk]:
+    def _generate_super_hunks(self, hunks: Iterable[Hunk] | None = None
+                              ) -> list[_SuperHunk]:
         if hunks is None:
             hunks = self.hunks
 
@@ -336,7 +346,7 @@ class PatchManager:
 
         if self.context:
             # Determine if two hunks are connected by self.context
-            super_hunk: List[Hunk] = []
+            super_hunk: list[Hunk] = []
             super_hunks = [super_hunk]
             for hunk in hunks:
                 # self.context * 2, because if self.context is 2 the hunks
@@ -355,7 +365,7 @@ class PatchManager:
         return [_SuperHunk(sh) for sh in super_hunks]
 
     def _get_context_range(self, super_hunk: _SuperHunk
-                           ) -> Tuple[Tuple[int, int], Tuple[int, int]]:
+                           ) -> tuple[tuple[int, int], tuple[int, int]]:
         """Dynamically determine context range for a super hunk."""
         a0, a1 = super_hunk.a_rng
         b0, b1 = super_hunk.b_rng
@@ -389,7 +399,7 @@ class PatchManager:
 
     def review_hunks(self) -> None:
         """Review hunks."""
-        def find_pending(start: int, end: int) -> Optional[int]:
+        def find_pending(start: int, end: int) -> int | None:
             step = -1 if start > end else +1
             for pending in range(start, end, step):
                 if super_hunks[pending].reviewed == Hunk.PENDING:
@@ -413,7 +423,7 @@ class PatchManager:
 
         super_hunks = self._generate_super_hunks(
             h for h in self.hunks if h.reviewed == Hunk.PENDING)
-        position: Optional[int] = 0
+        position: int | None = 0
 
         while any(any(hunk.reviewed == Hunk.PENDING for hunk in super_hunk)
                   for super_hunk in super_hunks):
@@ -529,14 +539,14 @@ class PatchManager:
                         f'{answer} -> {help_msg[answer]}'
                         for answer in answers)))
 
-    def apply(self) -> List[str]:
+    def apply(self) -> list[str]:
         """Apply changes. If there are undecided changes, ask to review."""
         if any(h.reviewed == h.PENDING for h in self.hunks):
             pywikibot.info('There are unreviewed hunks.\n'
                            'Please review them before proceeding.\n')
             self.review_hunks()
 
-        l_text: List[str] = []
+        l_text: list[str] = []
         for hunk_idx, (i1, i2), (j1, j2) in self.blocks:
             # unchanged text.
             if hunk_idx < 0:
@@ -586,7 +596,7 @@ def cherry_pick(oldtext: str, newtext: str, n: int = 0,
     return ''.join(text_list)
 
 
-def html_comparator(compare_string: str) -> Dict[str, List[str]]:
+def html_comparator(compare_string: str) -> dict[str, list[str]]:
     """List of added and deleted contexts from ``action=compare`` html string.
 
     This function is useful when combined with :meth:`Site.compare()
@@ -602,7 +612,7 @@ def html_comparator(compare_string: str) -> Dict[str, List[str]]:
     """
     from bs4 import BeautifulSoup
 
-    comparands: Dict[str, List[str]] = {'deleted-context': [],
+    comparands: dict[str, list[str]] = {'deleted-context': [],
                                         'added-context': []}
     soup = BeautifulSoup(compare_string, 'html.parser')
     for change_type, css_class in (('deleted-context', 'diff-deletedline'),
@@ -612,3 +622,67 @@ def html_comparator(compare_string: str) -> Dict[str, List[str]]:
             cruton_string = ''.join(cruton.strings)
             comparands[change_type].append(cruton_string)
     return comparands
+
+
+def get_close_matches_ratio(word: Sequence,
+                            possibilities: list[Sequence],
+                            *,
+                            n: int = 3,
+                            cutoff: float = 0.6,
+                            ignorecase: bool = False) -> list[float, Sequence]:
+    """Return a list of the best “good enough” matches and its ratio.
+
+    This method is similar to Python's :pylib:`difflib.get_close_matches()
+    <difflib#difflib.get_close_matches>` but also gives ratio back and
+    has a *ignorecase* parameter to compare case-insensitive.
+
+    SequenceMatcher is used to return a list of the best "good enough"
+    matches together with their ratio. The ratio is computed by the
+    :wiki:`Gestalt pattern matching` algorithm. The best (no more than
+    *n*) matches among the *possibilities* with their ratio are returned
+    in a list, sorted by similarity score, most similar first.
+
+    >>> get_close_matches_ratio('appel', ['ape', 'apple', 'peach', 'puppy'])
+    [(0.8, 'apple'), (0.75, 'ape')]
+    >>> p = possibilities = ['Python', 'Wikipedia', 'Robot', 'Framework']
+    >>> get_close_matches_ratio('Pywikibot', possibilities, n=2, cutoff=0)
+    [(0.42857142857142855, 'Robot'), (0.4, 'Python')]
+    >>> get_close_matches_ratio('Pywikibot', p, n=2, cutoff=0, ignorecase=True)
+    [(0.4444444444444444, 'Wikipedia'), (0.42857142857142855, 'Robot')]
+
+    .. versionadded:: 9.4
+    .. note:: Most code is incorporated from Python software under the
+       `PSF`_ license.
+
+    :param word: a sequence for which close matches are desired
+        (typically a string)
+    :param possibilities: a list of sequences against which to match
+        *word* (typically a list of strings)
+    :param n: optional arg (default 3) which is the maximum number of
+        close matches to return. *n* must be :code:`> 0`.
+    :param cutoff: optional arg (default 0.6) is a float in :code:`[0, 1]`.
+        *possibilities* that don't score at least that similar to *word*
+        are ignored.
+    :param ignorecase: if false, compare case sensitive
+    :raises ValueError: invalid value for *n* or *catoff*
+
+    .. _PSF:
+       https://docs.python.org/3/license.html#psf-license-agreement-for-python-release
+    """
+    if n < 0:
+        raise ValueError(f'n must be > 0: {n!r}')
+    if not 0.0 <= cutoff <= 1.0:
+        raise ValueError(f'cutoff must be in [0.0, 1.0]: {cutoff!r}')
+
+    result = []
+    s = SequenceMatcher()
+    s.set_seq2(word.lower() if ignorecase else word)
+    for x in possibilities:
+        s.set_seq1(x.lower() if ignorecase else x)
+        if s.real_quick_ratio() >= cutoff and \
+           s.quick_ratio() >= cutoff and \
+           s.ratio() >= cutoff:
+            result.append((s.ratio(), x))
+
+    # Move the best scorers to head of list
+    return nlargest(n, result)
