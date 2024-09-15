@@ -49,7 +49,7 @@ class Template(mwTemplate):
 	def getNestedTemplate(self, name: str) -> mwTemplate:
 		param: Parameter = self.get(name, None)
 		if param:
-			templates = param.value.filter_templates()
+			templates = param.value.filter_templates(recursive = False)
 			return templates[0] if len(templates) > 0 else None
 		return None
 

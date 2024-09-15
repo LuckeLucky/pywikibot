@@ -83,22 +83,15 @@ def fixSubGroups(singleMatch):
 		if matchMap.template.has('subgroup'):
 			matchMap.template.remove('subgroup')
 
-
-def convert(text: str) -> str:
-	wikicode = mwparserfromhell.parse(text)
-	teamMatchListHeader = wikicode.filter_templates(matches = lambda t: str(t.name).strip() == 'TeamMatchListHeader')
-	legacyMatchList = wikicode.filter_templates(matches = lambda t: str(t.name).strip() == 'LegacyMatchList')
-
-	if len(teamMatchListHeader) != len(legacyMatchList):
-		return text
-
-	for i, template in enumerate(teamMatchListHeader):
-		singleMatch = getSingleMatch(template)
-		legacy = Template(legacyMatchList[i])
-		singleMatch.template.add('id', legacy.getValue('id'))
-		firstMatchLegacy = True
-		for key, _ in legacy.iterateByPrefix('match'):
-			nested = Template(legacy.getNestedTemplate(key))
+def handleConversion(wikicode, headerTemplate, matchlist):
+	singleMatch = getSingleMatch(Template(headerTemplate))
+	legacy = Template(matchlist)
+	singleMatch.template.add('id', legacy.getValue('id'))
+	firstMatchLegacy = True
+	for key, _ in legacy.iterateByPrefix('match'):
+		nested = legacy.getNestedTemplate(key)
+		if nested:
+			nested = Template(nested)
 			if firstMatchLegacy:
 				copyDateAndVod(singleMatch, nested)
 				copyDateAndVod(singleMatch, legacy)
@@ -106,10 +99,26 @@ def convert(text: str) -> str:
 
 			handleMatchLegacy(singleMatch, nested)
 
-		fixSubGroups(singleMatch)
-		wikicode.replace(template, str(singleMatch))
-		if not singleMatch.template.getNestedTemplate('matches'):
-			remove_and_squash(wikicode, legacyMatchList[i])
+	fixSubGroups(singleMatch)
+	wikicode.replace(headerTemplate, str(singleMatch))
+	if not singleMatch.template.getNestedTemplate('matches'):
+		remove_and_squash(wikicode, matchlist)
+
+def convert(text: str) -> str:
+	wikicode = mwparserfromhell.parse(text)
+
+	currentMatchListHeader = None
+	for t in wikicode.filter_templates(recursive = False):
+		if str(t.name).strip() == 'TeamMatchListHeader':
+			if currentMatchListHeader is not None:
+				singleMatch = getSingleMatch(Template(currentMatchListHeader))
+				singleMatch.template.add('id', generateId())
+				wikicode.replace(currentMatchListHeader, str(singleMatch))
+				currentMatchListHeader = None
+			currentMatchListHeader = t
+		if str(t.name).strip() == 'LegacyMatchList' and (currentMatchListHeader is not None):
+			handleConversion(wikicode, currentMatchListHeader, t)
+			currentMatchListHeader = None
 
 	return str(wikicode)
 

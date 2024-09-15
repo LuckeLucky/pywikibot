@@ -155,7 +155,7 @@ class MatchGroupConverter:
 			ends = False
 
 			wikicode = mwparserfromhell.parse(text)
-			for template in wikicode.filter_templates():
+			for template in wikicode.filter_templates(recursive = False):
 				if template.name.matches(self.oldTemplateId):
 					start = True
 					matchListStart = template
