@@ -39,15 +39,15 @@ def main(*args):
 	newTemplateId = ''
 
 	for arg in localArgs:
+		if arg.startswith('-'):
+			insideArg = arg[1:]
+			insideArg, _, value = insideArg.partition(':')
+			if insideArg == 'oldTemplateId' or insideArg == 'transcludes':
+				oldTemplateId = value
+			if insideArg == 'newTemplateId':
+				newTemplateId = value
 		if genFactory.handle_arg(arg):
 			continue
-		if arg.startswith('-'):
-			arg = arg[1:]
-			arg, _, value = arg.partition(':')
-			if arg == 'oldTemplateId':
-				oldTemplateId = value
-			if arg == 'newTemplateId':
-				newTemplateId = value
 
 	if not oldTemplateId:
 		oldTemplateId = pywikibot.input('Old template name:')
