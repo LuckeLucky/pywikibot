@@ -6,20 +6,11 @@ an XML dump or a text file, or only change a single page.
 
 These command line parameters can be used to specify which pages to work on:
 
-&params;
-
-Furthermore, the following command line parameters are supported:
-
--isMatchList	Is MatchListTemplate? Showmatch included
--oldTemplateId
--newTemplateId
--bracketType	Only required for brackets
-
 Examples
 --------
-python pwb.py add_m2_wrapper -lang:valorant -isMatchList -oldTemplateId:"MatchListStart" -newTemplateId:"LegacyMatchListStart" -transcludes:"MatchListStart" -ns:0,2
+python pwb.py add_m2_wrapper -lang:valorant -transcludes:"MatchListStart" -newTemplateId:"LegacyMatchListStart|id=" -ns:0,2
 
-python pwb.py add_m2_wrapper -lang:valorant -oldTemplateId:"2SETeamBracket" -newTemplateId:"Bracket/2" -bracketType:"team" -ns:0,2 -transcludes:"2SEBracket" -pt:1
+python pwb.py add_m2_wrapper -lang:valorant -transcludes:"8SEBracket" -newTemplateId:"LegacyBracket|Bracket/8|8SEBracket|type=solo|id=" -ns:0,2
 """
 
 import mwparserfromhell
