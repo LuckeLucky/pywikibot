@@ -8,8 +8,6 @@ CS_PARAMS = STREAMS + [
 	'overturned',
 	'nostats',
 	'nosides',
-	'preview',
-	'lrthread',
 	'cevo',
 	'cevo2',
 	'sltv',

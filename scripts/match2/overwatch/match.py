@@ -11,8 +11,6 @@ OVERWATCH_PARAMS = STREAMS + [
 	'vod',
 	'mvp',
 	'mvppoints',
-	'preview',
-	'lrthread',
 	'owl',
 	'owc',
 	'jcg',
@@ -22,7 +20,6 @@ OVERWATCH_PARAMS = STREAMS + [
 	'overgg',
 	'pf',
 	'wl',
-	'interview',
 	'review',
 	'recap'
 ]

@@ -6,9 +6,6 @@ MAX_NUMBER_OF_MAPS = 21
 STARCRAFT_PARAMS = STREAMS + [
 	'walkover',
 	'review',
-	'lrthread',
-	'preview',
-	'interview',
 	'recap',
 	'comment',
 	'vod'

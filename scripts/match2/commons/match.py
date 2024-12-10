@@ -23,6 +23,9 @@ STREAMS = [
 	'twitch',
 	'twitch2',
 	'youtube',
+	'lrthread',
+	'preview',
+	'interview',
 ]
 
 class Match(TemplateUtils):
