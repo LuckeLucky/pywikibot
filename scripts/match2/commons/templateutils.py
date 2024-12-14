@@ -18,9 +18,15 @@ class TemplateUtils:
 			paramName = newParamName
 		return f'{start}|{paramName}={value}' + end
 	
-	def matchTulpes(self, matches: List[str]) -> List:
+	def getFoundMatches(self, matches: List[str]) -> List:
 		result = []
 		for key, value in self.template.iterateByItemsMatch(matches):
+			result.append((key, value))
+		return result
+	
+	def getFoundPrefix(self, prefix: str) -> List:
+		result = []
+		for key, value in self.template.iterateByPrefix(prefix):
 			result.append((key, value))
 		return result
 
@@ -44,8 +50,7 @@ class TemplateUtils:
 		for param in params:
 			if type(param) == tuple:
 				appendTo.append(self.formatTulpe(param))
-	
-		return ''.join(appendTo)
+		return ''.join(appendTo) if len(appendTo) > 0 else None
 	
 	def formatList(self, appendTo: List, params: List[str]) -> List:
 		for param in params:
@@ -61,6 +66,9 @@ class TemplateUtils:
 		params each index is a line, each tulpe is a parameter (key, value, ignoreEmpty)
 		"""
 		out = self.formatList([], params)
+		if len(out) == 1:
+			return '{{' + templateId + indent.join(out) + end
+
 		out = [x + '\n' for x in out if x is not None]
 
 		return '{{' + templateId + indent.join(out) + end

@@ -16,17 +16,14 @@ class Template:
 		self._name = template.name.strip()
 		for parameter in template.params:
 			name = str(parameter.name).strip()
-			value = parameter.value
-			for node in value.nodes:
-				index = 0
-				if type(node) == mwnodes.text.Text:
-					value = str(parameter.value)
-					if '<!--' in value and removeComments:
-						value = re.sub(r'(<!--.*?-->)', '', value, 0, re.MULTILINE)
-					self._data[name] = value.strip()
-				elif type(node) == mwnodes.Template:
-					self._data[name if index == 0 else name + str(index)] = Template.initFromTemplate(node, removeComments)
-					index += 1
+			value = str(parameter.value)
+			if '<!--' in value and removeComments:
+				value = re.sub(r'(<!--.*?-->)', '', value, 0, re.MULTILINE)
+			value = value.strip()
+			if value.startswith('{{'):
+				self._data[name] = Template.initFromTemplate(parameter.value.filter_templates(recursive=False)[0], removeComments)
+			else:
+				self._data[name] = value
 		return self
 	
 	@classmethod
