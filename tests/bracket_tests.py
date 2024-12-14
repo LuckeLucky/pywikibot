@@ -27,10 +27,10 @@ class TestBracketLeague(TestCase):
 		|map2=Ancient|map2score=|map2win=2|vodgame2=|stats2=168105
 		|map3t1firstside=t|map3t1t=14|map3t1ct=0|map3t2t=15|map3t2ct=1
 		|map3=Vertigo|map3score=|map3win=2|vodgame3=|stats3=168136
-		|hltv=2368518}}}}
+		|hltv=2368518|vodgame1=testvod}}}}
 		"""
 		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
-		oldTemplate = Template(oldTemplate)
+		oldTemplate = Template.initFromTemplate(oldTemplate)
 		oldTemplate.add('1', 'Bracket/2')
 		oldTemplate.add('2', '2SETeamBracket')
 		oldTemplate.add('id', 'TESTID')
@@ -41,28 +41,28 @@ class TestBracketLeague(TestCase):
 
 		expected = ("{{Bracket|Bracket/2|id=TESTID\n" +
 			"|R1M1header=Ola\n"
-            "\n" +
-            "<!-- Grand Final -->\n" +
-            "|R1M1={{Match\n" +
-            "    |opponent1={{TeamOpponent|saw|score=1}}\n" +
-            "    |opponent2={{TeamOpponent|ftw|score=2}}\n" +
-            "    |date=December 20, 2023 - 11:00 {{Abbr/CEST}} |finished=true\n" +
-            "    |winner=2\n" +
-            "    |twitch=\n" +
-            "    |hltv=2368518\n" +
-            "    |map1={{Map|map=Overpass|finished=true\n" +
-            "        |t1firstside=ct|t1t=11|t1ct=5|t2t=10|t2ct=0\n" +
-            "        |stats=168110\n" +
-            "    }}\n" +
-            "    |map2={{Map|map=Ancient|finished=true\n" +
-            "        |t1firstside=t|t1t=2|t1ct=0|t2t=3|t2ct=13\n" +
-            "        |stats=168105\n" +
-            "    }}\n" +
-            "    |map3={{Map|map=Vertigo|finished=true\n" +
-            "        |t1firstside=t|t1t=14|t1ct=0|t2t=15|t2ct=1\n" +
-            "        |stats=168136\n" +
-            "    }}\n" +
-            "}}\n}}"
+			"\n" +
+			"<!-- Grand Final -->\n" +
+			"|R1M1={{Match\n" +
+			"    |opponent1={{TeamOpponent|saw|score=1}}\n" +
+			"    |opponent2={{TeamOpponent|ftw|score=2}}\n" +
+			"    |date=December 20, 2023 - 11:00 {{Abbr/CEST}}|finished=true\n" +
+			"    |winner=2\n" +
+			"    |twitch=\n" +
+			"    |hltv=2368518\n" +
+			"    |map1={{Map|map=Overpass|finished=true\n" +
+			"        |t1firstside=ct|t1t=11|t1ct=5|t2t=10|t2ct=0\n" +
+			"        |stats=168110|vod=testvod\n" +
+			"    }}\n" +
+			"    |map2={{Map|map=Ancient|finished=true\n" +
+			"        |t1firstside=t|t1t=2|t1ct=0|t2t=3|t2ct=13\n" +
+			"        |stats=168105\n" +
+			"    }}\n" +
+			"    |map3={{Map|map=Vertigo|finished=true\n" +
+			"        |t1firstside=t|t1t=14|t1ct=0|t2t=15|t2ct=1\n" +
+			"        |stats=168136\n" +
+			"    }}\n" +
+			"}}\n}}"
 		)
 		self.assertEqual(expected, str(bracket))
 
@@ -91,7 +91,7 @@ class TestBracketLeague(TestCase):
 		"""
 
 		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
-		oldTemplate = Template(oldTemplate)
+		oldTemplate = Template.initFromTemplate(oldTemplate)
 		oldTemplate.add('1', 'Bracket/2')
 		oldTemplate.add('2', '2SETeamBracket')
 		oldTemplate.add('id', 'TESTID')
@@ -101,16 +101,16 @@ class TestBracketLeague(TestCase):
 		bracket = valorantClass(oldTemplate)
 
 		expected = ("{{Bracket|Bracket/2|id=TESTID\n" +
-            "\n" +
-            "<!-- Grand Final -->\n" +
-            "|R1M1={{Match\n" +
-			"    |date=November 27, 2021 - 20:30 {{Abbr/IST}} |finished=true\n"
-            "    |opponent1={{TeamOpponent|ROG Academy|score=1}}\n" +
-            "    |opponent2={{TeamOpponent|S8ul Esports|score=2}}\n" +
-            "    |winner=2\n" +
-            "    |youtube=Skyesports\n" +
-            "    |map1={{Map\n" +
-            "        |t1p1={{PSI|player=BotCydex|agent=skye|kills=9|deaths=18|assists=10|acs=77}}\n" +
+			"\n" +
+			"<!-- Grand Final -->\n" +
+			"|R1M1={{Match\n" +
+			"    |date=November 27, 2021 - 20:30 {{Abbr/IST}}|finished=true\n"
+			"    |opponent1={{TeamOpponent|ROG Academy|score=1}}\n" +
+			"    |opponent2={{TeamOpponent|S8ul Esports|score=2}}\n" +
+			"    |winner=2\n" +
+			"    |youtube=Skyesports\n" +
+			"    |map1={{Map\n" +
+			"        |t1p1={{PSI|player=BotCydex|agent=skye|kills=9|deaths=18|assists=10|acs=77}}\n" +
 			"        |t1p2={{PSI|player=Equinox|agent=cypher|kills=21|deaths=19|assists=7|acs=235}}\n" +
 			"        |t1p3={{PSI|player=LuDraa|agent=astra|kills=21|deaths=16|assists=10|acs=230}}\n" +
 			"        |t1p4={{PSI|player=Kaizen|agent=jett|kills=22|deaths=19|assists=2|acs=268}}\n" +
@@ -130,6 +130,65 @@ class TestBracketLeague(TestCase):
 
 		self.assertEqual(expected, str(bracket))
 
+	def testDota2Convert(self):
+		text = """
+			{{2SETeamBracket
+			|R1D1team=vp |R1D1score=0 |R1D1win=
+			|R1D2team=nigma |R1D2score=2 |R1D2win=1
+			|R1G1details={{BracketMatchSummary
+			|date=June 10, 2021 - 00:15 {{abbr/EEST}}
+			|finished=true
+			|twitch=WePlayDota|youtube=WePlay Dota
+			|vodgame1=https://youtu.be/hYrVnZS4_kY?t=5457
+			|matchid1=6034640592
+			|match1={{Match
+			|team1side=dire
+			|t1h1=mars|t1h2=ancient apparition|t1h3=dark willow|t1h4=magnus|t1h5=ursa
+			|t1b1=wisp|t1b2=dragon knight|t1b3=timbersaw|t1b4=dark seer|t1b5=phoenix|t1b6=terrorblade|t1b7=luna
+			|team2side=radiant
+			|t2h1=lion|t2h2=invoker|t2h3=rubick|t2h4=axe|t2h5=spectre
+			|t2b1=templar assassin|t2b2=enchantress|t2b3=broodmother|t2b4=puck|t2b5=faceless void|t2b6=morphling|t2b7=phantom assassin
+			|length=37m46s|win=2
+			}}}}}}
+		"""
+
+		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
+		oldTemplate = Template.initFromTemplate(oldTemplate)
+		oldTemplate.add('1', 'Bracket/2')
+		oldTemplate.add('2', '2SETeamBracket')
+		oldTemplate.add('id', 'TESTID')
+		oldTemplate.add('type', 'team')
+
+		dota2class = importClass('dota2', 'Bracket')
+		bracket = dota2class(oldTemplate)
+
+		expected = ("{{Bracket|Bracket/2|id=TESTID\n" +
+			"\n" +
+			"<!-- Grand Final -->\n" +
+			"|R1M1={{Match2\n" +
+			"|opponent1={{TeamOpponent|vp|score=0}}\n" +
+			"|opponent2={{TeamOpponent|nigma|score=2}}\n" +
+			"|date=June 10, 2021 - 00:15 {{abbr/EEST}}\n" +
+			"|finished=true\n"
+			"|winner=2\n" +
+			"|twitch=WePlayDota\n"
+			"|youtube=WePlay Dota\n"
+			"|vodgame1=https://youtu.be/hYrVnZS4_kY?t=5457\n" +
+			"|matchid1=6034640592\n" +
+			"|map1={{Map\n" +
+			"|team1side=dire\n" +
+			"|t1h1=mars|t1h2=ancient apparition|t1h3=dark willow|t1h4=magnus|t1h5=ursa\n" +
+			"|t1b1=wisp|t1b2=dragon knight|t1b3=timbersaw|t1b4=dark seer|t1b5=phoenix|t1b6=terrorblade|t1b7=luna\n" +
+			"|team2side=radiant\n" +
+			"|t2h1=lion|t2h2=invoker|t2h3=rubick|t2h4=axe|t2h5=spectre\n" +
+			"|t2b1=templar assassin|t2b2=enchantress|t2b3=broodmother|t2b4=puck|t2b5=faceless void|t2b6=morphling|t2b7=phantom assassin\n" +
+			"|length=37m46s|winner=2\n" +
+			"}}\n" +
+			"}}\n" +
+			"}}"
+		)
+
+		self.assertEqual(expected, str(bracket))
 
 	def testValidReset(self):
 		fakeTemplate = Template.createFakeTemplate()
@@ -168,7 +227,6 @@ class TestBracketLeague(TestCase):
 		match.opponents[0].score = '1'
 		self.assertEqual(True, isValidReset(match, True, RESET_MATCH))
 
-
 	def testMapConversionStarcraftMatchMaps2v2(self):
 		text = """
 		{{MatchMaps/Legacy2v2
@@ -180,7 +238,7 @@ class TestBracketLeague(TestCase):
 		}}
 		"""
 		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
-		oldTemplate = Template(oldTemplate)
+		oldTemplate = Template.initFromTemplate(oldTemplate)
 		mapClass = importClass('starcraft', 'Map')
 
 		newMap = mapClass(1, oldTemplate)
@@ -197,13 +255,12 @@ class TestBracketLeague(TestCase):
 		"""
 
 		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
-		oldTemplate = Template(oldTemplate)
+		oldTemplate = Template.initFromTemplate(oldTemplate)
 		mapClass = importClass('starcraft', 'Map')
 
 		newMap = mapClass(1, oldTemplate)
 		expected = '{{Map|map=|winner=1|t1p1=Szinkler|t2p1=Cuervin}}'
 		self.assertEqual(expected, str(newMap))
-
 		
 	def testProLeague(self):
 		text = """
@@ -215,7 +272,7 @@ class TestBracketLeague(TestCase):
 		"""
 
 		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
-		oldTemplate = Template(oldTemplate)
+		oldTemplate = Template.initFromTemplate(oldTemplate)
 		mapClass = importClass('starcraft', 'Map')
 		newMap = mapClass(1, oldTemplate)
 		newMap.prefix = 'm1'
@@ -232,7 +289,7 @@ class TestBracketLeague(TestCase):
 		"""
 
 		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
-		oldTemplate = Template(oldTemplate)
+		oldTemplate = Template.initFromTemplate(oldTemplate)
 		mapClass = importClass('starcraft', 'Map')
 		newMap = mapClass(1, oldTemplate)
 		newMap.prefix = 'm1'

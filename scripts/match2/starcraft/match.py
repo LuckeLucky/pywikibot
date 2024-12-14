@@ -51,36 +51,23 @@ class Match(commonsMatch):
 				break
 
 	def __str__(self) -> str:
-		indent = self.indent
-		opponent1 = self.opponents[0]
-		opponent2 = self.opponents[1]
-		out = ('{{Match' + (f'|bestof={self.getValue('bestof')}\n' if self.getValue('bestof') else '\n') +
-		 	f'{indent}|date={self.getValue('date')}' +
-			(f'|finished={self.getValue('finished')}\n' if self.getValue('finished') else '\n') +
-			f'{indent}|opponent1={str(opponent1)}\n' +
-			f'{indent}|opponent2={str(opponent2)}\n'
-		)
-
-		winner = self.getValue('winner')
-		if winner and not self.getValue('bestof'):
-			out += f'{indent}|winner={winner}\n'
-
-		for key, value in self.template.iterateByItemsMatch(STARCRAFT_PARAMS):
-			out += f"{indent}|{key}={value}\n"
-
-		for key, value in self.template.iterateByPrefix('vodgame', ignoreEmpty=True):
-			out += f"{indent}|{key}={value}\n"
+		out = [
+			('bestof', self.getValue('bestof'), True),
+			[('date', self.getValue('date'), ('finished', self.getValue('finished'), True))],
+			('opponent1', str(self.opponents[0])),
+			('opponent2', str(self.opponents[1])),
+			('winner', self.getValue('winner'), True)
+		]
+		out.extend(self.getFoundMatches(STARCRAFT_PARAMS))
+		out.extend(self.getFoundPrefix('vodgame'))
 
 		for key, value in self.template.iterateByPrefix('veto', ignoreEmpty=True):
 			num = key[-1]
-			out += f"{indent}|{key}={value}|vetoplayer{num}={num}\n"
+			out.append([(key, value), (f'vetoplayer{num}', str(num))])
 
 		for matchMap in self.maps:
 			index = matchMap.index
-			header = self.getValue(f'subgroup{index}header')
-			if header:
-				out += f'{indent}|subgroup{index}header={header}\n'
-			out += f"{indent}|map{index}={str(matchMap)}\n"
+			out.append(f'subgroup{index}header', self.getValue(f'subgroup{index}header', True))
+			out.append(('map' + str(index), str(matchMap)))
 
-		out += "}}"
-		return out
+		return self.generateString(out)
