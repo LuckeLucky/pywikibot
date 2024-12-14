@@ -72,12 +72,8 @@ class Bracket(TemplateUtils):
 			raise ValueError(self.bracketType + 'is not supported')
 		return opponentGet(key, scoreKey)
 
-	def getDetails(self, key, index = 0):
-		if self.template.has(key + 'details'):
-			templates = self.template.get(key + 'details').value.filter_templates(recursive = False)
-			if len(templates) > index:
-				return Template(templates[index])
-		return None
+	def getDetails(self, key, index = 0) -> Template|None:
+		return self.template.getNestedTemplate(key + 'details', index)
 
 	def getWinner(self, team1Key: str, team2Key) -> str:
 		if self.getValue(team1Key + 'win'):
