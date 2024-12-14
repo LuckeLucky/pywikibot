@@ -8,5 +8,5 @@ class Map(TemplateUtils):
 		self.prefix = 'map' + str(self.index)
 		super().__init__(template)
 
-	def print(self, params: List[str]) -> str:
-		return super().printTemplate(params, templateId = 'Map', indent = '        ', end = '    }}', ignoreEmptyParams = True)
+	def generateString(self, params: List[str]) -> str:
+		return super().generateTemplateString(params, templateId = 'Map', indent = '        ', end = '    }}',)
