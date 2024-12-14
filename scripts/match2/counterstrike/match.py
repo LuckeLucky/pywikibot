@@ -41,8 +41,8 @@ class Match(commonsMatch):
 			[('date', self.getValue('date')), ('finished', self.getValue('finished'))],
 			('winner', self.getValue('winner'), True),
 		]
-		out.extend(self.matchTulpes(CS_PARAMS))
-		out.extend(self.matchTulpes(MAP_LINKS))
+		out.extend(self.getFoundMatches(CS_PARAMS))
+		out.extend(self.getFoundMatches(MAP_LINKS))
 
 		for matchMap in self.maps:
 			out.append(('map' + str(matchMap.index), str(matchMap)))

@@ -1,4 +1,4 @@
-from ..commons.template import Template
+from typing import List
 from ..commons.match import Match as commonsMatch, STREAMS
 
 from .map import Map
@@ -18,46 +18,32 @@ DOTA_PARAMS = STREAMS + [
 ]
 
 class Match(commonsMatch):
+	def generateString(self, params: List[str]) -> str:
+		return super().generateTemplateString(params, templateId = 'Match2\n', indent = '', end = '}}')
+
 	def getMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
 			mapTemplate = self.template.getNestedTemplate('match' + str(mapIndex))
-			mapWinner = self.getValue('map' + str(mapIndex) + 'win')
-			if mapTemplate is None and mapWinner:
-				mapTemplate = Template.createFakeTemplate()
-			if not mapTemplate:
+			if mapTemplate is None:
+				mapTemplate = self.template.createFakeTemplate()
+			mapTemplate.add('winner', mapTemplate.get('win') if mapTemplate.get('win') else self.getValue('map' + str(mapIndex) + 'win'))
+			if not mapTemplate.get('win'):
 				break
-			mapTemplate = Template(mapTemplate)
-			if not mapTemplate.getValue('win'):
-				mapTemplate.add('win', mapWinner)
-			newMap = Map(mapIndex, mapTemplate)
-			self.maps.append(newMap)
+			self.maps.append(Map(mapIndex, mapTemplate))
 
 	def __str__(self) -> str:
-		opponent1 = self.opponents[0]
-		opponent2 = self.opponents[1]
-		out = ("{{Match2\n" +
-			f"|opponent1={str(opponent1)}\n" +
-			f"|opponent2={str(opponent2)}\n" +
-			f"|date={self.getValue('date')}\n"
-			f"|finished={self.getValue('finished')}\n")
-
-		winner = self.getValue('winner')
-		if winner:
-			out += f"|winner={winner}\n"
-
-		for key, value in self.template.iterateByItemsMatch(DOTA_PARAMS):
-			out += f"|{key}={value}\n"
-
-		for key, value in self.template.iterateByPrefix('vodgame', ignoreEmpty=True):
-			out += f"|{key}={value}\n"
-
-		for key, value in self.template.iterateByPrefix('matchid'):
-			out += f"|{key}={value}\n"
+		out = [
+			('opponent1', str(self.opponents[0])),
+			('opponent2', str(self.opponents[1])),
+			('date', self.getValue('date')),
+			('finished', self.getValue('finished')),
+			('winner', self.getValue('winner'), True),
+		]
+		out.extend(self.getFoundMatches(DOTA_PARAMS))
+		out.extend(self.getFoundPrefix('vodgame'))
+		out.extend(self.getFoundPrefix('matchid'))
 
 		for matchMap in self.maps:
-			index = matchMap.index
-			out += f"|map{index}={str(matchMap)}\n"
+			out.append(('map' + str(matchMap.index), str(matchMap)))
 
-		out += "}}"
-
-		return out
+		return self.generateString(out)

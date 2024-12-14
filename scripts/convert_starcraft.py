@@ -91,7 +91,6 @@ def handleConversion(wikicode, headerTemplate, matchlist):
 	for key, _ in legacy.iterateByPrefix('match'):
 		nested = legacy.getNestedTemplate(key)
 		if nested:
-			nested = Template(nested)
 			if firstMatchLegacy:
 				copyDateAndVod(singleMatch, nested)
 				copyDateAndVod(singleMatch, legacy)

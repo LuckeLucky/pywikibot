@@ -53,12 +53,12 @@ class Map(commonsMap):
 		return result
 
 	def __str__(self) -> str:
-		if self.finished == SKIP:
-			return f"{{{{Map|map={self.getValue(self.prefix)} |finished={self.finished}}}}}\n"
-
 		out = [
 			[('map', self.getValue(self.prefix)), ('finished', self.finished)],
 		]
+		if self.finished == SKIP:
+			return self.generateString(out)
+
 		if len(self.score) == 2:
 			out.append([('score1', self.score[0]), ('score2', self.score[1])])
 	

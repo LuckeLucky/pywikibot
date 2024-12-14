@@ -44,7 +44,7 @@ class Match(commonsMatch):
 			('opponent2', str(self.opponents[1])),
 			('winner', self.getValue('winner'), True),
 		]
-		out.extend(self.matchTulpes(VALORANT_PARAMS))
+		out.extend(self.getFoundMatches(VALORANT_PARAMS))
 
 		for matchMap in self.maps:
 			out.append(('map' + str(matchMap.index), str(matchMap)))
