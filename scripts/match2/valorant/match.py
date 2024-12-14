@@ -38,28 +38,17 @@ class Match(commonsMatch):
 				break
 
 	def __str__(self) -> str:
-		indent = self.indent
-		opponent1 = self.opponents[0]
-		opponent2 = self.opponents[1]
-		out = ("{{Match\n" +
-		 	f"{indent}|date={self.getValue('date')}" +
-			f" |finished={self.getValue('finished')}\n"
-			f"{indent}|opponent1={str(opponent1)}\n" +
-			f"{indent}|opponent2={str(opponent2)}\n"
-		)
-		winner = self.getValue('winner')
-		if winner:
-			out += f"{indent}|winner={winner}\n"
-
-		for key, value in self.template.iterateByItemsMatch(VALORANT_PARAMS):
-			out += f"{indent}|{key}={value}\n"
+		out = [
+			[('date', self.getValue('date')), ('finished', self.getValue('finished'))],
+			('opponent1', str(self.opponents[0])),
+			('opponent2', str(self.opponents[1])),
+			('winner', self.getValue('winner'), True),
+		]
+		out.extend(self.matchTulpes(VALORANT_PARAMS))
 
 		for matchMap in self.maps:
-			index = matchMap.index
-			out += f"{indent}|map{index}={str(matchMap)}\n"
-
+			out.append(('map' + str(matchMap.index), str(matchMap)))
 		if self.mapveto:
-			out += f'{indent}|mapveto={str(self.mapveto)}\n'
+			out.append(('mapveto', str(self.mapveto)))
 
-		out += "}}"
-		return out
+		return self.generateString(out)
