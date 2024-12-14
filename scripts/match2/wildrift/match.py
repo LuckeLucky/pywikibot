@@ -48,6 +48,6 @@ class Match(commonsMatch):
 			else:
 				comment = location
 		if comment:
-			out.append('comment', comment)
+			out.append(('comment', comment))
 
 		return self.generateString(out)

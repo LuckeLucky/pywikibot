@@ -42,15 +42,16 @@ class TemplateUtils:
 	
 	def formatTulpe(self, param: tuple) -> str|None:
 		if len(param) == 3 and param[2] and param[1] == '':
-			return ''
+			return None
 		return f'|{param[0]}={param[1]}'
 	
 	def formatNestedList(self, params: List[str]) -> List:
-		appendTo = []
+		out = []
 		for param in params:
 			if type(param) == tuple:
-				appendTo.append(self.formatTulpe(param))
-		return ''.join(appendTo) if len(appendTo) > 0 else None
+				out.append(self.formatTulpe(param))
+		out = [x for x in out if x is not None]
+		return ''.join(out) if len(out) > 0 else None
 	
 	def formatList(self, appendTo: List, params: List[str]) -> List:
 		for param in params:
