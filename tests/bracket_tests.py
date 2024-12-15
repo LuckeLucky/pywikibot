@@ -295,3 +295,73 @@ class TestBracketLeague(TestCase):
 		newMap.prefix = 'm1'
 		expected = '{{Map|map=|winner=1|t1p1=Szinkler|t2p1=Cuervin}}'
 		self.assertEqual(expected, str(newMap))
+
+	def testHearthStoneTeamMatch(self):
+		text = """
+		{{TeamMatchBo3
+		|team1=dogehouse
+		|team2=mym
+		|teamwin=2
+		|date=May 7, 2014 18:00 {{Abbr/CEST}}
+		|lrthread=
+		|vod1=https://www.twitch.tv/taketvred/c/4252056
+		|vod2=https://www.twitch.tv/taketvred/c/4252076
+		|vod3=https://www.twitch.tv/taketvred/c/4252083
+		|vod4=https://www.twitch.tv/taketvred/c/4252098
+		|collapsed=
+		|finished=true
+
+		<!-- Match 1 -->
+		|m1p1=Artosis |m1p1flag=us |m1p1score=0
+		|m1p2=Kunzi |m1p2flag=de |m1p2score=2
+		|m1p1class1=Druid |m1p2class1=Warrior |m1win1=2
+		|m1p1class2=Warlock |m1p2class2=Warrior |m1win2=2
+
+		<!-- Match 2 -->
+		|m2p1=StrifeCro |m2p1flag=us |m2p1score=0
+		|m2p2=ThijsNL |m2p2flag=nl |m2p2score=2
+		|m2p1class1=Warrior |m2p2class1=Druid |m2win1=2
+		|m2p1class2=Druid |m2p2class2=Druid |m2win2=2
+
+		<!-- Match 4 -->
+		|m3p1=Ek0p |m3p1flag=de |m3p1score=2
+		|m3p2=Ignite |m3p2flag=pt |m3p2score=1
+
+		<!-- Match 5 -->
+		|acep1=Ek0p |acep1flag=de |acep1score=1
+		|acep2=ThijsNL |acep2flag=nl |acep2score=2
+		|acep1class1=Druid |acep2class1=Druid |acewin1=2
+		|acep1class2=Shaman |acep2class2=Druid |acewin2=1
+		|acep1class3=Shaman |acep2class3=Hunter |acewin3=2
+		}}
+		"""
+
+		oldTemplate = mwparserfromhell.parse(text).filter_templates()[0]
+		oldTemplate = Template.initFromTemplate(oldTemplate, removeComments=True)
+		oldTemplate.add('winner', '2')
+		matchClass = importClass('hearthstone', 'Match')
+		newMatch = matchClass([TeamOpponent(name = 'dogehouse'),
+					TeamOpponent(name = 'mym')], oldTemplate)
+		expected = ("{{Match\n" +
+			"    |date=May 7, 2014 18:00 {{Abbr/CEST}}|finished=true\n" +
+			"    |lrthread=\n" +
+			"    |vod=\n" +
+			"    |opponent1={{TeamOpponent|dogehouse|score=1}}\n" +
+			"    |opponent2={{TeamOpponent|mym|score=3}}\n" +
+			"    |map1={{Map|subgroup=1|o1p1=Artosis|o1c1=Druid|o2p1=Kunzi|o2c1=Warrior|winner=2|vod=https://www.twitch.tv/taketvred/c/4252056}}\n" +
+			"    |map2={{Map|subgroup=1|o1p1=Artosis|o1c1=Warlock|o2p1=Kunzi|o2c1=Warrior|winner=2|vod=https://www.twitch.tv/taketvred/c/4252056}}\n" +
+			"    |map3={{Map|subgroup=2|o1p1=StrifeCro|o1c1=Warrior|o2p1=ThijsNL|o2c1=Druid|winner=2|vod=https://www.twitch.tv/taketvred/c/4252076}}\n" +
+			"    |map4={{Map|subgroup=2|o1p1=StrifeCro|o1c1=Druid|o2p1=ThijsNL|o2c1=Druid|winner=2|vod=https://www.twitch.tv/taketvred/c/4252076}}\n" +
+			"    |map5={{Map|map=Submatch 3|o1p1=Ek0p|o2p1=Ignite|score1=2|score2=1|winner=1|vod=https://www.twitch.tv/taketvred/c/4252083}}\n" +
+			"    |submatch4header=Ace Match\n" +
+			"    |map6={{Map|subgroup=4|o1p1=Ek0p|o1c1=Druid|o2p1=ThijsNL|o2c1=Druid|winner=2|vod=https://www.twitch.tv/taketvred/c/4252098}}\n" +
+			"    |map7={{Map|subgroup=4|o1p1=Ek0p|o1c1=Shaman|o2p1=ThijsNL|o2c1=Druid|winner=1|vod=https://www.twitch.tv/taketvred/c/4252098}}\n" +
+			"    |map8={{Map|subgroup=4|o1p1=Ek0p|o1c1=Shaman|o2p1=ThijsNL|o2c1=Hunter|winner=2|vod=https://www.twitch.tv/taketvred/c/4252098}}\n" +
+			"}}"
+		)
+
+		self.assertEqual(expected, str(newMatch))
+
+
+
+
