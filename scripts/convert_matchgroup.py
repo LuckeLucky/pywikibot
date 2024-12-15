@@ -105,17 +105,17 @@ class MatchGroupConverter:
 		if self.oldTemplateId == 'LegacyBracket':
 			return template
 		if self.newTemplateId == BRACKET:
-			template.addIfNotHas('1', self.newBracketId)
-			template.addIfNotHas('2', self.oldTemplateId)
-		template.addIfNotHas('type', self.bracketType)
-		template.addIfNotHas('id', generateId())
+			template.add('1', self.newBracketId)
+			template.add('2', self.oldTemplateId)
+		template.add('type', self.bracketType)
+		template.add('id', generateId())
 		return template
 
 	def convertBracket(self, text: str) -> str:
 		wikicode = mwparserfromhell.parse(text)
 		for template in wikicode.filter_templates():
 			if template.name.matches(self.oldTemplateId):
-				t = self.addStuffToTemplate(Template(template, removeComments=True))
+				t = self.addStuffToTemplate(Template.initFromTemplate(template, removeComments=True))
 				newBracket = self.matchGroupClass(t)
 				if not newBracket.bDM.isTemplateSupported(newBracket.newTemplateId):
 					pywikibot.stdout("<<lightred>>Missing support for template " + newBracket.newTemplateId)
@@ -128,7 +128,7 @@ class MatchGroupConverter:
 		wikicode = mwparserfromhell.parse(text)
 		for template in wikicode.filter_templates():
 			if template.name.matches(self.oldTemplateId):
-				t = self.addStuffToTemplate(Template(template, removeComments=True))
+				t = self.addStuffToTemplate(Template.initFromTemplate(template, removeComments=True))
 				newSingleMatch = self.matchGroupClass(t)
 				wikicode.replace(template, str(newSingleMatch))
 
@@ -138,10 +138,10 @@ class MatchGroupConverter:
 		wikicode = mwparserfromhell.parse(text)
 		for template in wikicode.filter_templates():
 			if template.name.matches(self.oldTemplateId):
-				t: Template = self.addStuffToTemplate(Template(template))
+				t: Template = self.addStuffToTemplate(Template.initFromTemplate(template))
 				matches: List[Template] = []
 				for key, _ in t.iterateByPrefix('match'):
-					matches.append(Template(t.getNestedTemplate(key)))
+					matches.append(Template.initFromTemplate(t.getNestedTemplate(key)))
 				newMatchList = self.matchGroupClass(t, matches)
 				wikicode.replace(template, str(newMatchList))
 		return str(wikicode)
@@ -162,7 +162,7 @@ class MatchGroupConverter:
 					matches = []
 					templatesToRemove = []
 				elif start and template.name.matches(self.matchTemplateId):
-					matches.append(Template(template))
+					matches.append(Template.initFromTemplate(template))
 					templatesToRemove.append(template)
 				elif start and template.name.matches(self.endTemplateId):
 					templatesToRemove.append(template)
@@ -173,7 +173,7 @@ class MatchGroupConverter:
 			if not ends or len(matches) == 0:
 				break
 
-			t: Template = self.addStuffToTemplate(Template(matchListStart))
+			t: Template = self.addStuffToTemplate(Template.initFromTemplate(matchListStart))
 
 			newMatchList = self.matchGroupClass(t, matches)
 			wikicode.replace(matchListStart, str(newMatchList))
