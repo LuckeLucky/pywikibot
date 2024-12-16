@@ -40,16 +40,16 @@ class Match(TemplateUtils):
 	def getMaps(self):
 		pass
 
-	def print(self, params: List[str]) -> str:
-		return super().printTemplate(params, templateId = 'Match', indent = '    ', end = '}}', ignoreEmptyParams = True)
+	def generateString(self, params: List[str]) -> str:
+		return super().generateTemplateString(params, templateId = 'Match\n    ', indent = '    ', end = '}}')
 
 	def __str__(self) -> str:
 		out = [
-			f'|opponent1={str(self.opponents[0])}' + '\n',
-			f'|opponent2={str(self.opponents[1])}' + '\n',
-			self.printParam('date', end = self.printParam('finished', end = '\n')),
-			self.printParam('winner', ignoreIfEmpty=True, end = '\n'),
-			self.printParam('vod', end='\n', ignoreIfEmpty=True)
+			('opponent1', str(self.opponents[0])),
+			('opponent2', str(self.opponents[1])),
+			[('date', self.getValue('date')), ('finished', self.getValue('finished'))],
+			('winner', self.getValue('winner'), True),
+			('vod', self.getValue('vod'), True)
 		]
 
-		return self.print(out)
+		return self.generateString(out)

@@ -19,48 +19,26 @@ class Match(commonsMatch):
 	def getMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
 			mapTemplate = self.template.getNestedTemplate('match' + str(mapIndex))
-			mapWinner = self.getValue('map' + str(mapIndex) + 'win')
-			mapVod = self.getValue('vodgame' + str(mapIndex))
-			if mapTemplate is None and (mapWinner or mapVod):
-				mapTemplate = Template.createFakeTemplate()
-			if not mapTemplate:
+			if mapTemplate is None:
+				mapTemplate = self.template.createFakeTemplate()
+			mapTemplate.add('win', mapTemplate.get('win') if mapTemplate.get('win') else self.getValue('map' + str(mapIndex) + 'win'))
+			mapTemplate.add('vod', mapTemplate.get('vod') if mapTemplate.get('vod') else self.getValue('vodgame' + str(mapIndex)))
+			if not mapTemplate.get('win'):
 				break
-			mapTemplate = Template(mapTemplate)
-			if not mapTemplate.getValue('win'):
-				mapTemplate.add('win', mapWinner)
-			if not mapTemplate.getValue('vod'):
-				mapTemplate.add('vod', mapVod)
-			newMap = Map(mapIndex, mapTemplate)
-			self.maps.append(newMap)
+			self.maps.append(Map(mapIndex, mapTemplate))
 
 	def __str__(self) -> str:
-		indent = self.indent
-		opponent1 = self.opponents[0]
-		opponent2 = self.opponents[1]
-		out = ("{{Match\n" +
-		 	f"{indent}|bestof={self.getValue('bestof')}\n" +
-			f"{indent}|date={self.getValue('date')}" +
-			f" |finished={self.getValue('finished')}\n"
-		)
-		winner = self.getValue('winner')
-		if winner:
-			out += f"{indent}|winner={winner}\n"
-
-		streamsParams = ""
-		for key, value in self.template.iterateByItemsMatch(WILDRIFT_PARAMS):
-			streamsParams += f"|{key}={value}"
-		if streamsParams:
-			out += indent + streamsParams + "\n"
-
-		out = (
-			out +
-			f"{indent}|opponent1={str(opponent1)}\n" +
-			f"{indent}|opponent2={str(opponent2)}\n"
-		)
+		out = [
+			('bestof', self.getValue('bestof')),
+			[('date', self.getValue('date')), ('finished', self.getValue('finished'))],
+			('winner', self.getValue('winner'), True),
+			('opponent1', str(self.opponents[0])),
+			('opponent2', str(self.opponents[1])),
+		]
+		out.extend(self.getFoundMatches(WILDRIFT_PARAMS))
 
 		for matchMap in self.maps:
-			index = matchMap.index
-			out += f"{indent}|map{index}={str(matchMap)}\n"
+			out.append(('map' + str(matchMap.index), str(matchMap)))
 
 		location = self.getValue('location')
 		comment = self.getValue('comment')
@@ -70,7 +48,6 @@ class Match(commonsMatch):
 			else:
 				comment = location
 		if comment:
-			out += f"{indent}|comment={comment}\n"
+			out.append(('comment', comment))
 
-		out += "}}"
-		return out
+		return self.generateString(out)

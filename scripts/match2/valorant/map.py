@@ -1,3 +1,4 @@
+from typing import Tuple, List
 from ..commons.template import Template
 
 from ..commons.map import Map as commonsMap
@@ -8,14 +9,14 @@ MAX_NUMBER_OF_PLAYERS = 5
 SKIP = 'skip'
 
 class Map(commonsMap):
+	def generateString(self, params: List[str]) -> str:
+		return super().generateTemplateString(params, templateId = 'Map\n        ', indent = '        ', end = '    }}')
+
 	def __init__(self, index: int, template: Template) -> None:
 		super().__init__(index, template)
 		winner = self.getValue(self.prefix + 'win')
-		if winner in ['1', '2', '0']:
-			self.winner = int(winner)
-			self.finished = 'true'
-		elif winner == 'draw':
-			self.winner = 0
+		if winner in ['1', '2', '0', 'draw']:
+			self.winner = 0 if winner == 'draw' else int(winner)
 			self.finished = 'true'
 		elif winner == SKIP:
 			self.winner = ''
@@ -26,7 +27,7 @@ class Map(commonsMap):
 		score = self.getValue(self.prefix + 'score')
 		self.score = score.split('-', 1)
 
-	def getPlayerStats(self, oppIndex: int, playerIndex: int) -> (str, bool):
+	def getPlayerStats(self, oppIndex: int, playerIndex: int) -> Tuple[str, bool]:
 		teamX = self.prefix + 't' + str(oppIndex)
 		pIdx = str(playerIndex)
 		player = self.getValue(teamX + 'p' + pIdx)
@@ -55,63 +56,51 @@ class Map(commonsMap):
 
 	def __str__(self) -> str:
 		if self.finished == SKIP:
-			return f"{{{{Map|map={self.getValue(self.prefix)} |finished={self.finished}}}}}\n"
+			return self.generateString([
+				[('map', self.getValue(self.prefix)), ('finished', self.finished)],
+			])
 
-		indent = self.indent
-		out = "{{Map\n"
+		out = []
+		hasOk = False
 		for oppIndex in range(1, MAX_NUMBER_OF_OPPONENTS+1):
-			teamStatsOut = []
-			hasTeamStats = False
 			for playerIndex in range(1, MAX_NUMBER_OF_PLAYERS+1):
 				playerOut, ok = self.getPlayerStats(oppIndex, playerIndex)
-				if ok:
-					hasTeamStats = True
-				teamStatsOut.append(f'|t{oppIndex}p{playerIndex}={playerOut}')
-			if hasTeamStats:
-				teamOut = '\n'.join(indent + so for so in teamStatsOut)
-				out += teamOut + '\n\n'
+				out.append((f't{oppIndex}p{playerIndex}', playerOut, ok))
+				hasOk = True if ok or hasOk else False
+			if hasOk:
+				lastStats = out[-1]
+				value = lastStats[1] + '\n'
+				out[-1] = (lastStats[0], value)
 
 		hasHalfScores = False
 		if self.getValue(self.prefix + 't1firstside'):
 			hasHalfScores = True
-			out += (
-				indent +
-				f'|t1firstside={self.getValue(self.prefix + 't1firstside')}' +
-				f'|t1atk={self.getValue(self.prefix + 't1atk')}' +
-				f'|t1def={self.getValue(self.prefix + 't1def')}' +
-				f'|t2atk={self.getValue(self.prefix + 't2atk')}' +
-				f'|t2def={self.getValue(self.prefix + 't2def')}\n'
-			)
-
+			out.append([
+				('t1firstside', self.getValue(self.prefix + 't1firstside')),
+				('t1atk', self.getValue(self.prefix + 't1atk')),
+				('t1def', self.getValue(self.prefix + 't1def')),
+				('t2atk', self.getValue(self.prefix + 't2atk')),
+				('t2def', self.getValue(self.prefix + 't2def'))
+			])
 		if self.getValue(self.prefix + 'o1t1firstside'):
-			out += (
-				indent +
-				f'|t1firstsideot={self.getValue(self.prefix + 'o1t1firstside')}' +
-				f'|t1otatk={self.getValue(self.prefix + 'o1t1atk')}' +
-				f'|t1otdef={self.getValue(self.prefix + 'o1t1def')}' +
-				f'|t2otatk={self.getValue(self.prefix + 'o1t2atk')}' +
-				f'|t2otdef={self.getValue(self.prefix + 'o1t2def')}\n'
-			)
+			out.append([
+				('t1firstsideot', self.getValue(self.prefix + 'o1t1firstside')),
+				('t1otatk', self.getValue(self.prefix + 'o1t1atk')),
+				('t1otdef', self.getValue(self.prefix + 'o1t1def')),
+				('t2otatk', self.getValue(self.prefix + 'o1t2atk')),
+				('t2otdef', self.getValue(self.prefix + 'o1t2def')),
+			])
 
-		if not hasHalfScores:
-			out += indent + f"|score1={self.score[0]}|score2={self.score[1]}\n"
+		if not hasHalfScores and len(self.score) == 2:
+			out.append([('score1', self.score[0]), ('score2', self.score[1])])
 
-		vod = self.getValue('vod' + str(self.index))
-		if not vod:
-			vod = self.getValue('vodgame' + str(self.index))
-		out += (
-			indent +
-			f'|map={self.getValue(self.prefix)}' +
-			f'|finished={self.finished}' +
-			f'|length={self.getValue(self.prefix + 'length')}'
-		)
+		out.append([
+			('map', self.getValue(self.prefix)),
+			('finished', self.finished),
+			('length', self.getValue(self.prefix + 'length')),
+			('winner', self.winner, True),
+			('vod', self.getValue('vodgame' + str(self.index)), True),
+			('vod', self.getValue('vod' + str(self.index)), True)
+		])
 
-		if self.winner:
-			out += f'|winner={self.winner}'
-
-		if vod:
-			out += f'|vod={vod}'
-
-		out += '\n'
-		out += indent[:len(indent)//2] + "}}"
-		return out
+		return self.generateString(out)

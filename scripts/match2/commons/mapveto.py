@@ -1,18 +1,21 @@
+from typing import List
+
 from .template import Template
 from .templateutils import TemplateUtils
 
 DECIDER = 'decider'
 
 class MapVeto(TemplateUtils):
+	def generateString(self, params: List[str]) -> str:
+		return super().generateTemplateString(params, templateId = 'MapVeto\n    ', indent = '    ', end = '}}')
+
 	def __init__(self, template: Template) -> None:
-		self.indent = '    '
 		super().__init__(template)
 
 	def __str__(self) -> str:
-		out = '{{MapVeto\n'
-		fp = self.getValue('firstban')
-		if fp:
-			out += self.indent + f'|firstpick={fp}\n'
+		out = [
+			('firstpick', self.getValue('firstban'), True)
+		]
 
 		vetoTypes = []
 		vetos = []
@@ -25,17 +28,15 @@ class MapVeto(TemplateUtils):
 			else:
 				t1Veto = f't1map{vetoIndex}'
 				t2Veto = f't2map{vetoIndex}'
-				vetos.append((f'|{t1Veto}={self.getValue(t1Veto)}',
-					f'|{t2Veto}={self.getValue(t2Veto)}'))
+				vetos.append([
+					(t1Veto, self.getValue(t1Veto))
+					(t2Veto, self.getValue(t2Veto))
+				])
+			out.extend(vetos)
 
 		if len(vetoTypes) > 0:
-			out += self.indent + '|types=' + ','.join(vetoTypes) + '\n'
+			out.append(('types', vetoTypes))
 
-		for t1Veto, t2Veto in vetos:
-			out += self.indent + t1Veto + ' ' + t2Veto + '\n'
+		out.append(('decider', decider, True))
 
-		if decider:
-			out += self.indent + f'|decider={decider}\n'
-
-		out += '}}'
-		return out
+		return self.generateString(out)

@@ -8,42 +8,50 @@ class TemplateUtils:
 			self.template = Template.createFakeTemplate()
 
 	def getValue(self, name: str) -> str:
-		return self.template.getValue(name)
-
-	def printParam(self, paramName: str, newParamName: str = '', end: str = '', ignoreIfEmpty: bool = False) -> str:
-		value = self.template.getValue(paramName)
-		if ignoreIfEmpty and not value:
-			return ''
-		if newParamName:
-			paramName = newParamName
-		return f'|{paramName}={value}' + end
-
-	def printPrefixed(self, prefix: str, separator: str = '', end: str = '', ignoreIfResultEmpty: bool = False) -> str:
-		result = []
-		for key, value in self.template.iterateByPrefix(prefix):
-			result.append(f'|{key}={value}')
-
-		if not result and ignoreIfResultEmpty:
-			return ''
-
-		return separator.join(result) + end
-
-	def printMatch(self, matches: List[str], end: str = '', ignoreIfResultEmpty: bool = False) -> str:
+		return self.template.get(name)
+	
+	def getFoundMatches(self, matches: List[str]) -> List:
 		result = []
 		for key, value in self.template.iterateByItemsMatch(matches):
-			result.append(f'|{key}={value}')
+			result.append((key, value))
+		return result
+	
+	def getFoundPrefix(self, prefix: str) -> List:
+		result = []
+		for key, value in self.template.iterateByPrefix(prefix):
+			result.append((key, value))
+		return result
+	
+	def _generateStringFromTuple(self, param: tuple) -> str|None:
+		if len(param) == 3 and param[2] and param[1] == '':
+			return None
+		return f'|{param[0]}={param[1]}'
+	
+	def _generateStringFromNestedList(self, params: List[str]) -> List:
+		out = []
+		for param in params:
+			if type(param) == tuple:
+				out.append(self._generateStringFromTuple(param))
+		out = [x for x in out if x is not None]
+		return ''.join(out) if len(out) > 0 else None
+	
+	def _generateStringFromList(self, appendTo: List, params: List[str]) -> List:
+		for param in params:
+			if type(param) == tuple:
+				appendTo.append(self._generateStringFromTuple(param))
+			elif type(param) == list:
+				appendTo.append(self._generateStringFromNestedList(param))
+	
+		return appendTo
 
-		if not result and ignoreIfResultEmpty:
-			return ''
+	def generateTemplateString(self, params: List[str], templateId: str, indent: str, end: str = '}}') -> str:
+		"""
+		params each index is a line, each tulpe is a parameter (key, value, ignoreEmpty)
+		"""
+		out = self._generateStringFromList([], params)
+		if len(out) == 1:
+			return '{{' + templateId + indent.join(out) + end
 
-		return ''.join(result) + end
+		out = [x + '\n' for x in out if x is not None]
 
-	def printTemplate(self, params: List[str], templateId: str, indent: str, end: str = '}}', ignoreEmptyParams: bool = False) -> str:
-		params = [indent + item for item in params if item]
-		result = ''
-		for item in params:
-			if not item and ignoreEmptyParams:
-				continue
-			result += item
-
-		return '{{' + templateId + '\n' + result + end
+		return '{{' + templateId + indent.join(out) + end

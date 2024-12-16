@@ -24,8 +24,7 @@ class Match(commonsMatch):
 		mapbans = self.template.getNestedTemplate('mapbans')
 		self.mapveto = None
 		if mapbans:
-			mapVeto = MapVeto(Template(mapbans))
-			self.mapveto = mapVeto
+			self.mapveto = MapVeto(mapbans)
 
 	def getMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
@@ -37,29 +36,17 @@ class Match(commonsMatch):
 				break
 
 	def __str__(self) -> str:
-		indent = self.indent
-		opponent1 = self.opponents[0]
-		opponent2 = self.opponents[1]
-		out = ("{{Match\n" +
-			f"{indent}|date={self.getValue('date')}" +
-			f" |finished={self.getValue('finished')}\n"
-		)
-		winner = self.getValue('winner')
-		if winner:
-			out += f"{indent}|winner={winner}\n"
-
-		for key, value in self.template.iterateByItemsMatch(COD_PARAMS):
-			out += f"{indent}|{key}={value}\n"
-
-		out = (
-			out +
-			f"{indent}|opponent1={str(opponent1)}\n" +
-			f"{indent}|opponent2={str(opponent2)}\n"
-		)
+		out = [
+			[('date', self.getValue('date')), ('finished', self.getValue('finished'))],
+			('winner', self.getValue('winner'), True),
+		]
+		out.extend(self.getFoundMatches(COD_PARAMS))
+		out.extend([
+			('opponent1', str(self.opponents[0])),
+			('opponent2', str(self.opponents[1])),
+		])
 
 		for matchMap in self.maps:
-			index = matchMap.index
-			out += f"{indent}|map{index}={str(matchMap)}\n"
+			out.append(('map' + str(matchMap.index), str(matchMap)))
 
-		out += "}}"
-		return out
+		return self.generateString(out)

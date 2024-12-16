@@ -7,7 +7,7 @@ MAX_NUMBER_OPPONENTS = 2
 class Singlematch(CommonsSinglematch):
 	def getSoloOpponent(self, key: str, scoreKey: str) -> Opponent:
 		keyMaker = lambda key, prefix : key + prefix
-		if self.template.name == 'MatchSummary':
+		if self.template._name == 'MatchSummary':
 			keyMaker = lambda key, prefix: prefix + key
 
 		name = self.getValue(keyMaker(key, ''))
@@ -25,21 +25,21 @@ class Singlematch(CommonsSinglematch):
 		opponentKey = ''
 		scoreKey = ''
 		details = None
-		if self.template.name in ['FTeamMatch', 'Proleague06Match', 'Proleague04-05Match',
+		if self.template._name in ['FTeamMatch', 'Proleague06Match', 'Proleague04-05Match',
 							'TeamMatch', 'TeamMatchBo3', 'TeamMatchWith2v2', 'ProleagueMatchBo9', 'ProleagueMatch',
 							'TeamMatchListHeader', 'ProleagueMatchNL']:
 			opponentKey = 'team$'
 			details = self.template
-			if self.template.name in ['TeamMatch', 'TeamMatchBo3', 'TeamMatchWith2v2', 'TeamMatchListHeader']:
+			if self.template._name in ['TeamMatch', 'TeamMatchBo3', 'TeamMatchWith2v2', 'TeamMatchListHeader']:
 				self.template.add('team1', self.template.getfirstValueFound(['team1', 'team1short', 'team1literal']))
 				self.template.add('team2', self.template.getfirstValueFound(['team2', 'team2short', 'team2literal']))
 				self.template.add('winner', self.getValue('teamwin'))
-			if self.template.name == 'TeamMatchListHeader':
+			if self.template._name == 'TeamMatchListHeader':
 				scoreKey = 'team$score'
-		elif self.template.name == 'MatchSummary':
+		elif self.template._name == 'MatchSummary':
 			opponentKey = '$'
 			details = self.template
-		elif self.template.name == 'Showmatch':
+		elif self.template._name == 'Showmatch':
 			opponentKey = 'p$'
 			scoreKey = 'score'
 			winner = self.getValue('win')
@@ -49,7 +49,7 @@ class Singlematch(CommonsSinglematch):
 					details = Template.createFakeTemplate()
 				details.add('winner', winner)
 			details = Template(details)
-		elif self.template.name == 'TeamMatchListHeader':
+		elif self.template._name == 'TeamMatchListHeader':
 			opponentKey = 'team$'
 			scoreKey = 'team$score'
 			winner = self.getValue('teamwin')

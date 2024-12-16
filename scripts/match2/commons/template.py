@@ -1,39 +1,59 @@
-from typing import List, Any
+from typing import List, Dict
 
 import re
+import mwparserfromhell.nodes as mwnodes
 from mwparserfromhell.nodes import Template as mwTemplate
 from mwparserfromhell.nodes.extras import Parameter
 
-class Template(mwTemplate):
-	@staticmethod
-	def createFakeTemplate():
-		return Template(mwTemplate("FAKE"))
+class Template:
+	def __init__(self):
+		self._name: str = ''
+		self._data: Dict[str, str|Template] = {}
 
-	def __init__(self, template: mwTemplate, removeComments: bool = False):
-		params = []
-		parameter: Parameter
+	@classmethod
+	def initFromTemplate(cls, template: mwTemplate, removeComments: bool = False):
+		self = cls()
+		self._name = template.name.strip()
 		for parameter in template.params:
+			name = str(parameter.name).strip()
 			value = str(parameter.value)
 			if '<!--' in value and removeComments:
 				value = re.sub(r'(<!--.*?-->)', '', value, 0, re.MULTILINE)
-			params.append(Parameter(str(parameter.name).strip(), value.strip(), parameter.showkey))
+			value = value.strip()
+			if value.startswith('{{'):
+				self._data[name] = Template.initFromTemplate(parameter.value.filter_templates(recursive=False)[0], removeComments)
+			else:
+				self._data[name] = value
+		return self
+	
+	@classmethod
+	def initFromDict(cls, name: str, data: dict):
+		self = cls()
+		self._name = name
+		self._data = data
+		return self
+	
+	@classmethod
+	def createFakeTemplate(cls):
+		self = cls()
+		self._name = 'FAKE'
+		self._data = {}
+		return self
+	
+	def has(self, key: str) -> bool:
+		return key in self._data
+	
+	def add(self, key, value):
+		self._data[key] = value
 
-		super().__init__(template.name.strip(), params)
+	def get(self, key: str):
+		return self._data[key] if key in self._data else ''
 
-	def addIfNotHas(self, name: str, value: Any):
-		if not self.has(name):
-			self.add(name, value)
-
-	def getValue(self, name: str) -> str:
-		param: Parameter = None
-		if name:
-			param = self.get(name, None)
-		if param:
-			return str(param.value)
-		return ''
+	def remove(self, key):
+		del self._data[key]
 
 	def getBool(self, name: str) -> bool:
-		val = self.getValue(name)
+		val = self.get(name)
 		if val:
 			if val in ['true', 't', 'yes', 'y', '1']:
 				return True
@@ -41,38 +61,34 @@ class Template(mwTemplate):
 
 	def getfirstValueFound(self, names: List[str]) -> str:
 		for name in names:
-			val = self.getValue(name)
+			val = self.get(name)
 			if val:
 				return val
 		return ''
 
 	def getNestedTemplate(self, name: str, index: int = 0) -> mwTemplate:
-		param: Parameter = self.get(name, None)
-		if param:
-			templates = param.value.filter_templates(recursive = False)
-			return templates[index] if 0 <= index < len(templates) else None
-		return None
+		key = name + (str(index) if index > 0  else '')
+		return self._data[key] if key in self._data else None
+
 
 	def iterateParams(self, nested: bool = False):
-		for param in self.params:
-			if param.value.startswith('{{') and nested:
-				nestedTemplate = Template(self.getNestedTemplate(param.name))
-				for _nestedParam in nestedTemplate.params:
-					yield str(_nestedParam.name), str(_nestedParam.value)
+		for key, value in self._data.items():
+			if type(value) == Template:
+				Template.iterateParams(value, nested)
 			else:
-				yield str(param.name), str(param.value)
+				yield key, value
 
 	def iterateByPrefix(self, prefix: str, ignoreEmpty: bool = False):
-		for param in self.params:
-			if param.name.startswith(prefix):
-				if ignoreEmpty and not param.value:
+		for key, value in self._data.items():
+			if key.startswith(prefix):
+				if ignoreEmpty and not value:
 					continue
-				yield str(param.name), str(param.value)
+				yield key, value
 
 	def iterateByItemsMatch(self, items: List[str], ignoreEmpty: bool = False):
 		for item in items:
-			if self.has(item):
-				val = self.getValue(item)
+			if item in self._data:
+				val = self._data[item]
 				if ignoreEmpty and not val:
 					continue
 				yield item, val

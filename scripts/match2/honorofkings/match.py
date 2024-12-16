@@ -1,11 +1,10 @@
-from typing import List
 from ..commons.template import Template
 from ..commons.match import Match as commonsMatch, STREAMS
 
 from .map import Map
 
 MAX_NUMBER_OF_MAPS = 10
-LEAGUE_PARAMS = STREAMS + [
+ARENAOFVALOR_PARAMS = STREAMS + [
 	'walkover',
 	'vod',
 	'mvp',
@@ -23,6 +22,7 @@ class Match(commonsMatch):
 			if mapTemplate is None:
 				mapTemplate = self.template.createFakeTemplate()
 			mapTemplate.add('win', mapTemplate.get('win') if mapTemplate.get('win') else self.getValue('map' + str(mapIndex) + 'win'))
+			mapTemplate.add('vod', self.getValue('vodgame' + str(mapIndex)))
 			if not mapTemplate.get('win'):
 				break
 			self.maps.append(Map(mapIndex, mapTemplate))
@@ -34,8 +34,8 @@ class Match(commonsMatch):
 			[('date', self.getValue('date')), ('finished', self.getValue('finished'))],
 			('winner', self.getValue('winner'), True),
 		]
-		out.extend(self.getFoundMatches(LEAGUE_PARAMS))
-
+		out.extend(self.getFoundMatches(ARENAOFVALOR_PARAMS))
+		
 		location = self.getValue('location')
 		comment = self.getValue('comment')
 		if location:
@@ -45,8 +45,6 @@ class Match(commonsMatch):
 				comment = location
 		if comment:
 			out.append(('comment', comment))
-		out.extend(self.getFoundPrefix('vodgame'))
-		out.extend(self.getFoundPrefix('matchhistory'))
 
 		for matchMap in self.maps:
 			out.append(('map' + str(matchMap.index), str(matchMap)))

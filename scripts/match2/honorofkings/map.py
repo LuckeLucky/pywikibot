@@ -7,17 +7,17 @@ class Map(commonsMap):
 
 	def __str__(self) -> str:
 		out = [
-			('vod', self.getValue('vod')),
 			[
 				('team1side', self.getValue('team1side')),
 				('team2side', self.getValue('team2side')),
 				('length', self.getValue('length')),
 				('winner', self.getValue('win')),
 			],
-			self.getFoundPrefix('t1c'),
-			self.getFoundPrefix('t2c'),
+			self.getFoundPrefix('t1h'),
+			self.getFoundPrefix('t2h'),
 			self.getFoundPrefix('t1b'),
 			self.getFoundPrefix('t2b'),
+			('vod', self.getValue('vod'), True)
 		]
-
+		
 		return self.generateString(out)
