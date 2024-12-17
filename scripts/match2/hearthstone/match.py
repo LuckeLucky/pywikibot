@@ -100,7 +100,7 @@ class Match(commonsMatch):
 
 		for matchMap in self.maps:
 			if matchMap.header:
-				out.append((f'submatch{matchMap.subgroup}header', matchMap.header, True))
+				out.append((f'subgroup{matchMap.subgroup}header', matchMap.header, True))
 			out.append(('map' + str(matchMap.index), str(matchMap)))
 
 		return self.generateString(out)

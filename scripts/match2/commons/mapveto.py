@@ -29,7 +29,7 @@ class MapVeto(TemplateUtils):
 				t1Veto = f't1map{vetoIndex}'
 				t2Veto = f't2map{vetoIndex}'
 				vetos.append([
-					(t1Veto, self.getValue(t1Veto))
+					(t1Veto, self.getValue(t1Veto)),
 					(t2Veto, self.getValue(t2Veto))
 				])
 			out.extend(vetos)

@@ -353,7 +353,7 @@ class TestBracketLeague(TestCase):
 			"    |map3={{Map|subgroup=2|o1p1=StrifeCro|o1c1=Warrior|o2p1=ThijsNL|o2c1=Druid|winner=2|vod=https://www.twitch.tv/taketvred/c/4252076}}\n" +
 			"    |map4={{Map|subgroup=2|o1p1=StrifeCro|o1c1=Druid|o2p1=ThijsNL|o2c1=Druid|winner=2|vod=https://www.twitch.tv/taketvred/c/4252076}}\n" +
 			"    |map5={{Map|map=Submatch 3|o1p1=Ek0p|o2p1=Ignite|score1=2|score2=1|winner=1|vod=https://www.twitch.tv/taketvred/c/4252083}}\n" +
-			"    |submatch4header=Ace Match\n" +
+			"    |subgroup4header=Ace Match\n" +
 			"    |map6={{Map|subgroup=4|o1p1=Ek0p|o1c1=Druid|o2p1=ThijsNL|o2c1=Druid|winner=2|vod=https://www.twitch.tv/taketvred/c/4252098}}\n" +
 			"    |map7={{Map|subgroup=4|o1p1=Ek0p|o1c1=Shaman|o2p1=ThijsNL|o2c1=Druid|winner=1|vod=https://www.twitch.tv/taketvred/c/4252098}}\n" +
 			"    |map8={{Map|subgroup=4|o1p1=Ek0p|o1c1=Shaman|o2p1=ThijsNL|o2c1=Hunter|winner=2|vod=https://www.twitch.tv/taketvred/c/4252098}}\n" +
