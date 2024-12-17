@@ -18,6 +18,7 @@ STREAMS = [
 	'loco',
 	'mildom',
 	'nimo',
+	'mixer',
 	'tl',
 	'trovo',
 	'twitch',
@@ -26,6 +27,7 @@ STREAMS = [
 	'lrthread',
 	'preview',
 	'interview',
+	'reddit'
 ]
 
 class Match(TemplateUtils):

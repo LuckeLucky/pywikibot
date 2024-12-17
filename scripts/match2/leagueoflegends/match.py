@@ -10,7 +10,6 @@ LEAGUE_PARAMS = STREAMS + [
 	'vod',
 	'mvp',
 	'mvppoints',
-	'reddit',
 	'bestgg',
 	'review',
 	'recap'
