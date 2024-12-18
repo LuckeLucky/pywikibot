@@ -141,7 +141,7 @@ class MatchGroupConverter:
 				t: Template = self.addStuffToTemplate(Template.initFromTemplate(template))
 				matches: List[Template] = []
 				for key, _ in t.iterateByPrefix('match'):
-					matches.append(Template.initFromTemplate(t.getNestedTemplate(key)))
+					matches.append(t.getNestedTemplate(key))
 				newMatchList = self.matchGroupClass(t, matches)
 				wikicode.replace(template, str(newMatchList))
 		return str(wikicode)

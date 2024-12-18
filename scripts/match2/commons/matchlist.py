@@ -43,16 +43,16 @@ class Matchlist(TemplateUtils):
 		return ''
 
 	def getTeamOpponent(self, template: Template, key: str, scoreKey: str) -> Opponent:
-		name = template.getValue(key)
-		score = template.getValue(scoreKey)
+		name = template.get(key)
+		score = template.get(scoreKey)
 		if name:
 			return TeamOpponent(name = name, score = score)
 		return TeamOpponent()
 
 	def getSoloOpponent(self, template: Template, key: str, scoreKey: str) -> Opponent:
-		name = template.getValue(key)
-		score = template.getValue(scoreKey)
-		flag = template.getValue(key + 'flag')
+		name = template.get(key)
+		score = template.get(scoreKey)
+		flag = template.get(key + 'flag')
 		if name:
 			return SoloOpponent(name = name, score = score, flag = flag)
 		return SoloOpponent()
@@ -64,10 +64,7 @@ class Matchlist(TemplateUtils):
 		return opponentGet(template, key, scoreKey)
 
 	def getDetails(self, template: Template, key) -> Template:
-		details = template.getNestedTemplate(key)
-		if details:
-			return Template(details)
-		return None
+		return template.getNestedTemplate(key)
 
 	def createMatch(self, opponents: List[Opponent], details : Template, winner: str) -> commonsMatch:
 		if winner:
@@ -81,14 +78,14 @@ class Matchlist(TemplateUtils):
 		opp1 = self.getOpponent(matchTemplate, 'team1', 'score1')
 		opp2 = self.getOpponent(matchTemplate, 'team2', 'score2')
 		details = self.getDetails(matchTemplate, 'details')
-		winner = matchTemplate.getValue('winner')
+		winner = matchTemplate.get('winner')
 
 		return self.createMatch([opp1, opp2], details, winner)
 
 	def populateData(self):
 		for matchIndex, matchTemplate in enumerate(self.matchTemplates):
 			matchParam = f'M{matchIndex+1}'
-			header = matchTemplate.getValue('date') or matchTemplate.getValue('header')
+			header = matchTemplate.get('date') or matchTemplate.get('header')
 			if header:
 				self.data[f'{matchParam}header'] = header
 			self.data[matchParam] = self.getMatch(matchTemplate)

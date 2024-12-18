@@ -1,0 +1,246 @@
+{
+	"Bracket/4L2DSU4L1D$$4DE2WTeamBracket": {
+		"R4M1": {
+			"details": "R4G1",
+			"opp1": "R3W1",
+			"opp2": "R3W2"
+		},
+		"R2M3": {
+			"details": "R2G3",
+			"opp1": "R1D5",
+			"opp2": "R1D6"
+		},
+		"R2M4": {
+			"details": "R2G4",
+			"opp1": "R1D7",
+			"opp2": "R1D8"
+		},
+		"R3M1": {
+			"details": "R3G1",
+			"opp1": "R2W3",
+			"opp2": "R2W4"
+		},
+		"R4M2": {
+			"details": "R4G2",
+			"opp1": "R3D1",
+			"opp2": "R3W3"
+		},
+		"R5M1": {
+			"details": "R5G1",
+			"opp1": "R4W1",
+			"opp2": "R4W2"
+		},
+		"RxMBR": {
+			"details": "R5G1",
+			"opp1": "R4W1",
+			"opp2": "R4W2"
+		}
+	},
+	"Bracket/4L2DS-1Q-U-4L1D-1Q$$2Qual-4DE2W2TeamBracket" : {
+		"R3M1" : {
+			"details": "R4G1",
+			"opp1": "R3W1",
+			"opp2": "R3W2"
+		},
+		"R1M3" : {
+			"details": "R2G3",
+			"opp1": "R1D5",
+			"opp2": "R1D6"
+		},
+		"R1M4" : {
+			"details": "R2G4",
+			"opp1": "R1D7",
+			"opp2": "R1D8"
+		},
+		"R2M3" : {
+			"details": "R3G1",
+			"opp1": "R2W3",
+			"opp2": "R2W4"
+		},
+		"R3M2" : {
+			"details": "R4G2",
+			"opp1": "R3D1",
+			"opp2": "R3W3"
+		}
+	},
+	"Bracket/4L2DH4LS$$8SEMixed2TeamBracket" : {
+		"R2M1" : {
+			"details": "R2G1",
+			"opp1": "R2D1",
+			"opp2": "R2W2"
+		},
+		"R2M2" : {
+			"details": "R2G2",
+			"opp1": "R2D3",
+			"opp2": "R2D4"
+		},
+		"R2M3" : {
+			"details": "R2G3",
+			"opp1": "R2D5",
+			"opp2": "R2W6"
+		},
+		"R2M4" : {
+			"details": "R2G4",
+			"opp1": "R2D7",
+			"opp2": "R2D8"
+		}
+	},
+	"Bracket/2L1DH4LH8L-2QL-U-2H2L1DLL1DH4L2DSL1DL-2QL$$14DETeamBracket": {
+		"R1M1": {
+			"opp1": "R1D3",
+			"opp2": "R1D4",
+			"details": "R1G2",
+			"header": "R1"
+		},
+		"R1M2": {
+			"opp1": "R1D5",
+			"opp2": "R1D6",
+			"details": "R1G3"
+		},
+		"R1M3": {
+			"opp1": "R1D7",
+			"opp2": "R1D8",
+			"details": "R1G4"
+		},
+		"R1M4": {
+			"opp1": "R1D9",
+			"opp2": "R1D10",
+			"details": "R1G5"
+		},
+		"R1M5": {
+			"opp1": "R1D11",
+			"opp2": "R1D12",
+			"details": "R1G6"
+		},
+		"R1M6": {
+			"opp1": "R1D13",
+			"opp2": "R1D14",
+			"details": "R1G7"
+		},
+		"R1M7": {
+			"opp1": "R1D15",
+			"opp2": "R1D16",
+			"details": "R1G8"
+		},
+		"R2M1": {
+			"opp1": "R2W1",
+			"opp2": "R2W2",
+			"details": "R2G1",
+			"header": "R2"
+		},
+		"R2M2": {
+			"opp1": "R2W3",
+			"opp2": "R2W4",
+			"details": "R2G2"
+		},
+		"R2M3": {
+			"opp1": "R2W5",
+			"opp2": "R2W6",
+			"details": "R2G3"
+		},
+		"R2M4": {
+			"opp1": "R2W7",
+			"opp2": "R2W8",
+			"details": "R2G4"
+		},
+		"R4M1": {
+			"opp1": "R4W1",
+			"opp2": "R4W2",
+			"details": "R4G1",
+			"header": "R4"
+		},
+		"R4M2": {
+			"opp1": "R4W3",
+			"opp2": "R4W4",
+			"details": "R4G2"
+		},
+		"R5M1": {
+			"opp1": "R6W1",
+			"opp2": "R6W2",
+			"details": "R6G1",
+			"header": "R6"
+		},
+		"R1M8": {
+			"opp1": "R1D19",
+			"opp2": "R1D20",
+			"details": "R1G10",
+			"header": "L1"
+		},
+		"R1M9": {
+			"opp1": "R1D21",
+			"opp2": "R1D22",
+			"details": "R1G11"
+		},
+		"R1M10": {
+			"opp1": "R1D23",
+			"opp2": "R1D24",
+			"details": "R1G12"
+		},
+		"R2M5": {
+			"opp1": "R2D1",
+			"opp2": "R2W9",
+			"details": "R2G5",
+			"header": "L2"
+		},
+		"R2M6": {
+			"opp1": "R2D2",
+			"opp2": "R2W10",
+			"details": "R2G6"
+		},
+		"R2M7": {
+			"opp1": "R2D3",
+			"opp2": "R2W11",
+			"details": "R2G7"
+		},
+		"R2M8": {
+			"opp1": "R2D4",
+			"opp2": "R2W12",
+			"details": "R2G8"
+		},
+		"R5M2": {
+			"opp1": "R5W1",
+			"opp2": "R5W2",
+			"details": "R5G1",
+			"header": "L5"
+		}
+	},
+	"Bracket/2L1DH2LH4L2DSL$$8SE4S2TeamBracket": {
+		"R1M1": {
+			"opp1": "R1D1",
+			"opp2": "R1D2",
+			"details": "R1G1",
+			"header": "R1"
+		},
+		"R1M2": {
+			"opp1": "R1D5",
+			"opp2": "R1D6",
+			"details": "R1G3"
+		},
+		"R1M3": {
+			"opp1": "R1D7",
+			"opp2": "R1D8",
+			"details": "R1G4"
+		},
+		"R2M1": {
+			"opp1": "R2D1",
+			"opp2": "R2W1",
+			"details": "R2G1",
+			"header": "R2"
+		},
+		"R2M2": {
+			"opp1": "R2D2",
+			"opp2": "R2W2",
+			"details": "R2G2"
+		},
+		"R2M3": {
+			"opp1": "R2D3",
+			"opp2": "R2W3",
+			"details": "R2G3"
+		},
+		"R2M4": {
+			"opp1": "R2D4",
+			"opp2": "R2W4",
+			"details": "R2G4"
+		}
+	}
+}
