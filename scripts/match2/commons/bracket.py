@@ -1,3 +1,5 @@
+import pywikibot
+
 from typing import Dict, List
 
 from .template import Template
@@ -47,6 +49,9 @@ class Bracket(TemplateUtils):
 		self.bracketType: str = self.getValue('type')
 		self.bracketid: str = self.getValue('id')
 		self.mappingKey: str = self.newTemplateId + '$$' + self.oldTemplateId
+
+		if not self.bDM.isTemplateSupported(self.newTemplateId):
+			pywikibot.error()
 
 		if self.newTemplateId not in self.bDM.defaultMapping:
 			self.bDM.loadDefaultMapping(self.newTemplateId)

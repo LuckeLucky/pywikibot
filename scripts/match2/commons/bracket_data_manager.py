@@ -1,5 +1,6 @@
 from typing import Dict, List
 
+import pywikibot
 import os
 
 import copy
@@ -58,7 +59,22 @@ class BracketDataManager:
 		self.loadCustomMapping()
 		self.loadHeadersData()
 
+	def loadFromCommons(self, templateId: str) -> bool:
+		site = pywikibot.Site('commons', 'liquipedia')
+		expandedText = site.expand_text("{{#invoke:Sandbox/LuckeLucky|main|" + templateId + "}}")
+		loaded = json.loads(expandedText)
+		if not loaded:
+			return False
+		self.bracketData[templateId] = loaded
+		path = absolutePath(os.path.dirname(__file__))
+		path = joinPath(path, 'bracket_templates.json')
+		with open(path, 'w', encoding='utf-8') as file:
+			json.dump(self.bracketData, file, ensure_ascii=False, indent=4)
+		return True
+
 	def isTemplateSupported(self, templateId: str) -> bool:
+		if not templateId in self.bracketData:
+			return self.loadFromCommons(templateId)
 		return templateId in self.bracketData
 
 	def getSimplifiedId(self, match2Id: str) -> str:
