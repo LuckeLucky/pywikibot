@@ -73,8 +73,8 @@ class Template:
 
 	def iterateParams(self, nested: bool = False):
 		for key, value in self._data.items():
-			if type(value) == Template:
-				Template.iterateParams(value, nested)
+			if type(value) == Template and nested:
+				value.iterateParams(nested)
 			else:
 				yield key, value
 

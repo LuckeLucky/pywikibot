@@ -16,10 +16,10 @@ class TemplateUtils:
 			result.append((key, value))
 		return result
 	
-	def getFoundPrefix(self, prefix: str) -> List:
+	def getFoundPrefix(self, prefix: str, keyMaker = lambda key: key) -> List:
 		result = []
 		for key, value in self.template.iterateByPrefix(prefix):
-			result.append((key, value))
+			result.append((keyMaker(key), value))
 		return result
 	
 	def _generateStringFromTuple(self, param: tuple) -> str|None:
