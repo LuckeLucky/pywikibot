@@ -8,7 +8,7 @@ RESET_MATCH = 'RxMBR'
 THIRD_PLACE_MATCH = 'RxMTP'
 
 class Bracket(commonsBracket):
-	def getTeamOpponent(self, template: Template, nameKey: str, scoreKey: str):
+	def getTeamOpponent(self, template: Template, nameKey: str, scoreKey: str) -> TeamOpponent:
 		mapScores = [x.strip() for x in template.get(scoreKey).split(',')]
 		opponentArgs = {
 			'name': template.get(nameKey)
@@ -22,7 +22,7 @@ class Bracket(commonsBracket):
 
 		return TeamOpponent(**opponentArgs)
 
-	def _populateData(self, mapping: Dict[str, Dict[str, str] | str]):
+	def _populateData(self, mapping: Dict[str, Dict[str, str] | str]) -> None:
 		for roundParam, _ in mapping.items():
 			if roundParam in [RESET_MATCH, THIRD_PLACE_MATCH]:
 				continue

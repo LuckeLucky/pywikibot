@@ -60,7 +60,6 @@ STREAMS = [
 
 class Match(TemplateUtils):
 	def __init__(self, opponents: List[Opponent], template: Template) -> None:
-		self.indent = '    '
 		self.opponents: List[Opponent] = opponents
 		super().__init__(template)
 		self.maps: List = []
