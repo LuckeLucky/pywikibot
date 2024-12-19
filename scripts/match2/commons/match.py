@@ -71,7 +71,12 @@ class Match(TemplateUtils):
 		pass
 
 	def generateString(self, params: List[str]) -> str:
-		return super().generateTemplateString(params, templateId = 'Match\n    ', indent = '    ', end = '}}')
+		return super().generateTemplateString(
+			params,
+			templateId = 'Match\n    ',
+			indent = '    ',
+			end = '}}'
+		)
 
 	def __str__(self) -> str:
 		out = [

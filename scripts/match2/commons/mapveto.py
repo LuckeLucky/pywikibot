@@ -6,7 +6,11 @@ DECIDER = 'decider'
 
 class MapVeto(TemplateUtils):
 	def generateString(self, params: List[str]) -> str:
-		return super().generateTemplateString(params, templateId = 'MapVeto\n    ', indent = '    ', end = '}}')
+		return super().generateTemplateString(
+			params,
+			templateId = 'MapVeto\n    ',
+			indent = '    ', end = '}}'
+		)
 
 	def __str__(self) -> str:
 		out = [

@@ -9,4 +9,8 @@ class Map(TemplateUtils):
 		super().__init__(template)
 
 	def generateString(self, params: List[str]) -> str:
-		return super().generateTemplateString(params, templateId = 'Map', indent = '        ', end = '    }}')
+		return super().generateTemplateString(
+			params, templateId = 'Map',
+			indent = '        ',
+			end = '    }}'
+		)

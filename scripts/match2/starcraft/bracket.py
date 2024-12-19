@@ -8,6 +8,6 @@ class Bracket(commonsBracket):
 			name = template.get(nameKey),
 			link = template.get(f'{nameKey}link'),
 			flag = template.get(f'{nameKey}flag'),
-			race = template.get(f'{nameKey}race')
+			race = template.get(f'{nameKey}race'),
 			score = template.get(scoreKey)
 		)

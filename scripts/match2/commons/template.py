@@ -19,7 +19,10 @@ class Template:
 				value = re.sub(r'(<!--.*?-->)', '', value, 0, re.MULTILINE)
 			value = value.strip()
 			if value.startswith('{{'):
-				self._data[name] = Template.initFromTemplate(parameter.value.filter_templates(recursive=False)[0], removeComments)
+				self._data[name] = Template.initFromTemplate(
+					parameter.value.filter_templates(recursive=False)[0],
+					removeComments
+				)
 			else:
 				self._data[name] = value
 		return self
@@ -76,7 +79,7 @@ class Template:
 			else:
 				yield key, value
 
-	def iterateByPrefix(self, prefix: str, ignoreEmpty: bool = False) -> Generator[tuple[str, str | Self], None, None]:
+	def iterateByPrefix(self, prefix: str, ignoreEmpty: bool = False)-> Generator[tuple[str, str | Self], None, None]:
 		for key, value in self._data.items():
 			if key.startswith(prefix):
 				if ignoreEmpty and not value:

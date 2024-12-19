@@ -113,7 +113,7 @@ class Bracket(MatchGroup):
 				out = out + '\n|' + param + 'header=' + self.data[param + 'header']
 
 			if not param in self.data:
-				if param != THIRD_PLACE_MATCH and param != RESET_MATCH:
+				if param not in (THIRD_PLACE_MATCH, RESET_MATCH):
 					matchOut = matchOut + '\n|' + param + '=' + '\n'
 				continue
 			match: commonsMatch = self.data[param]

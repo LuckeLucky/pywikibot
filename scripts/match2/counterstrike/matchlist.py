@@ -9,15 +9,15 @@ class Matchlist(commonsMatchlist):
 		super().__init__(template, matchTemplates)
 		self.args['matchsection'] = self.getValue('matchsection')
 
-	def getTeamOpponent(self, template: Template, key: str, scoreKey: str) -> Opponent:
-		name = template.getValue(key)
+	def getTeamOpponent(self, template: Template, nameKey: str, scoreKey: str) -> Opponent:
+		name = template.getValue(nameKey)
 		score = template.getValue(scoreKey)
 		if name:
 			return TeamOpponent(name = name, score = score)
 		name = template.getfirstValueFound([
-			key + 'cstrike',
-			key + 'css',
-			key + 'csgo'
+			nameKey + 'cstrike',
+			nameKey + 'css',
+			nameKey + 'csgo'
 		])
 		if name:
 			return Opponent(name = name, score = score)

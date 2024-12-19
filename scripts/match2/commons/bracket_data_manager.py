@@ -116,14 +116,25 @@ class BracketDataManager:
 			if bracketData['matchKey'] == 'RxMTP' or bracketData['matchKey'] == 'RxMBR':
 				#RxMTP and RxMBR entries appear immediately after the match they're attached to
 				#So that match need to be found
-				finalBracketData = next((x for x in bracketDataList if (('thirdplace' in x) or ('bracketreset' in x))), None)
+				finalBracketData = next(
+					(x for x in bracketDataList if (('thirdplace' in x) or ('bracketreset' in x))),
+					None
+				)
 				result = sortKey(finalBracketData)
 				result.append(1)
 				return result
-			elif coordinates['semanticDepth'] == 0:
-				return [1, -coordinates['sectionIndex']]
-			else:
-				return [0, coordinates['sectionIndex'], coordinates['roundIndex'], coordinates['matchIndexInRound']]
+			if coordinates['semanticDepth'] == 0:
+				return [
+					1,
+					-coordinates['sectionIndex']
+				]
+
+			return [
+				0,
+				coordinates['sectionIndex'],
+				coordinates['roundIndex'],
+				coordinates['matchIndexInRound']
+			]
 
 		def compare(itemA, itemB):
 			iteamAsort = sortKey(itemA)
