@@ -8,20 +8,6 @@ CS_PARAMS = STREAMS + [
 	'overturned',
 	'nostats',
 	'nosides',
-	'cevo',
-	'cevo2',
-	'sltv',
-	'sltv-e',
-	'lpl',
-	'epiclan',
-	'pinger',
-	'99damage',
-	'99liga',
-	'5eplay',
-	'draft5',
-	'hltvlegacy',
-	'hltv',
-	'hltv2'
 ]
 
 class Match(commonsMatch):

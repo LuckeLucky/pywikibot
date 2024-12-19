@@ -10,9 +10,6 @@ DOTA_PARAMS = STREAMS + [
 	'vod',
 	'mvp',
 	'mvppoints',
-	'bestgg',
-	'review',
-	'recap',
 	'replay'
 ]
 

@@ -5,8 +5,6 @@ from .map import Map
 MAX_NUMBER_OF_MAPS = 21
 STARCRAFT_PARAMS = STREAMS + [
 	'walkover',
-	'review',
-	'recap',
 	'comment',
 	'vod'
 ]

@@ -16,7 +16,6 @@ VALORANT_PARAMS = STREAMS + [
 	'vod',
 	'mvp',
 	'mvppoints',
-	'vlr',
 ]
 
 class Match(commonsMatch):

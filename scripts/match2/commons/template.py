@@ -1,9 +1,7 @@
-from typing import List, Dict
-
 import re
-import mwparserfromhell.nodes as mwnodes
+from typing import Dict, List
+
 from mwparserfromhell.nodes import Template as mwTemplate
-from mwparserfromhell.nodes.extras import Parameter
 
 class Template:
 	def __init__(self):

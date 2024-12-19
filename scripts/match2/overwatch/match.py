@@ -11,17 +11,6 @@ OVERWATCH_PARAMS = STREAMS + [
 	'vod',
 	'mvp',
 	'mvppoints',
-	'owl',
-	'owc',
-	'jcg',
-	'pllg',
-	'oceow',
-	'tespa',
-	'overgg',
-	'pf',
-	'wl',
-	'review',
-	'recap'
 ]
 
 class Match(commonsMatch):

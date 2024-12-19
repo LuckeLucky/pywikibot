@@ -9,9 +9,6 @@ WILDRIFT_PARAMS = STREAMS + [
 	'vod',
 	'mvp',
 	'mvppoints',
-	'bestgg',
-	'review',
-	'recap'
 ]
 
 class Match(commonsMatch):
