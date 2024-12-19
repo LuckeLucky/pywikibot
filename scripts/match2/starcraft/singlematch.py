@@ -62,6 +62,7 @@ class Singlematch(CommonsSinglematch):
 			for i in range(1, MAX_NUMBER_OPPONENTS+1):
 				strIndex = str(i)
 				opponents.append(self.getOpponent(
+					self.template,
 					opponentKey.replace('$', strIndex),
 					scoreKey.replace('$', strIndex)
 				))

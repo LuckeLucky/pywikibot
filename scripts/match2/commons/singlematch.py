@@ -1,10 +1,9 @@
 from .template import Template
-from .templateutils import TemplateUtils
-from .opponent import Opponent, TeamOpponent, SoloOpponent
+from .matchgroup import MatchGroup
 from .match import Match as commonsMatch
 from .utils import importClass
 
-class Singlematch(TemplateUtils):
+class Singlematch(MatchGroup):
 	language: str = None
 	matchClass: commonsMatch = None
 
@@ -18,32 +17,16 @@ class Singlematch(TemplateUtils):
 		self.match: commonsMatch = None
 		self.getMatch()
 
-	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = self.getValue(key)
-		score = self.getValue(scoreKey)
-		return TeamOpponent(name = name, score = score)
-
-	def getSoloOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = self.getValue(key)
-		score = self.getValue(scoreKey)
-		return SoloOpponent(name = name, score = score)
-
-	def getOpponent(self, key: str, scoreKey: str) -> Opponent:
-		opponentGet = getattr(self, 'get' + str(self.bracketType).capitalize() + 'Opponent')
-		if not opponentGet:
-			raise ValueError(self.bracketType + 'is not supported')
-		return opponentGet(key, scoreKey)
-
 	def getMatch(self):
-		opponent1 = self.getOpponent('team1', 'score1')
-		opponent2 = self.getOpponent('team2', 'score2')
+		opponent1 = self.getOpponent(self.template, 'team1', 'score1')
+		opponent2 = self.getOpponent(self.template, 'team2', 'score2')
 		winner = self.getValue('win')
 		details = self.template.getNestedTemplate('details')
 		if winner:
 			if not details:
 				details = Template.createFakeTemplate()
 			details.add('winner', winner)
-		self.match = self.matchClass([opponent1, opponent2], Template(details))
+		self.match = self.matchClass([opponent1, opponent2], Template.initFromTemplate(details))
 
 	def __str__(self) -> str:
 		out = '{{SingleMatch|id=' + self.id

@@ -6,12 +6,6 @@ from ..commons.matchlist import Matchlist as commonsMatchlist
 MAX_NUM_MAPS = 20
 
 class Matchlist(commonsMatchlist):
-	def getSoloOpponent(self, template: Template, key: str, scoreKey: str) -> Opponent:
-		val = template.getValue(key)
-		val = val.replace('[[', '').replace(']]', '')
-		val = val.replace("'", '')
-		template.add(key, val)
-		return super().getSoloOpponent(template, key, scoreKey)
 	def getMatch(self, matchTemplate: Template):
 		opp1, opp2 = None, None
 		if matchTemplate.name == 'MatchMaps':

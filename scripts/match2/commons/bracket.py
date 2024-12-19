@@ -1,20 +1,20 @@
-import pywikibot
-
 from typing import Dict, List
 
-from .template import Template
-from .templateutils import TemplateUtils
-from .match import Match as commonsMatch
-from .opponent import Opponent, SoloOpponent, TeamOpponent
+import pywikibot
 
 from .bracket_data_manager import BracketDataManager
+from .match import Match as commonsMatch
+from .opponent import Opponent
+from .template import Template
+from .matchgroup import MatchGroup
 from .utils import importClass
+
 
 MAX_NUMBER_OPPONENTS = 2
 RESET_MATCH = 'RxMBR'
 THIRD_PLACE_MATCH = 'RxMTP'
 
-class Bracket(TemplateUtils):
+class Bracket(MatchGroup):
 	language: str = None
 	matchClass: commonsMatch = None
 	bDM: BracketDataManager = None
@@ -46,36 +46,14 @@ class Bracket(TemplateUtils):
 
 		self.newTemplateId: str = self.getValue('1')
 		self.oldTemplateId: str = self.getValue('2')
-		self.bracketType: str = self.getValue('type')
 		self.bracketid: str = self.getValue('id')
 		self.mappingKey: str = self.newTemplateId + '$$' + self.oldTemplateId
 
 		if not self.bDM.isTemplateSupported(self.newTemplateId):
-			pywikibot.error()
+			pywikibot.error('Missing support for ' + self.newTemplateId)
 
 		if self.newTemplateId not in self.bDM.defaultMapping:
 			self.bDM.loadDefaultMapping(self.newTemplateId)
-
-	def getTeamOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = self.getValue(key + 'team')
-		score = self.getValue(key + scoreKey)
-		if name:
-			return TeamOpponent(name = name, score = score)
-		return TeamOpponent()
-
-	def getSoloOpponent(self, key: str, scoreKey: str) -> Opponent:
-		name = self.getValue(key)
-		flag = self.getValue(key + 'flag')
-		score = self.getValue(key + scoreKey)
-		if (name is None) and (score is None) and (flag is None):
-			return SoloOpponent()
-		return SoloOpponent(name = name, score = score, flag = flag)
-
-	def getOpponent(self, key: str, scoreKey: str = 'score') -> Opponent:
-		opponentGet = getattr(self, 'get' + str(self.bracketType).capitalize() + 'Opponent')
-		if not opponentGet:
-			raise ValueError(self.bracketType + 'is not supported')
-		return opponentGet(key, scoreKey)
 
 	def getDetails(self, key, index = 0) -> Template|None:
 		return self.template.getNestedTemplate(key + 'details', index)
@@ -87,7 +65,7 @@ class Bracket(TemplateUtils):
 			return '2'
 		return ''
 
-	def createMatch(self, opponents: List[Opponent], details : Template, winner: str) -> matchClass:
+	def createMatch(self, opponents: List[Opponent], details : Template, winner: str) -> commonsMatch:
 		if winner:
 			if not details:
 				details = Template.createFakeTemplate()
@@ -108,9 +86,10 @@ class Bracket(TemplateUtils):
 
 			opp1param = match1Params['opp1']
 			opp2param = match1Params['opp2']
+			scoreKey = 'score2' if reset else 'score'
 
-			opponent1 = self.getOpponent(opp1param, scoreKey= 'score2' if reset else 'score')
-			opponent2 = self.getOpponent(opp2param, scoreKey= 'score2' if reset else 'score')
+			opponent1 = self.getOpponent(self.template, opp1param, opp1param + scoreKey)
+			opponent2 = self.getOpponent(self.template, opp2param, opp2param + scoreKey)
 			details = self.getDetails(match1Params['details'], index = 1 if reset else 0)
 			winner = self.getWinner(opp1param, opp2param)
 			match = self.createMatch([opponent1, opponent2], details, winner)

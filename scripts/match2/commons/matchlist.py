@@ -1,15 +1,15 @@
 from typing import Dict, List
 from .template import Template
-from .templateutils import TemplateUtils
+from .matchgroup import MatchGroup
 from .match import Match as commonsMatch
-from .opponent import Opponent, SoloOpponent, TeamOpponent
+from .opponent import Opponent
 from .utils import importClass
 
 GSL_GF = 'gf'
 GSL_WINNERS = 'winners'
 GSL_LOSERS = 'losers'
 
-class Matchlist(TemplateUtils):
+class Matchlist(MatchGroup):
 	language: str = None
 	matchClass: commonsMatch = None
 
@@ -18,7 +18,6 @@ class Matchlist(TemplateUtils):
 			self.matchClass = importClass(self.language, 'Match')
 		super().__init__(template)
 		self.data: Dict[str, commonsMatch | str] = {}
-		self.bracketType: str = self.getValue('type')
 
 		self.matchTemplates: List[Template] = matchTemplates
 		self.args: Dict[str, str] = {}
@@ -41,27 +40,6 @@ class Matchlist(TemplateUtils):
 		if gsl.endswith(GSL_LOSERS):
 			return 'losersfirst'
 		return ''
-
-	def getTeamOpponent(self, template: Template, key: str, scoreKey: str) -> Opponent:
-		name = template.get(key)
-		score = template.get(scoreKey)
-		if name:
-			return TeamOpponent(name = name, score = score)
-		return TeamOpponent()
-
-	def getSoloOpponent(self, template: Template, key: str, scoreKey: str) -> Opponent:
-		name = template.get(key)
-		score = template.get(scoreKey)
-		flag = template.get(key + 'flag')
-		if name:
-			return SoloOpponent(name = name, score = score, flag = flag)
-		return SoloOpponent()
-
-	def getOpponent(self, template: Template, key: str, scoreKey: str) -> Opponent:
-		opponentGet = getattr(self, 'get' + str(self.bracketType).capitalize() + 'Opponent')
-		if not opponentGet:
-			raise ValueError(self.bracketType + 'is not supported')
-		return opponentGet(template, key, scoreKey)
 
 	def getDetails(self, template: Template, key) -> Template:
 		return template.getNestedTemplate(key)

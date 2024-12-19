@@ -12,12 +12,12 @@ class Bracket(commonsBracket):
 			return self.getValue(key)
 		return super().getWinner(team1Key, team2Key)
 
-	def getSoloOpponent(self, key: str, scoreKey: str) -> Opponent:
-		val = self.getValue(key)
+	def getSoloOpponent(self, template: Template, key: str, scoreKey: str) -> Opponent:
+		val = template.get(key)
 		val = val.replace('[[', '').replace(']]', '')
 		val = val.replace("'", '')
 		self.template.add(key, val)
-		return super().getSoloOpponent(key, scoreKey)
+		return super().getSoloOpponent(template, key, scoreKey)
 
 	def fixDefaultMapping(self):
 		currentMapping = self.bDM.defaultMapping[self.newTemplateId]
