@@ -17,7 +17,7 @@ class Singlematch(MatchGroup):
 		self.match: commonsMatch = None
 		self.getMatch()
 
-	def getMatch(self):
+	def getMatch(self) -> None:
 		opponent1 = self.getOpponent(self.template, 'team1', 'score1')
 		opponent2 = self.getOpponent(self.template, 'team2', 'score2')
 		winner = self.getValue('win')

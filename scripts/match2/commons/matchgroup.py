@@ -4,7 +4,7 @@ from .template import Template
 from .opponent import Opponent, SoloOpponent, TeamOpponent
 
 class MatchGroup(TemplateUtils):
-	def __init__(self, template):
+	def __init__(self, template) -> None:
 		super().__init__(template)
 		self.matchGroupType: Literal["solo", "team"] = self.template.get('type')
 

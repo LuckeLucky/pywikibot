@@ -1,4 +1,3 @@
-from mwparserfromhell.nodes import Template
 from ..commons.template import Template
 from ..commons.map import Map as commonsMap
 
@@ -61,7 +60,7 @@ class Map(commonsMap):
 
 		if len(self.score) == 2:
 			out.append([('score1', self.score[0]), ('score2', self.score[1])])
-	
+
 		halfKey = ''
 		overtimes = 0
 		while True:

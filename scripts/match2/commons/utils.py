@@ -1,9 +1,6 @@
-import sys
-
 import random
 import string
 import importlib
-import pywikibot
 
 COMMONS = 'commons'
 

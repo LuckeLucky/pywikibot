@@ -20,7 +20,7 @@ class Bracket(MatchGroup):
 	bDM: BracketDataManager = None
 
 	@classmethod
-	def isMatchValidResetOrThird(cls, match: commonsMatch, reset: bool, roundParam: str):
+	def isMatchValidResetOrThird(cls, match: commonsMatch, reset: bool, roundParam: str) -> bool:
 		if roundParam not in [THIRD_PLACE_MATCH, RESET_MATCH]:
 			return True
 
@@ -55,7 +55,7 @@ class Bracket(MatchGroup):
 		if self.newTemplateId not in self.bDM.defaultMapping:
 			self.bDM.loadDefaultMapping(self.newTemplateId)
 
-	def getDetails(self, key, index = 0) -> Template|None:
+	def getDetails(self, key: str, index: int = 0) -> Template|None:
 		return self.template.getNestedTemplate(key + 'details', index)
 
 	def getWinner(self, team1Key: str, team2Key) -> str:

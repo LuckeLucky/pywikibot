@@ -13,7 +13,7 @@ class Matchlist(MatchGroup):
 	language: str = None
 	matchClass: commonsMatch = None
 
-	def __init__(self, template: Template, matchTemplates: List[Template]):
+	def __init__(self, template: Template, matchTemplates: List[Template]) -> None:
 		if self.matchClass is None:
 			self.matchClass = importClass(self.language, 'Match')
 		super().__init__(template)
@@ -60,7 +60,7 @@ class Matchlist(MatchGroup):
 
 		return self.createMatch([opp1, opp2], details, winner)
 
-	def populateData(self):
+	def populateData(self) -> None:
 		for matchIndex, matchTemplate in enumerate(self.matchTemplates):
 			matchParam = f'M{matchIndex+1}'
 			header = matchTemplate.get('date') or matchTemplate.get('header')

@@ -1,11 +1,10 @@
+import copy
+import json
+import os
+from functools import cmp_to_key
 from typing import Dict, List
 
 import pywikibot
-import os
-
-import copy
-import json
-from functools import cmp_to_key
 
 absolutePath = os.path.abspath
 joinPath = os.path.join
@@ -44,7 +43,7 @@ class BracketDataManager:
 		else:
 			self.customMapping = {}
 
-	def loadHeadersData(self):
+	def loadHeadersData(self) -> None:
 		path = absolutePath(os.path.dirname(__file__))
 		path = joinPath(path, 'headers_data.json')
 		with open(path, encoding='utf-8') as file:
@@ -142,7 +141,7 @@ class BracketDataManager:
 
 		return bracketDataList
 
-	def loadDefaultMapping(self, templateId: str):
+	def loadDefaultMapping(self, templateId: str) -> None:
 		defaultMapping = {}
 		roundData = {}
 		lowerHeaders = {}

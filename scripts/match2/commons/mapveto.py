@@ -1,6 +1,5 @@
 from typing import List
 
-from .template import Template
 from .templateutils import TemplateUtils
 
 DECIDER = 'decider'
@@ -8,9 +7,6 @@ DECIDER = 'decider'
 class MapVeto(TemplateUtils):
 	def generateString(self, params: List[str]) -> str:
 		return super().generateTemplateString(params, templateId = 'MapVeto\n    ', indent = '    ', end = '}}')
-
-	def __init__(self, template: Template) -> None:
-		super().__init__(template)
 
 	def __str__(self) -> str:
 		out = [
