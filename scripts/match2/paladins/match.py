@@ -11,7 +11,11 @@ PALADINS_PARAMS = STREAMS + [
 
 class Match(commonsMatch):
 	def generateString(self, params: List[str]) -> str:
-		return super().generateTemplateString(params, templateId = 'Match2\n    ', indent = '    ', end = '}}')
+		return super().generateTemplateString(params,
+			templateId = 'Match2\n    ',
+			indent = '    ',
+			end = '}}'
+		)
 
 	def getMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
