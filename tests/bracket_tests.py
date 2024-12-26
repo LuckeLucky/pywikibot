@@ -1,3 +1,4 @@
+import os
 import mwparserfromhell
 
 from scripts.match2.commons.template import Template
@@ -9,9 +10,25 @@ from tests.aspects import TestCase
 RESET_MATCH = 'RxMBR'
 THIRD_PLACE_MATCH = 'RxMTP'
 
-class TestBracketLeague(TestCase):
+path = os.path.abspath(os.path.dirname(__file__))
+path = os.path.join(path, 'testing_templates')
+
+class TestBracket(TestCase):
 	net = False
 	maxDiff = None
+
+	@staticmethod
+	def getTextFromFile(filename: str) -> str:
+		try:
+			with open(os.path.join(path, filename), 'r', encoding='utf-8') as file:
+				return file.read().rstrip()
+		except FileNotFoundError:
+			raise FileNotFoundError(f"The file {filename} was not found in the path {path}.")
+
+	@staticmethod
+	def getTemplateFromFile(filename: str) -> Template:
+		oldTemplate = mwparserfromhell.parse(TestBracket.getTextFromFile(filename)).filter_templates()[0]
+		return Template.initFromTemplate(oldTemplate, removeComments=True)
 
 	def testCounterstrikeConvert(self):
 		text = """
@@ -261,7 +278,7 @@ class TestBracketLeague(TestCase):
 		newMap = mapClass(1, oldTemplate)
 		expected = '{{Map|map=|winner=1|t1p1=Szinkler|t2p1=Cuervin}}'
 		self.assertEqual(expected, str(newMap))
-		
+
 	def testProLeague(self):
 		text = """
 		{{ProleagueMatch
@@ -362,6 +379,12 @@ class TestBracketLeague(TestCase):
 
 		self.assertEqual(expected, str(newMatch))
 
-
-
-
+	def testApexLegends(self) -> None:
+		oldTemplate = self.getTemplateFromFile('apexlegends_original.txt')
+		oldTemplate.add('1', 'Bracket/2')
+		oldTemplate.add('2', '2SETeamBracket')
+		oldTemplate.add('id', 'TESTID')
+		oldTemplate.add('type', 'team')
+		bracketClass = importClass('apexlegends', 'Bracket')
+		expected = self.getTextFromFile('apexlegends_expected.txt')
+		self.assertEqual(expected, str(bracketClass(oldTemplate)))

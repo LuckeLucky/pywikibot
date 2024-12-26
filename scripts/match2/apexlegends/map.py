@@ -13,7 +13,8 @@ class Map(commonsMap):
 			('date', self.getValue('date')),
 			('finished', self.getValue('finished')),
 			('map', self.getValue('map')),
-			('vod', self.getValue('vod'))
+			('vod', self.getValue('vod')),
+			('stats', self.getValue('stats'))
 		]
 
 		return self.generateString([out])

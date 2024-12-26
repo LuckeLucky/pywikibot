@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Callable
 from .template import Template
 
 class TemplateUtils:
@@ -16,7 +16,7 @@ class TemplateUtils:
 			result.append((key, value))
 		return result
 
-	def getFoundPrefix(self, prefix: str, keyMaker = lambda key: key) -> List:
+	def getFoundPrefix(self, prefix: str, keyMaker: Callable[[str], str] = lambda key: key) -> List:
 		result = []
 		for key, value in self.template.iterateByPrefix(prefix):
 			result.append((keyMaker(key), value))

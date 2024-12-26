@@ -1,3 +1,4 @@
+import sys
 from typing import Dict
 
 from ..commons.template import Template
@@ -11,13 +12,15 @@ class Bracket(commonsBracket):
 	def getTeamOpponent(self, template: Template, nameKey: str, scoreKey: str) -> TeamOpponent:
 		mapScores = [x.strip() for x in template.get(scoreKey).split(',')]
 		opponentArgs = {
-			'name': template.get(nameKey)
+			'name': template.get(f'{nameKey}team'),
+			'startingpoints': template.get(f'{nameKey}changes')
 		}
 		for mapIndex, mapScore in enumerate(mapScores):
 			ms = '{{MS|'
 			if mapScore == '-':
-				break
-			ms += mapScore.replace('-', '|')
+				ms += '|'
+			else:
+				ms += mapScore.replace('-', '|')
 			opponentArgs[f'm{mapIndex + 1}'] = ms + '}}'
 
 		return TeamOpponent(**opponentArgs)
@@ -29,8 +32,10 @@ class Bracket(commonsBracket):
 
 			opponents = []
 			for i in range(1, 50):
-				key = f'p{i}team'
-				if not self.getValue(key):
+				key = f'p{i}'
+				if self.getValue(key + 'temp_tie'):
+					sys.exit("IDK what is temp tie")
+				if not self.getValue(key + 'team'):
 					break
 				opponents.append(self.getOpponent(self.template, key, f'p{i}results'))
 

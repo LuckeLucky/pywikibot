@@ -1,0 +1,36 @@
+{{Bracket|Bracket/2|id=TESTID
+
+<!-- Grand Final -->
+|R1M1={{Match
+    |finished=true
+    |p_kill=1|p1=12|p2=9|p3=7|p4=5|p5=4|p6=3|p7=3|p8=2|p9=2|p10=2|p11=1|p12=1|p13=1|p14=1|p15=1
+    |twitch=evesportsza
+    |map1={{Map|date=April 3, 2022 - 14:00 {{Abbr/SAST}}|finished=true|map=World's Edge|vod=|stats=}}
+    |map2={{Map|date=April 3, 2022 - 14:35 {{Abbr/SAST}}|finished=true|map=World's Edge|vod=|stats=}}
+    |map3={{Map|date=April 3, 2022 - 15:10 {{Abbr/SAST}}|finished=true|map=World's Edge|vod=|stats=}}
+    |map4={{Map|date=April 3, 2022 - 15:45 {{Abbr/SAST}}|finished=true|map=World's Edge|vod=|stats=}}
+    |map5={{Map|date=April 3, 2022 - 16:20 {{Abbr/SAST}}|finished=true|map=World's Edge|vod=|stats=}}
+    |map6={{Map|date=April 3, 2022 - 16:55 {{Abbr/SAST}}|finished=true|map=World's Edge|vod=|stats=}}
+    |map7={{Map|date=April 3, 2022 - 17:40 {{Abbr/SAST}}|finished=true|map=World's Edge|vod=|stats=}}
+    |opponent1={{TeamOpponent|dnmk esports|m1={{MS|1|16}}|m2={{MS|6|1}}|m3={{MS|12|6}}|m4={{MS|12|3}}|m5={{MS|5|9}}|m6={{MS|4|2}}|m7={{MS|2|6}}}}
+    |opponent2={{TeamOpponent|atk|m1={{MS|7|6}}|m2={{MS|3|4}}|m3={{MS|16|0}}|m4={{MS|13|1}}|m5={{MS|1|22}}|m6={{MS|9|2}}|m7={{MS|4|3}}}}
+    |opponent3={{TeamOpponent|ghosted herd|m1={{MS|4|1}}|m2={{MS|12|4}}|m3={{MS|20|0}}|m4={{MS|20|0}}|m5={{MS|10|1}}|m6={{MS|1|15}}|m7={{MS|9|3}}}}
+    |opponent4={{TeamOpponent|ascend esports|m1={{MS|2|9}}|m2={{MS|11|1}}|m3={{MS|18|0}}|m4={{MS|14|0}}|m5={{MS|13|6}}|m6={{MS|11|3}}|m7={{MS|18|1}}}}
+    |opponent5={{TeamOpponent|early axes|m1={{MS|19|0}}|m2={{MS|5|4}}|m3={{MS|8|1}}|m4={{MS|5|0}}|m5={{MS|7|3}}|m6={{MS|16|2}}|m7={{MS|17|0}}}}
+    |opponent6={{TeamOpponent|team tko|m1={{MS||}}|m2={{MS|20|0}}|m3={{MS|9|5}}|m4={{MS|9|5}}|m5={{MS|8|3}}|m6={{MS|8|8}}|m7={{MS|20|2}}}}
+    |opponent7={{TeamOpponent|greaze gaming|m1={{MS|9|1}}|m2={{MS|15|4}}|m3={{MS|11|7}}|m4={{MS|17|3}}|m5={{MS|11|0}}|m6={{MS|13|0}}|m7={{MS|19|0}}}}
+    |opponent8={{TeamOpponent|point1 esports|m1={{MS|17|0}}|m2={{MS|18|0}}|m3={{MS|19|0}}|m4={{MS|16|0}}|m5={{MS|20|0}}|m6={{MS|19|0}}|m7={{MS|16|0}}}}
+    |opponent9={{TeamOpponent|project rise|m1={{MS|11|0}}|m2={{MS|10|3}}|m3={{MS|17|0}}|m4={{MS|7|5}}|m5={{MS|15|0}}|m6={{MS|5|4}}|m7={{MS|13|3}}}}
+    |opponent10={{TeamOpponent|bamza|m1={{MS|18|0}}|m2={{MS|17|0}}|m3={{MS|3|2}}|m4={{MS|10|0}}|m5={{MS|19|0}}|m6={{MS|15|0}}|m7={{MS|12|0}}}}
+    |opponent11={{TeamOpponent|nibble esports|m1={{MS|13|6}}|m2={{MS|1|14}}|m3={{MS|13|2}}|m4={{MS|2|15}}|m5={{MS|12|0}}|m6={{MS|2|4}}|m7={{MS|5|1}}}}
+    |opponent12={{TeamOpponent|caras carrys|m1={{MS|6|2}}|m2={{MS|4|4}}|m3={{MS|2|10}}|m4={{MS|6|1}}|m5={{MS|2|5}}|m6={{MS|10|0}}|m7={{MS|6|3}}}}
+    |opponent13={{TeamOpponent|the koa|m1={{MS|3|0}}|m2={{MS|9|3}}|m3={{MS|15|3}}|m4={{MS|4|4}}|m5={{MS|3|5}}|m6={{MS|7|1}}|m7={{MS|11|4}}}}
+    |opponent14={{TeamOpponent|nbn|m1={{MS|5|5}}|m2={{MS|2|5}}|m3={{MS|5|3}}|m4={{MS|1|6}}|m5={{MS|16|0}}|m6={{MS|3|5}}|m7={{MS|1|11}}}}
+    |opponent15={{TeamOpponent|victrix gaming|m1={{MS|15|0}}|m2={{MS|7|2}}|m3={{MS|14|0}}|m4={{MS|15|0}}|m5={{MS|17|0}}|m6={{MS|18|0}}|m7={{MS|8|2}}}}
+    |opponent16={{TeamOpponent|formula 1|m1={{MS|8|2}}|m2={{MS|14|2}}|m3={{MS|1|6}}|m4={{MS|19|0}}|m5={{MS|4|0}}|m6={{MS|12|4}}|m7={{MS|7|0}}}}
+    |opponent17={{TeamOpponent|omnius gaming|m1={{MS|16|2}}|m2={{MS|13|1}}|m3={{MS|7|0}}|m4={{MS|8|5}}|m5={{MS|9|3}}|m6={{MS|6|1}}|m7={{MS|3|18}}}}
+    |opponent18={{TeamOpponent|dark legacy gaming|m1={{MS|14|0}}|m2={{MS|8|1}}|m3={{MS|6|0}}|m4={{MS|18|0}}|m5={{MS|18|1}}|m6={{MS|17|1}}|m7={{MS|15|0}}}}
+    |opponent19={{TeamOpponent|nibble meme team|m1={{MS|10|2}}|m2={{MS|19|0}}|m3={{MS|10|4}}|m4={{MS|3|2}}|m5={{MS|6|0}}|m6={{MS|14|2}}|m7={{MS|10|0}}}}
+    |opponent20={{TeamOpponent|ex warzone shitters|m1={{MS|12|0}}|m2={{MS|16|1}}|m3={{MS|4|5}}|m4={{MS|11|7}}|m5={{MS|14|0}}|m6={{MS|20|0}}|m7={{MS|14|0}}}}
+}}
+}}

@@ -47,6 +47,11 @@ class Template:
 	def add(self, key: str, value: str|Self) -> None:
 		self._data[key] = value
 
+	def addIfNotHas(self, key: str, value: str|Self) -> None:
+		if self.has(key):
+			return
+		self.add(key, value)
+
 	def get(self, key: str) -> str | Self:
 		return self._data[key] if key in self._data else ''
 

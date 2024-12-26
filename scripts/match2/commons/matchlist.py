@@ -42,7 +42,8 @@ class Matchlist(MatchGroup):
 		return ''
 
 	def getDetails(self, template: Template, key) -> Template:
-		return template.getNestedTemplate(key)
+		details = template.getNestedTemplate(key)
+		return details if details else Template.createFakeTemplate()
 
 	def createMatch(self, opponents: List[Opponent], details : Template, winner: str) -> commonsMatch:
 		if winner:

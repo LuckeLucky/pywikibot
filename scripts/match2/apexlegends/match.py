@@ -1,22 +1,32 @@
-from scripts.match2.commons.match import Match as commonsMatch
+from scripts.match2.commons.match import Match as commonsMatch, STREAMS
 
+from ..commons.template import Template
 from .map import Map
 
 class Match(commonsMatch):
 	def getMaps(self) -> None:
 		mapIndex = 1
-		for _, mapTemplate in self.template.iterateByPrefix('details'):
-			if not any(val != '' for _, val in mapTemplate.iterateParams()):
+		rounds = int(self.getValue('rounds'))
+		streamsDict = Template.initFromDict('test', {})
+		for key, mapTemplate in self.template.iterateByPrefix('details'):
+			#move streams from map template to matchtemplate
+			for key, value in mapTemplate.iterateByItemsMatch(STREAMS, ignoreEmpty=True):
+				streamsDict.addIfNotHas(key, value)
+			self.maps.append(Map(int(key.replace('details', '')), mapTemplate))
+			if rounds == mapIndex:
 				break
-			self.maps.append(Map(mapIndex, mapTemplate))
 			mapIndex += 1
 
+		for key, value in streamsDict.iterateParams():
+			self.template.addIfNotHas(key, value)
+
 	def __str__(self) -> str:
-		itemsMatch = [f'p{i}' for i in range(1, 20)]
+		itemsMatch = [f'p{i}' for i in range(1, 200)]
 		itemsMatch.insert(0, 'p_kill')
 		out = [
 			('finished', 'true'),
-			self.getFoundMatches(itemsMatch),
+			self.getFoundMatches(itemsMatch) + [('matchpoint', '50')],
+			self.getFoundMatches(STREAMS)
 		]
 
 		for matchMap in self.maps:

@@ -56,6 +56,7 @@ STREAMS = [
 	'pf',
 	'wl',
 	'vlr',
+	'mildom'
 ]
 
 class Match(TemplateUtils):
