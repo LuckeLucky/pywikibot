@@ -77,7 +77,7 @@ class Match(commonsMatch):
 
 		return totalMaps, scores, currentSubgroup
 
-	def getMaps(self):
+	def populateMaps(self):
 		scores = [0, 0]
 		totalMaps = 0
 		totalMaps, scores, currentSubgroup = self._iterateMaps(totalMaps, scores, 'm', 0)

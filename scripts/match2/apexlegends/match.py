@@ -4,14 +4,14 @@ from ..commons.template import Template
 from .map import Map
 
 class Match(commonsMatch):
-	def getMaps(self) -> None:
+	def populateMaps(self) -> None:
 		mapIndex = 1
 		rounds = int(self.getValue('rounds'))
 		streamsDict = Template.initFromDict('test', {})
 		for key, mapTemplate in self.template.iterateByPrefix('details'):
 			#move streams from map template to matchtemplate
-			for key, value in mapTemplate.iterateByItemsMatch(STREAMS, ignoreEmpty=True):
-				streamsDict.addIfNotHas(key, value)
+			for streamKey, value in mapTemplate.iterateByItemsMatch(STREAMS, ignoreEmpty=True):
+				streamsDict.addIfNotHas(streamKey, value)
 			self.maps.append(Map(int(key.replace('details', '')), mapTemplate))
 			if rounds == mapIndex:
 				break

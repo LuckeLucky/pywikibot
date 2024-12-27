@@ -17,7 +17,7 @@ class Match(commonsMatch):
 	def generateString(self, params: List[str]) -> str:
 		return super().generateTemplateString(params, templateId = 'Match2\n', indent = '', end = '}}')
 
-	def getMaps(self):
+	def populateMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
 			mapTemplate = self.template.getNestedTemplate('match' + str(mapIndex))
 			if mapTemplate is None:

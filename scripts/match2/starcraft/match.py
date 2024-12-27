@@ -10,7 +10,7 @@ STARCRAFT_PARAMS = STREAMS + [
 ]
 
 class Match(commonsMatch):
-	def getMaps(self):
+	def populateMaps(self):
 		lastIndex = 0
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
 			prefix = 'm' + str(mapIndex)

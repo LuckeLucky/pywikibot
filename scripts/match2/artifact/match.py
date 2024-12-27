@@ -5,7 +5,7 @@ from .map import Map
 MAX_NUMBER_OF_MAPS = 100
 
 class Match(commonsMatch):
-	def getMaps(self):
+	def populateMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
 			if any(val[1] != '' for val in self.getFoundPrefix(f'g{mapIndex}')):
 				newMap = Map(mapIndex, self.template)

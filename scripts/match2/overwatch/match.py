@@ -14,7 +14,7 @@ OVERWATCH_PARAMS = STREAMS + [
 ]
 
 class Match(commonsMatch):
-	def getMaps(self):
+	def populateMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
 			prefix = 'map' + str(mapIndex)
 			mapTemplate = self.template.getNestedTemplate('match' + str(mapIndex))

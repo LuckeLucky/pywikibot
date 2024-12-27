@@ -1,6 +1,7 @@
 from typing import List
 
 from .template import Template
+from .map import Map
 from .opponent import Opponent
 from .templateutils import TemplateUtils
 
@@ -63,11 +64,11 @@ class Match(TemplateUtils):
 	def __init__(self, opponents: List[Opponent], template: Template) -> None:
 		self.opponents: List[Opponent] = opponents
 		super().__init__(template)
-		self.maps: List = []
+		self.maps: List[Map] = []
 
-		self.getMaps()
+		self.populateMaps()
 
-	def getMaps(self):
+	def populateMaps(self):
 		pass
 
 	def generateString(self, params: List[str]) -> str:

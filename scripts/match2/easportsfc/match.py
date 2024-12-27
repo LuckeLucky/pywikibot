@@ -17,7 +17,7 @@ class Match(commonsMatch):
 		if self.template._name == 'BracketMatchSummary1':
 			self.template.add('hasSubmatches', '1')
 
-	def getMaps(self):
+	def populateMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
 			prefix = 'map' + str(mapIndex)
 			mapTemplate = self.template.getNestedTemplate('match' + str(mapIndex))

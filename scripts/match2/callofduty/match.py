@@ -26,7 +26,7 @@ class Match(commonsMatch):
 		if mapbans:
 			self.mapveto = MapVeto(mapbans)
 
-	def getMaps(self):
+	def populateMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
 			mapName = self.getValue('map' + str(mapIndex))
 			if mapName:

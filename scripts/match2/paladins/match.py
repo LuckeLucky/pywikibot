@@ -17,7 +17,7 @@ class Match(commonsMatch):
 			end = '}}'
 		)
 
-	def getMaps(self):
+	def populateMaps(self):
 		for mapIndex in range(1, MAX_NUMBER_OF_MAPS):
 			if self.getValue('match' + str(mapIndex)):
 				for key, value in self.getValue('match' + str(mapIndex)).iterateParams():
