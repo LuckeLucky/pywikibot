@@ -98,3 +98,9 @@ class Template:
 				if ignoreEmpty and not val:
 					continue
 				yield item, val
+
+	def __str__(self) -> None:
+		out = ['{{' + self._name]
+		for key, value in self._data.items():
+			out.append('|' + key + '=' + str(value))
+		return ''.join(out) + '}}'
