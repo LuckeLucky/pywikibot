@@ -1,4 +1,5 @@
 r"""
+python pwb.py m1conversion -lang:apexlegends -pt:1 -ismultiple -opponentType:"team" -page -oldTemplateId:"MatchListStart" -matchTemplateId:"MatchMaps" -endTemplateId:"MatchListEnd"
 
 """
 
@@ -19,7 +20,8 @@ REQUIRED_ARGS = ['oldTemplateId', 'matchGroupType', 'opponentType']
 class MatchGroupConverter:
 	def __init__(self) -> None:
 		self.newTemplateId: str = None
-		self.isMatchListStart: bool = False
+		self.multiple: bool = False
+		self.default: bool = False
 
 		#used for all
 		self.oldTemplateId: str = None
@@ -45,7 +47,7 @@ class MatchGroupConverter:
 		return f'Convert {self.oldTemplateId} to Match2'
 
 	def check(self) -> None:
-		newTemplateId = 'subst:#invoke:M1Conversion/Custom|run'
+		newTemplateId = f'subst:#invoke:M1Conversion{'' if self.default else '/Custom'}|run'
 		for rarg in REQUIRED_ARGS:
 			if getattr(self, rarg) is None:
 				value = pywikibot.input(f'Argument {rarg} is required, input value:')
@@ -56,7 +58,7 @@ class MatchGroupConverter:
 			self.newBracketId = pywikibot.input('Argument newBracketId is required, input value:')\
 				if self.newBracketId is None else self.newBracketId
 			newTemplateId += f'|newBracketId={self.newBracketId}'
-		elif self.isMatchListStart and (self.matchTemplateId is None or\
+		if self.multiple and (self.matchTemplateId is None or\
 				self.endTemplateId is None):
 			self.matchTemplateId = pywikibot.input('Argument matchTemplateId is required, input value:')\
 				if self.matchTemplateId is None else self.matchTemplateId
@@ -70,9 +72,9 @@ class MatchGroupConverter:
 		cleaned = Template.initFromTemplate(template)
 		return str(cleaned).replace('={{', '={{subst:#invoke:Json|fromArgs|templateName=')
 
-	def _matchliststartConvert(self, text: str) -> str:
+	def _multipleConvert(self, text: str) -> str:
 		while True:
-			matchListStart: Template = None
+			startTemplate: Template = None
 			matches: List[Template] = []
 			templatesToRemove: List[Template] = []
 			start = False
@@ -82,11 +84,11 @@ class MatchGroupConverter:
 			for template in wikicode.filter_templates(recursive = False):
 				if template.name.matches(self.oldTemplateId):
 					start = True
-					matchListStart = template
+					startTemplate = template
 					matches = []
 					templatesToRemove = []
 				elif start and template.name.matches(self.matchTemplateId):
-					matchListStart.add('match' + str(len(matches)+1), str(template))
+					startTemplate.add('match' + str(len(matches)+1), str(template))
 					matches.append(template)
 					templatesToRemove.append(template)
 				elif start and template.name.matches(self.endTemplateId):
@@ -98,7 +100,7 @@ class MatchGroupConverter:
 			if not ends or len(matches) == 0:
 				break
 
-			wikicode.replace(matchListStart, self.invokeJson(matchListStart))
+			wikicode.replace(startTemplate, self.invokeJson(startTemplate))
 			for template in templatesToRemove:
 				remove_and_squash(wikicode, template)
 
@@ -113,8 +115,8 @@ class MatchGroupConverter:
 		return str(wikicode)
 
 	def getConverter(self):
-		if self.isMatchListStart:
-			return self._matchliststartConvert
+		if self.multiple:
+			return self._multipleConvert
 		return self._defaultConvert
 
 def main(*args):
@@ -133,9 +135,10 @@ def main(*args):
 			arg, _, _ = arg.partition(':')
 			if arg == '-nosave':
 				save = False
-			if arg == '-matchliststart':
-				converter.matchGroupType = MATCHLIST
-				converter.isMatchListStart = True
+			if arg == '-ismultiple':
+				converter.multiple = True
+			if arg == '-isdefault':
+				converter.default = True
 
 	converter.check()
 	editSummary = converter.getSummary()
